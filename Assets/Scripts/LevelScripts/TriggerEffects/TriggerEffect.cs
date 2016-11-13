@@ -13,10 +13,4 @@ public class TriggerEffect : MonoBehaviour {
     {
         activate = true;
     }
-
-
-    void Update()
-    {
-
-    }
 }
