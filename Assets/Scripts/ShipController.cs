@@ -8,6 +8,7 @@ public class ShipController : NetworkBehaviour {
     public float rotationSpeed;
     public float downwardSpeed;
     public float hoverHeight;
+    public float gravity;
 
     public GameObject model;
     public GameObject camera;
@@ -31,6 +32,7 @@ public class ShipController : NetworkBehaviour {
 
     float normalForce;
     float normalPitchForce;
+    bool grounded;
 
     public float shipCurrentBank;
     public float shipBankSpeed;
@@ -62,7 +64,7 @@ public class ShipController : NetworkBehaviour {
     // Use this for initialization
     void Start()
     {
-        flightMode = true;
+        flightMode = false;
         shipHoverSpeed = Mathf.PI / 2;
         shipHoverTime = 0;
         //shipWobbleAmount = 2f;
@@ -112,6 +114,7 @@ public class ShipController : NetworkBehaviour {
     }
     void HoverHandler()
     {
+        grounded = false;
         Ray ray = new Ray(transform.position, -transform.up);
         Debug.DrawRay(transform.position, -transform.up, Color.black, 2.0f);
 
@@ -119,6 +122,7 @@ public class ShipController : NetworkBehaviour {
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, 10.0f))
         {
+            grounded = true;
             float correctionPosDelay = 15f;
             //Vector3.Slerp(transform.position, hit.point + hit.normal * hoverHeight, Time.deltaTime * correctionPosDelay);
             wantedTrackPos = hit.point + hit.normal * hoverHeight;
@@ -539,6 +543,18 @@ public class ShipController : NetworkBehaviour {
         rb.AddForce(transform.up * downwardForce * 5000 * Time.deltaTime);
         //transform.Rotate(Vector3.up * normalPitchForce);
     }
+    public void DisableFlightMode()
+    {
+        flightMode = false;
+    }
+    public void EnableFlightMode()
+    {
+        flightMode = true;
+    }
+    void HandleGravity()
+    {
+        rb.AddForce(-transform.up * gravity *  Time.deltaTime);
+    }
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -558,9 +574,16 @@ public class ShipController : NetworkBehaviour {
         else
         {
             HoverHandler();
-            SteeringGroundBehavior();
-            AccelerationGroundBehavior();
-            HoverBehavior();
+            if(grounded)
+            {
+                SteeringGroundBehavior();
+                AccelerationGroundBehavior();
+                HoverBehavior();
+            }
+            else
+            {
+                HandleGravity();
+            }
         }
 
         // Collision

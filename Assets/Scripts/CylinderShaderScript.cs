@@ -17,7 +17,6 @@ public class CylinderShaderScript : MonoBehaviour {
         }
         if(ship)
         {
-            Debug.Log("Ship Found!");
             ship.GetComponent<Renderer>().material.SetVector("_ShipPos", new Vector4(ship.transform.position.x, ship.transform.position.y, ship.transform.position.z, 0));
         }
 	}

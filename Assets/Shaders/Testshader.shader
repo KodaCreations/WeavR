@@ -3,13 +3,15 @@
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
-		_ShipPos ("Ship Pos", Vector) = (1, 1, 1, 1)
+		_ShipPos("Ship Pos", Vector) = (1, 1, 1, 1)
+		_DistanceBeforeVisable("Distance Before visable", Float) = 0
 	}
 	SubShader
 	{
 		Tags { "Queue"="Transparent" }
 		Blend SrcAlpha OneMinusSrcAlpha
-		LOD 100
+		Cull Off
+		LOD 1000
 
 		Pass
 		{
@@ -32,12 +34,13 @@
 				float2 uv : TEXCOORD0;
 				UNITY_FOG_COORDS(1)
 				float4 vertex : SV_POSITION;
-				float4 worldPos : ;
+				float4 worldPos : POSITION1;
 			};
 
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
 			float4 _ShipPos;
+			float _DistanceBeforeVisable;
 			
 			v2f vert (appdata v)
 			{
@@ -53,9 +56,9 @@
 			{
 				// sample the texture
 				fixed4 col = tex2D(_MainTex, i.uv);
-				float4 test = _ShipPos;
-				float distanceToWall = distance(i.worldPos, test);
-				col.a = 0.5f; 
+				//float4 test = _ShipPos;
+				float distanceToWall = distance(i.worldPos, _ShipPos);
+				col.a = 1- distanceToWall / _DistanceBeforeVisable;
 				// apply fog
 
 				//UNITY_APPLY_FOG(i.fogCoord, col);
