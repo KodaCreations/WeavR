@@ -1,12 +1,14 @@
-﻿Shader "Custom/Test"
+﻿Shader "Custom/Testshader"
 {
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
+		_ShipPos ("Ship Pos", Vector) = (1, 1, 1, 1)
 	}
 	SubShader
 	{
-		Tags { "RenderType"="Opaque" }
+		Tags { "Queue"="Transparent" }
+		Blend SrcAlpha OneMinusSrcAlpha
 		LOD 100
 
 		Pass
@@ -30,14 +32,17 @@
 				float2 uv : TEXCOORD0;
 				UNITY_FOG_COORDS(1)
 				float4 vertex : SV_POSITION;
+				float4 worldPos : ;
 			};
 
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
+			float4 _ShipPos;
 			
 			v2f vert (appdata v)
 			{
 				v2f o;
+				o.worldPos = mul(UNITY_MATRIX_MV, v.vertex);
 				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 				UNITY_TRANSFER_FOG(o,o.vertex);
@@ -48,7 +53,9 @@
 			{
 				// sample the texture
 				fixed4 col = tex2D(_MainTex, i.uv);
-				col.a = 0.0f; 
+				float4 test = _ShipPos;
+				float distanceToWall = distance(i.worldPos, test);
+				col.a = 0.5f; 
 				// apply fog
 
 				//UNITY_APPLY_FOG(i.fogCoord, col);
