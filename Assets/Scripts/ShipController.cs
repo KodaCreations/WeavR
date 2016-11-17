@@ -7,6 +7,8 @@ public class ShipController : NetworkBehaviour {
     public float movementSpeed;
     public float rotationSpeed;
     public float hoverHeight;
+    public Debuff debuff;
+    public bool shielded;
 
     public GameObject model;
     public GameObject camera;
@@ -68,6 +70,8 @@ public class ShipController : NetworkBehaviour {
         //{
         //    rb.isKinematic = true;
         //}
+        debuff = null;
+        shielded = false;
     }
     void InputHandler()
     {
