@@ -8,7 +8,7 @@ public class Debuff {
     public readonly bool shutDown;
     private float timer;
 
-    public Debuff(float speedReduction, bool energyDrain, bool ReduceVisability, bool shutDown, float timer)
+    public Debuff(float speedReduction, bool energyDrain, bool reduceVisability, bool shutDown, float timer)
     {
         this.timer = timer;
         this.speedReduction = speedReduction;

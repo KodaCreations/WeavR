@@ -8,7 +8,9 @@ public class ShipController : NetworkBehaviour {
     public float rotationSpeed;
     public float hoverHeight;
     public Debuff debuff;
+    public Weapon.WeaponType? weapon;
     public bool shielded;
+    private Transform target;
 
     public GameObject model;
     public GameObject camera;
@@ -72,6 +74,7 @@ public class ShipController : NetworkBehaviour {
         //}
         debuff = null;
         shielded = false;
+        weapon = null;
     }
     void InputHandler()
     {
@@ -93,7 +96,79 @@ public class ShipController : NetworkBehaviour {
         {
             steeringForce = 1 * rotationSpeed;
         }
+        if (Input.GetKey(KeyCode.Space))
+        {
+            FireWeapon();
+        }
+        if ((weapon == Weapon.WeaponType.Missile || weapon == Weapon.WeaponType.DecreasedVision) && Input.GetKey(KeyCode.Tab))
+        {
+            Target();
+        }
     }
+
+    void FireWeapon()
+    {
+        if (weapon == null)
+            return;
+        switch (weapon)
+        {//Hitta bra plats att spawna vapnen!!!
+            case Weapon.WeaponType.Missile:
+                if (target)
+                {
+                    Debug.Log(target);
+                    GuidedWeapon missile = Instantiate(Resources.Load("Prefabs/Missile"), transform.position + transform.forward * 10, transform.rotation) as GuidedWeapon; ///ERROR
+                    Debug.Log(missile);
+                    missile.target = target;
+                    target = null;
+                    Debug.Log(target);
+                }
+                break;
+            case Weapon.WeaponType.Mine:
+                Instantiate(Resources.Load("Prefabs/Mine"), transform.position - transform.forward * 10, transform.rotation);
+                break;
+            case Weapon.WeaponType.EMP:
+                Instantiate(Resources.Load("Prefabs/EMP"), transform.position + transform.forward * 10, transform.rotation);
+                break;
+            case Weapon.WeaponType.EnergyDrain:
+                Instantiate(Resources.Load("Prefabs/EnergyDrain"), transform.position + transform.forward * 10, transform.rotation);
+                break;
+            case Weapon.WeaponType.DecreasedVision:
+                if (target)
+                {
+                    GuidedWeapon decreasedVision = (GuidedWeapon)Instantiate(Resources.Load("Prefabs/DecreasedVision"), transform.position + transform.forward * 10, transform.rotation) as GuidedWeapon; ///ERROR
+                    decreasedVision.target = target;
+                    target = null;
+                }
+                break;
+        }
+        if (target == null)
+            weapon = null;
+    }
+
+    void Target()
+    {
+        ShipController[] enemies = FindObjectsOfType<ShipController>();
+        Transform sMin = null;
+        float minDist = Mathf.Infinity;
+        Vector3 currentPos = transform.position;
+        
+        foreach (ShipController s in enemies)
+        {
+            if (s != this)
+            {
+                float dist = Vector3.Distance(s.transform.position, currentPos);
+
+                if (dist < minDist)
+                {
+                    sMin = s.transform;
+                    minDist = dist;
+                }
+            }
+        }
+
+        target = sMin;
+    }
+
     void HoverHandler()
     {
         Ray ray = new Ray(transform.position, -transform.up);

@@ -27,24 +27,29 @@ public class WeaponPad : MonoBehaviour {
     {
         if (active)
         {
-            active = false;
-            timer = 10;
-            GetComponentInChildren<MeshRenderer>().enabled = false;
-            GetWeapon(); //ge till skepp
+            ShipController ship = other.GetComponent<ShipController>();
+
+            if (ship && ship.weapon == null)
+            {
+                ship.weapon = GetWeapon();
+                active = false;
+                timer = 10;
+                GetComponentInChildren<MeshRenderer>().enabled = false;
+            }
         }
     }
 
-    private Weapon GetWeapon()
+    private Weapon.WeaponType GetWeapon()
     {
         int rnd = Random.Range(0, 99);
         if (rnd < 5)
-            return (Weapon)Instantiate(Resources.Load("Prefabs/EMP") as GameObject, new Vector3(0, 0, 0), Quaternion.identity); ///Ge bara enum och spawna i skeppet istället
+            return Weapon.WeaponType.EMP;
         if (rnd < 35)
-            return (Weapon)Instantiate(Resources.Load("Prefabs/Missile") as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
+            return Weapon.WeaponType.Missile;
         if (rnd < 57)
-            return (Weapon)Instantiate(Resources.Load("Prefabs/Mine") as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
+            return Weapon.WeaponType.Mine;
         if (rnd < 80)
-            return (Weapon)Instantiate(Resources.Load("Prefabs/EnergyDrain") as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
-        return (Weapon)Instantiate(Resources.Load("Prefabs/DecreaseVision") as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
+            return Weapon.WeaponType.EnergyDrain;
+        return Weapon.WeaponType.DecreasedVision;
     }
 }
