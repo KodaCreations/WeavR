@@ -21,7 +21,7 @@ public class ShipController : NetworkBehaviour {
     float shipAccel;
     float shipAccelCap;
 
-    bool flightMode;
+    public bool flightMode;
 
     [SyncVar]
     public float steeringForce;
@@ -32,7 +32,7 @@ public class ShipController : NetworkBehaviour {
 
     float normalForce;
     float normalPitchForce;
-    bool grounded;
+    public bool grounded;
 
     public float shipCurrentBank;
     public float shipBankSpeed;
@@ -129,7 +129,18 @@ public class ShipController : NetworkBehaviour {
             float distance = Vector3.Distance(wantedTrackPos, transform.position);
             float distanceToGround = Vector3.Distance(wantedTrackPos, hit.point);
             float pullStrength = 1 - (distanceToGround - distance) / distanceToGround;
-            transform.position = Vector3.Slerp(transform.position, wantedTrackPos, Time.deltaTime * correctionPosDelay + pullStrength);
+            if(!flightMode)
+            {
+                transform.position = Vector3.Slerp(transform.position, wantedTrackPos, Time.deltaTime * correctionPosDelay + pullStrength);
+            }
+            else
+            {
+                float shipDistanceToGround = Vector3.Distance(hit.point, transform.position);
+                if(shipDistanceToGround < distanceToGround)
+                {
+                    transform.position = Vector3.Slerp(transform.position, wantedTrackPos, Time.deltaTime * correctionPosDelay + pullStrength);
+                }
+            }
 
             float correctionRotDelay = 15;
             wantedTrackRot = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.Cross(transform.right, hit.normal), hit.normal), Time.deltaTime * correctionRotDelay);
@@ -536,7 +547,7 @@ public class ShipController : NetworkBehaviour {
             shipCurrentPitchBank = Mathf.Lerp(shipCurrentPitchBank, downwardForce * (shipMaxBank), Time.deltaTime * shipPitchBankVelocity);
         }
         #endregion
-
+        
         model.transform.localRotation = Quaternion.Euler(-shipCurrentPitchBank + rollState + shipCurrentWobble, model.transform.localEulerAngles.y, model.transform.localEulerAngles.z);
 
         //normalPitchForce = Mathf.Lerp(normalPitchForce, downwardForce, Time.deltaTime * 3);
@@ -563,17 +574,16 @@ public class ShipController : NetworkBehaviour {
             InputHandler();
             CmdSendInputHandler(steeringForce, accelerationForce);
         }
-
-        if(flightMode)
+        HoverHandler();
+        if (flightMode)
         {
             FlightHandler();
             AccelerationFlightBehavior();
-            SteeringFlightRollBehavior();
             SteeringFlightPitchBehavior();
+            SteeringFlightRollBehavior();
         }
         else
         {
-            HoverHandler();
             if(grounded)
             {
                 SteeringGroundBehavior();
