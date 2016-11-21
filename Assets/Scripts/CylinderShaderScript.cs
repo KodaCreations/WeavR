@@ -2,7 +2,7 @@
 using System.Collections;
 
 public class CylinderShaderScript : MonoBehaviour {
-    GameObject ship;
+    public GameObject ship;
 	// Use this for initialization
 	void Start () {
         //ship = GameObject.Find("PhysicsTestShip(Clone)");
@@ -10,14 +10,32 @@ public class CylinderShaderScript : MonoBehaviour {
     }
 	
 	// Update is called once per frame
-	void Update () {
-	    if(!ship)
+	void Update ()
+    {
+        if (!ship)
         {
-            ship = GameObject.Find("PhysicsTestShip(Clone)");
+            GameObject[] ships = GameObject.FindGameObjectsWithTag("Ship");// ("PlaceholderShipPrefab(Clone)");
+            foreach(GameObject s in ships)
+            {
+                if (s.GetComponent<ShipController>().isLocalPlayer)
+                {
+                    ship = s;
+                }
+            }
         }
         if(ship)
         {
             ship.GetComponent<Renderer>().material.SetVector("_ShipPos", new Vector4(ship.transform.position.x, ship.transform.position.y, ship.transform.position.z, 0));
+            if(ship.GetComponent<ShipController>().flightMode)
+            {
+                GetComponent<MeshCollider>().enabled = true;
+                GetComponent<MeshRenderer>().enabled = true;
+            }
+            else
+            {
+                GetComponent<MeshCollider>().enabled = false;
+                GetComponent<MeshRenderer>().enabled = false;
+            }
         }
 	}
 }

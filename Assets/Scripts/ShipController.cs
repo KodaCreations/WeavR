@@ -14,6 +14,7 @@ public class ShipController : NetworkBehaviour {
     public GameObject camera;
 
     Quaternion wantedTrackRot;
+    Quaternion wantedTrackPitchRot;
     Vector3 wantedTrackPos;
 
     bool shipIsColliding;
@@ -105,11 +106,11 @@ public class ShipController : NetworkBehaviour {
         }
         if(Input.GetKey(KeyCode.Space))
         {
-            downwardForce = 1 * downwardSpeed;
+            downwardForce = 1;
         }
         if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftControl))
         {
-            downwardForce = -1 * downwardSpeed;
+            downwardForce = -1;
         }
     }
     void HoverHandler()
@@ -145,6 +146,10 @@ public class ShipController : NetworkBehaviour {
             float correctionRotDelay = 15;
             wantedTrackRot = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.Cross(transform.right, hit.normal), hit.normal), Time.deltaTime * correctionRotDelay);
             transform.rotation = Quaternion.Slerp(transform.rotation, wantedTrackRot, Time.deltaTime * correctionRotDelay);
+
+
+            //Quaternion wantedTrackPitchRot = Quaternion.Slerp(transform.rotation, Quaternion.Euler(model.transform.localEulerAngles.x, model.transform.localEulerAngles.y, -shipCurrentBank + rollState + shipCurrentWobble), Time.deltaTime * correctionRotDelay);
+            //model.transform.localRotation = Quaternion.Slerp(transform.rotation, wantedTrackPitchRot, Time.deltaTime * correctionRotDelay);
 
             Debug.DrawRay(hit.point, hit.normal, Color.red, 2.0f);
         }
@@ -252,7 +257,9 @@ public class ShipController : NetworkBehaviour {
         }
         #endregion
 
-        model.transform.localRotation = Quaternion.Euler(model.transform.localEulerAngles.x, model.transform.localEulerAngles.y, -shipCurrentBank + rollState + shipCurrentWobble);
+        //Quaternion wantedTrackPitchRot = Quaternion.Slerp(transform.rotation, Quaternion.Euler(model.transform.localEulerAngles.x, model.transform.localEulerAngles.y, -shipCurrentBank + rollState + shipCurrentWobble), Time.deltaTime * 15);
+        //model.transform.localRotation = Quaternion.Slerp(transform.rotation, wantedTrackPitchRot, Time.deltaTime * 15);
+        model.transform.localRotation = Quaternion.Euler(0, model.transform.localEulerAngles.y, -shipCurrentBank + rollState + shipCurrentWobble);
 
         normalForce = Mathf.Lerp(normalForce, steeringForce, Time.deltaTime * 3);
         transform.Rotate(Vector3.up * normalForce);
@@ -262,6 +269,7 @@ public class ShipController : NetworkBehaviour {
     {
         if (other.gameObject.tag == "Wall" || other.gameObject.tag == "Ship")
             shipIsColliding = true;
+        
     }
 
 
@@ -547,11 +555,16 @@ public class ShipController : NetworkBehaviour {
             shipCurrentPitchBank = Mathf.Lerp(shipCurrentPitchBank, downwardForce * (shipMaxBank), Time.deltaTime * shipPitchBankVelocity);
         }
         #endregion
-        
+
+        //if(!grounded)
+        //{
+        //    wantedTrackPitchRot = Quaternion.Slerp(transform.rotation, Quaternion.Euler(-shipCurrentPitchBank + rollState + shipCurrentWobble, model.transform.localEulerAngles.y, model.transform.localEulerAngles.z), Time.deltaTime * 15);
+        //    transform.rotation = Quaternion.Slerp(transform.rotation, wantedTrackPitchRot, Time.deltaTime * 15);
+        //}
         model.transform.localRotation = Quaternion.Euler(-shipCurrentPitchBank + rollState + shipCurrentWobble, model.transform.localEulerAngles.y, model.transform.localEulerAngles.z);
 
         //normalPitchForce = Mathf.Lerp(normalPitchForce, downwardForce, Time.deltaTime * 3);
-        rb.AddForce(transform.up * downwardForce * 5000 * Time.deltaTime);
+        rb.AddForce(transform.up * downwardForce * downwardSpeed * Time.deltaTime);
         //transform.Rotate(Vector3.up * normalPitchForce);
     }
     public void DisableFlightMode()
@@ -560,7 +573,13 @@ public class ShipController : NetworkBehaviour {
     }
     public void EnableFlightMode()
     {
-        flightMode = true;
+        if(!flightMode)
+        {
+            shipPitchBankVelocity = 0;
+            normalPitchForce = 0;
+            shipCurrentPitchBank = 0;
+            flightMode = true;
+        }
     }
     void HandleGravity()
     {
@@ -577,7 +596,10 @@ public class ShipController : NetworkBehaviour {
         HoverHandler();
         if (flightMode)
         {
-            FlightHandler();
+            if(!grounded)
+            {
+                FlightHandler();
+            }
             AccelerationFlightBehavior();
             SteeringFlightPitchBehavior();
             SteeringFlightRollBehavior();
