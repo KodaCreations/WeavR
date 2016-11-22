@@ -47,12 +47,20 @@ public class BezierSplineInspector : Editor {
     {
         spline = target as BezierSpline;
         EditorGUI.BeginChangeCheck();
-        bool loop = EditorGUILayout.Toggle("Loop", spline.Loop);
+        //bool loop = EditorGUILayout.Toggle("Loop", spline.Loop);
+        //if (EditorGUI.EndChangeCheck())
+        //{
+        //    Undo.RecordObject(spline, "Toggle Loop");
+        //    EditorUtility.SetDirty(spline);
+        //    spline.Loop = loop;
+        //}
+        EditorGUI.BeginChangeCheck();
+        float detail = EditorGUILayout.FloatField("Detail", spline.detail);
         if (EditorGUI.EndChangeCheck())
         {
-            Undo.RecordObject(spline, "Toggle Loop");
+            Undo.RecordObject(spline, "Change Detail");
             EditorUtility.SetDirty(spline);
-            spline.Loop = loop;
+            spline.detail = detail;
         }
         EditorGUI.BeginChangeCheck();
         spline.parent = (BezierSpline)EditorGUILayout.ObjectField("Parent: ", spline.parent, typeof(BezierSpline), true);
