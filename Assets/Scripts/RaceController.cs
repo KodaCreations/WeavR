@@ -4,14 +4,18 @@ using System.Collections;
 
 public class RaceController : MonoBehaviour {
 
-    Waypoint[] waypoints;
-    GameObject[] ships;
+    public Waypoint[] waypoints;
+    public GameObject[] ships;
     float[] currentPositions; 
 	// Use this for initialization
 	void Start ()
     {
         FindAllWaypoints();
         FindAllShips();
+        foreach(Waypoint w in waypoints)
+        {
+            Debug.Log(w.name);
+        }
 	}
 	void FindAllWaypoints()
     {
@@ -45,11 +49,24 @@ public class RaceController : MonoBehaviour {
     }
     public int GetRacePosition(ShipController ship)
     {
+        //find what position the ship is in
+        float shipPosition = 0;
         for (int i = 0; i < ships.Length; ++i)
         {
-
+            if(ship == ships[i])
+            {
+                shipPosition = currentPositions[i];
+            }
         }
-        return 0;
+
+        int racePosition = 1;
+        //Get how many other ships are in front
+        for(int i = 0; i < ships.Length; ++i)
+        {
+            if (currentPositions[i] > shipPosition)
+                ++racePosition;
+        }
+        return racePosition;
     }
 	// Update is called once per frame
 	void Update ()
