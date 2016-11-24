@@ -115,19 +115,16 @@ public class ShipController : NetworkBehaviour {
             case Weapon.WeaponType.Missile:
                 if (target)
                 {
-                    Debug.Log(target);
-                    GuidedWeapon missile = Instantiate(Resources.Load("Prefabs/Missile"), transform.position + transform.forward * 10, transform.rotation) as GuidedWeapon; ///ERROR
-                    Debug.Log(missile);
-                    missile.target = target;
+                    GameObject missile = Instantiate(Resources.Load("Prefabs/Missile"), transform.position + transform.forward * 10, transform.rotation) as GameObject;
+                    missile.GetComponent<GuidedWeapon>().target = target;
                     target = null;
-                    Debug.Log(target);
                 }
                 break;
             case Weapon.WeaponType.Mine:
                 Instantiate(Resources.Load("Prefabs/Mine"), transform.position - transform.forward * 10, transform.rotation);
                 break;
             case Weapon.WeaponType.EMP:
-                Instantiate(Resources.Load("Prefabs/EMP"), transform.position + transform.forward * 10, transform.rotation);
+                Instantiate(Resources.Load("Prefabs/EMP"), transform.position, transform.rotation);
                 break;
             case Weapon.WeaponType.EnergyDrain:
                 Instantiate(Resources.Load("Prefabs/EnergyDrain"), transform.position + transform.forward * 10, transform.rotation);
@@ -135,8 +132,8 @@ public class ShipController : NetworkBehaviour {
             case Weapon.WeaponType.DecreasedVision:
                 if (target)
                 {
-                    GuidedWeapon decreasedVision = (GuidedWeapon)Instantiate(Resources.Load("Prefabs/DecreasedVision"), transform.position + transform.forward * 10, transform.rotation) as GuidedWeapon; ///ERROR
-                    decreasedVision.target = target;
+                    GameObject decreasedVision = Instantiate(Resources.Load("Prefabs/DecreasedVision"), transform.position + transform.forward * 10, transform.rotation) as GameObject;
+                    decreasedVision.GetComponent<GuidedWeapon>().target = target;
                     target = null;
                 }
                 break;
@@ -409,6 +406,9 @@ public class ShipController : NetworkBehaviour {
         SteeringGroundBehavior();
         AccelerationGroundBehavior();
         HoverBehavior();
+
+        if (debuff != null && debuff.DebuffFinished())
+            debuff = null;
 
         // Collision
         if (shipIsColliding)

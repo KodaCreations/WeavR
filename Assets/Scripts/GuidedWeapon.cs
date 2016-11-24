@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// This class represents a targetseaking weapon
+/// </summary>
 public class GuidedWeapon : Weapon {
     public Transform target;
     public int range;

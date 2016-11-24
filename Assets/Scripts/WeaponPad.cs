@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// This class represents an object from which players can pick up a weapon
+/// </summary>
 public class WeaponPad : MonoBehaviour {
     private float timer;
     private bool active;
@@ -23,6 +26,10 @@ public class WeaponPad : MonoBehaviour {
         }
 	}
 
+    /// <summary>
+    /// Handles collision between a ship and the Weapon Pad
+    /// </summary>
+    /// <param name="other">The collider of the ship</param>
     void OnTriggerEnter(Collider other)
     {
         if (active)
@@ -39,6 +46,10 @@ public class WeaponPad : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Picks a weapon randomly
+    /// </summary>
+    /// <returns>The random weapon</returns>
     private Weapon.WeaponType GetWeapon()
     {
         int rnd = Random.Range(0, 99);
