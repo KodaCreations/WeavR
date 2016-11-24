@@ -143,20 +143,20 @@ public class TrackEditor : MonoBehaviour {
     }
 	void Start () 
     {
-        road = Instantiate(roadSegment, Vector3.zero, Quaternion.identity, null) as GameObject;
+        //road = Instantiate(roadSegment, Vector3.zero, Quaternion.identity, null) as GameObject;
 
-        AssignSegmentVerts();
-        currentTime = 0;
-        int splineCurves = spline.CurveCountAll;
-        while (currentTime < splineCurves - 0.002f)
-        {
-            PlaceSegmentsOnSpline(currentTime);
-        }
-        SaveMesh();
-        //for (int i = 0; i < 13; ++i)// (currentTime < splineCurves)
+        //AssignSegmentVerts();
+        //currentTime = 0;
+        //int splineCurves = spline.CurveCountAll;
+        //while (currentTime < splineCurves - 0.002f)
         //{
         //    PlaceSegmentsOnSpline(currentTime);
         //}
+        //SaveMesh();
+        ////for (int i = 0; i < 13; ++i)// (currentTime < splineCurves)
+        ////{
+        ////    PlaceSegmentsOnSpline(currentTime);
+        ////}
     }
     //Make the track great again
     public void BuildTheWall(GameObject trackSegment, BezierSpline thisSpline, string whatTag, string whatLayer, string whatName, float detail)

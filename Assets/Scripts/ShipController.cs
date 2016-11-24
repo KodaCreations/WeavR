@@ -4,42 +4,49 @@ using UnityEngine.Networking;
 
 public class ShipController : NetworkBehaviour {
 
-    public float movementSpeed;
+
+    //Ship Forward Acceleration Variables
+    public float forwardAccelerationSpeed;
+    public float currentFowardAccelerationSpeed;
+    public float noAccelerationDrag;
+    public float maxForwardAccelerationSpeed;
+    public float flightMinimumAccelerationSpeed;
+
     public float rotationSpeed;
     public float downwardSpeed;
     public float hoverHeight;
     public float gravity;
 
-    public GameObject model;
-    public GameObject camera;
+    private GameObject model;
+    private GameObject camera;
 
-    Quaternion wantedTrackRot;
-    Quaternion wantedTrackPitchRot;
-    Vector3 wantedTrackPos;
+    private Quaternion wantedTrackRot;
+    private Quaternion wantedTrackPitchRot;
+    private Vector3 wantedTrackPos;
 
-    bool shipIsColliding;
+    private bool shipIsColliding;
 
-    float shipAccel;
-    float shipAccelCap;
+    private float shipAccel;
+    private float shipAccelCap;
 
     public bool flightMode;
 
     [SyncVar]
-    public float steeringForce;
+    private float steeringForce;
     [SyncVar]
-    public float accelerationForce;
+    private float accelerationForce;
     [SyncVar]
-    public float downwardForce;
+    private float downwardForce;
 
     float normalForce;
     float normalPitchForce;
-    public bool grounded;
+    private bool grounded;
 
-    public float shipCurrentBank;
-    public float shipBankSpeed;
+    private float shipCurrentBank;
+    private float shipBankSpeed;
     public float shipReturnBankSpeed;
-    public float shipCurrentPitchBank;
-    public float shipBankPitchSpeed;
+    private float shipCurrentPitchBank;
+    private float shipBankPitchSpeed;
     public float shipReturnBankPitchSpeed;
     float shipBankVelocity;
     float shipPitchBankVelocity;
@@ -90,11 +97,11 @@ public class ShipController : NetworkBehaviour {
         downwardForce = 0;
         if (Input.GetKey(KeyCode.W))
         {
-            accelerationForce = 1 * movementSpeed;
+            accelerationForce = 1;
         }
         if (Input.GetKey(KeyCode.S))
         {
-            accelerationForce = -1 * movementSpeed;
+            accelerationForce = -1;
         }
         if (Input.GetKey(KeyCode.A))
         {
@@ -359,11 +366,68 @@ public class ShipController : NetworkBehaviour {
     }
     void AccelerationGroundBehavior()
     {
-        rb.AddForce(transform.forward * accelerationForce * Time.deltaTime);
+        //Calculate new CurrentAccelerationForwardSpeed and clamp if out of range
+        if(accelerationForce > 0 || accelerationForce < 0)
+        {
+            currentFowardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
+            if (currentFowardAccelerationSpeed > maxForwardAccelerationSpeed)
+                currentFowardAccelerationSpeed = maxForwardAccelerationSpeed;
+        }
+        else
+        {
+            if (currentFowardAccelerationSpeed > 0 + 150)
+                currentFowardAccelerationSpeed -= noAccelerationDrag * Time.deltaTime;
+            else if (currentFowardAccelerationSpeed < 0 - 150)
+                currentFowardAccelerationSpeed += noAccelerationDrag * Time.deltaTime;
+            else
+                currentFowardAccelerationSpeed = 0;
+        }
+
+        //Add The force to the Ship
+        rb.AddForce(transform.forward * currentFowardAccelerationSpeed * Time.deltaTime);
+
+        //Take the World Vecolcity and make it Local to be able to get the forward speed;
+        //Vector3 localVelocity = transform.InverseTransformDirection(rb.velocity);
+
+        //float forwardVeclocity = localVelocity.z;
+        
+        ////Clamp the forward Speed to the Max Value
+        //if (forwardVeclocity > maxForwardVecocity)
+        //{
+        //    localVelocity.z = maxForwardVecocity;
+        //    rb.velocity = transform.TransformDirection(localVelocity);
+        //}
     }
     void AccelerationFlightBehavior()
     {
-        rb.AddForce(transform.forward * accelerationForce * Time.deltaTime);
+        //Calculate new CurrentAccelerationForwardSpeed and clamp if out of range
+        if (accelerationForce > 0 || accelerationForce < 0)
+        {
+            currentFowardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
+            if (currentFowardAccelerationSpeed > maxForwardAccelerationSpeed)
+                currentFowardAccelerationSpeed = maxForwardAccelerationSpeed;
+        }
+        else
+        {
+            if (currentFowardAccelerationSpeed > flightMinimumAccelerationSpeed)
+                currentFowardAccelerationSpeed -= noAccelerationDrag * Time.deltaTime;
+            else
+                currentFowardAccelerationSpeed = flightMinimumAccelerationSpeed;
+        }
+
+        //Add The force to the Ship
+        rb.AddForce(transform.forward * currentFowardAccelerationSpeed * Time.deltaTime);
+
+        //Take the World Vecolcity and make it Local to be able to get the forward speed;
+        //Vector3 localVelocity = transform.InverseTransformDirection(rb.velocity);
+        //float forwardVeclocity = localVelocity.z;
+
+        ////Clamp the forward Speed to the Max Value
+        //if (forwardVeclocity > maxForwardVecocity)
+        //{
+        //    localVelocity.z = maxForwardVecocity;
+        //    rb.velocity = transform.TransformDirection(localVelocity);
+        //}
     }
     void FlightHandler()
     {
