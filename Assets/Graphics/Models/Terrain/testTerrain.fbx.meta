@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: ffc9fe9ebc6759e47846499aa3120deb
-timeCreated: 1479383027
+guid: 52d93c917fb0da845b82416526ed72c7
+timeCreated: 1480260634
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: Spitfire
+    4300000: Plane
   materials:
     importMaterials: 1
     materialName: 0
