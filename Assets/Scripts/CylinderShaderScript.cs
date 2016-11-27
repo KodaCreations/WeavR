@@ -17,7 +17,14 @@ public class CylinderShaderScript : MonoBehaviour {
             GameObject[] ships = GameObject.FindGameObjectsWithTag("Ship");// ("PlaceholderShipPrefab(Clone)");
             foreach(GameObject s in ships)
             {
-                if (s.GetComponent<ShipController>().isLocalPlayer)
+                if(s.GetComponent<ShipNetworkController>())
+                {
+                    if (s.GetComponent<ShipNetworkController>().isLocalPlayer)
+                    {
+                        ship = s;
+                    }
+                }
+                else
                 {
                     ship = s;
                 }
