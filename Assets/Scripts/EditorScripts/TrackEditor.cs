@@ -143,27 +143,28 @@ public class TrackEditor : MonoBehaviour {
     }
 	void Start () 
     {
-        road = Instantiate(roadSegment, Vector3.zero, Quaternion.identity, null) as GameObject;
+        //road = Instantiate(roadSegment, Vector3.zero, Quaternion.identity, null) as GameObject;
 
-        AssignSegmentVerts();
-        currentTime = 0;
-        int splineCurves = spline.CurveCountAll;
-        while (currentTime < splineCurves - 0.002f)
-        {
-            PlaceSegmentsOnSpline(currentTime);
-        }
-        SaveMesh();
-        //for (int i = 0; i < 13; ++i)// (currentTime < splineCurves)
+        //AssignSegmentVerts();
+        //currentTime = 0;
+        //int splineCurves = spline.CurveCountAll;
+        //while (currentTime < splineCurves - 0.002f)
         //{
         //    PlaceSegmentsOnSpline(currentTime);
         //}
+        //SaveMesh();
+        ////for (int i = 0; i < 13; ++i)// (currentTime < splineCurves)
+        ////{
+        ////    PlaceSegmentsOnSpline(currentTime);
+        ////}
     }
     //Make the track great again
-    public void BuildTheWall(GameObject trackSegment, BezierSpline thisSpline, string whatTag, string whatLayer, string whatName)
+    public void BuildTheWall(GameObject trackSegment, BezierSpline thisSpline, string whatTag, string whatLayer, string whatName, float detail)
     {
         this.whatTag = whatTag;
         this.whatLayer = whatLayer;
         this.whatName = whatName;
+        this.roadDetail = detail;
         spline = thisSpline;
         road = Instantiate(trackSegment, Vector3.zero, Quaternion.identity, null) as GameObject;
 
@@ -184,8 +185,11 @@ public class TrackEditor : MonoBehaviour {
         for (int i = 1; i < defaultSegmentVertices.Count; ++i)
         {
             float vertexDistance = Mathf.Abs(defaultSegmentVertices[i][0].x - oldPos.x);
-            float detail = vertexDistance / (Time.deltaTime * 100);
-            point = spline.GetPointConstantSpeed(ref currentTime, vertexDistance, detail);
+            float detail = vertexDistance / roadDetail;
+            //Debug.Log(detail);
+            if (detail < 1)
+                detail = 1;
+            point = spline.GetPointConstantSpeed(ref currentTime, vertexDistance, roadDetail);
             oldPos = defaultSegmentVertices[i][0];
             PlaceSegmentAt(point, currentTime, i);
         }

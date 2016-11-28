@@ -1,87 +1,106 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityEngine.Networking;
 
-public class ShipController : NetworkBehaviour {
+public class ShipController : MonoBehaviour {
 
-    public float movementSpeed;
-    public float rotationSpeed;
+    //Ship Forward Acceleration Variables
+    public float forwardAccelerationSpeed;
+    public float currentFowardAccelerationSpeed;
+    public float noAccelerationDrag;
+    public float maxForwardAccelerationSpeed;
+    public float flightMinimumAccelerationSpeed;
+    
+    //Ship Flight downwardSpeed
     public float downwardSpeed;
+
+    //Ship Rotation Speed
+    public float rotationSpeed;
+    
+    //Ship hover height over ground
     public float hoverHeight;
+
+    //Ship gravity when not on the ground an not in flightmode
     public float gravity;
 
-    public GameObject model;
-    public GameObject camera;
+    //Ship temp values
+    private GameObject camera;
+    public Vector3 cameraPosition;
 
-    Quaternion wantedTrackRot;
-    Quaternion wantedTrackPitchRot;
-    Vector3 wantedTrackPos;
+    //Ship Wanted Position and Rotation depending on the conditions
+    private Quaternion wantedTrackRot;
+    private Quaternion wantedTrackPitchRot;
+    private Vector3 wantedTrackPos;
 
-    bool shipIsColliding;
+    //The Values that determin where the ship shall move that are changed in the Input or AI
+    public float steeringForce; //Left or Right
+    public float accelerationForce; //Forward or Backwards
+    public float downwardForce; //Down or Up in FlightMode
 
-    float shipAccel;
-    float shipAccelCap;
+    //Forces to help with Calculations
+    private float normalForce;
+    private float normalPitchForce;
 
-    public bool flightMode;
-
-    [SyncVar]
-    public float steeringForce;
-    [SyncVar]
-    public float accelerationForce;
-    [SyncVar]
-    public float downwardForce;
-
-    float normalForce;
-    float normalPitchForce;
-    public bool grounded;
-
-    public float shipCurrentBank;
-    public float shipBankSpeed;
+    //Values that help with the model rotation so thtat it looks smoother
+    private float shipCurrentBank;
+    private float shipBankSpeed;
     public float shipReturnBankSpeed;
-    public float shipCurrentPitchBank;
-    public float shipBankPitchSpeed;
+    private float shipCurrentPitchBank;
+    private float shipBankPitchSpeed;
     public float shipReturnBankPitchSpeed;
-    float shipBankVelocity;
-    float shipPitchBankVelocity;
-    float shipMaxBank = 40;
-    float rollState;
-
-    float shipThrust;
-    float shipThrustCap;
+    private float shipBankVelocity;
+    private float shipPitchBankVelocity;
+    private float shipMaxBank = 40;
+    private float rollState;
 
     //Hover behavior var
-    float shipHoverAmount;
-    float shipHoverSpeed;
-    float shipHoverTime;
-    float shipCurrentHover;
+    private float shipHoverAmount;
+    private float shipHoverSpeed;
+    private float shipHoverTime;
+    private float shipCurrentHover;
 
-    // Wobble behavior var
-    float shipWobbleAmount;
-    float shipWobbleSpeed;
-    float shipWobbleTime;
-    float shipCurrentWobble;
+    // Wobble behavior var NOTE: you have to set these values when you want to make the ship wobble
+    private float shipWobbleAmount;
+    private float shipWobbleSpeed;
+    private float shipWobbleTime;
+    private float shipCurrentWobble;
+    //This is an example
+    //shipHoverTime = 0;
+    //shipWobbleAmount = 2f;
+    //shipWobbleSpeed = 6;
+    //shipWobbleTime = 0;
 
-    Rigidbody rb;
+    //Helpfull stuff
+    private ShipNetworkController networkController;
+    private Rigidbody rb;
+    private GameObject model;
+    private bool shipIsColliding;
+    public bool flightMode;
+    private bool grounded;
+
     // Use this for initialization
     void Start()
     {
         flightMode = false;
         shipHoverSpeed = Mathf.PI / 2;
-        shipHoverTime = 0;
-        //shipWobbleAmount = 2f;
-        //shipWobbleSpeed = 6;
-        //shipWobbleTime = 0;
+
         rb = GetComponent<Rigidbody>();
         model = transform.FindChild("Model").gameObject;
-        if (isLocalPlayer)
+        networkController = GetComponent<ShipNetworkController>();
+        if (networkController)
+        {
+            if (networkController.isLocalPlayer)
+            {
+                camera = GameObject.Find("Main Camera");
+                camera.transform.SetParent(transform);
+                camera.transform.position = transform.position + cameraPosition;
+            }
+        }
+        else
         {
             camera = GameObject.Find("Main Camera");
             camera.transform.SetParent(transform);
+            camera.transform.position = transform.position + cameraPosition;
         }
-        //if(!isServer)
-        //{
-        //    rb.isKinematic = true;
-        //}
     }
     void InputHandler()
     {
@@ -90,11 +109,11 @@ public class ShipController : NetworkBehaviour {
         downwardForce = 0;
         if (Input.GetKey(KeyCode.W))
         {
-            accelerationForce = 1 * movementSpeed;
+            accelerationForce = 1;
         }
         if (Input.GetKey(KeyCode.S))
         {
-            accelerationForce = -1 * movementSpeed;
+            accelerationForce = -1;
         }
         if (Input.GetKey(KeyCode.A))
         {
@@ -268,8 +287,7 @@ public class ShipController : NetworkBehaviour {
     void OnCollisionEnter(Collision other)
     {
         if (other.gameObject.tag == "Wall" || other.gameObject.tag == "Ship")
-            shipIsColliding = true;
-        
+            shipIsColliding = true;   
     }
 
 
@@ -351,19 +369,47 @@ public class ShipController : NetworkBehaviour {
     {
         shipIsColliding = false;
     }
-    [Command]
-    void CmdSendInputHandler(float steeringInput, float accelerationInput)
-    {
-        steeringForce = steeringInput;
-        accelerationForce = accelerationInput;
-    }
     void AccelerationGroundBehavior()
     {
-        rb.AddForce(transform.forward * accelerationForce * Time.deltaTime);
+        //Calculate new CurrentAccelerationForwardSpeed and clamp if out of range
+        if(accelerationForce > 0 || accelerationForce < 0)
+        {
+            currentFowardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
+            if (currentFowardAccelerationSpeed > maxForwardAccelerationSpeed)
+                currentFowardAccelerationSpeed = maxForwardAccelerationSpeed;
+        }
+        else
+        {
+            if (currentFowardAccelerationSpeed > 0 + 150)
+                currentFowardAccelerationSpeed -= noAccelerationDrag * Time.deltaTime;
+            else if (currentFowardAccelerationSpeed < 0 - 150)
+                currentFowardAccelerationSpeed += noAccelerationDrag * Time.deltaTime;
+            else
+                currentFowardAccelerationSpeed = 0;
+        }
+
+        //Add The force to the Ship
+        rb.AddForce(transform.forward * currentFowardAccelerationSpeed * Time.deltaTime);
     }
     void AccelerationFlightBehavior()
     {
-        rb.AddForce(transform.forward * accelerationForce * Time.deltaTime);
+        //Calculate new CurrentAccelerationForwardSpeed and clamp if out of range
+        if (accelerationForce > 0 || accelerationForce < 0)
+        {
+            currentFowardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
+            if (currentFowardAccelerationSpeed > maxForwardAccelerationSpeed)
+                currentFowardAccelerationSpeed = maxForwardAccelerationSpeed;
+        }
+        else
+        {
+            if (currentFowardAccelerationSpeed > flightMinimumAccelerationSpeed)
+                currentFowardAccelerationSpeed -= noAccelerationDrag * Time.deltaTime;
+            else
+                currentFowardAccelerationSpeed = flightMinimumAccelerationSpeed;
+        }
+
+        //Add The force to the Ship
+        rb.AddForce(transform.forward * currentFowardAccelerationSpeed * Time.deltaTime);
     }
     void FlightHandler()
     {
@@ -588,33 +634,40 @@ public class ShipController : NetworkBehaviour {
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (isLocalPlayer)
+        if(networkController) //Check if it has a networkController to be able to spawn without using networkManager
+        {
+            if(networkController.isLocalPlayer)
+            {
+                InputHandler();
+                networkController.CmdSendInputHandler(steeringForce, accelerationForce, downwardForce); // Send The Information To the Server
+            }
+        }
+        else
         {
             InputHandler();
-            CmdSendInputHandler(steeringForce, accelerationForce);
         }
-        HoverHandler();
+        HoverHandler(); // Set Position depending if there is a gound under the Ship
         if (flightMode)
         {
             if(!grounded)
             {
-                FlightHandler();
+                FlightHandler(); // Sets Ship rotation to Zero
             }
-            AccelerationFlightBehavior();
-            SteeringFlightPitchBehavior();
-            SteeringFlightRollBehavior();
+            AccelerationFlightBehavior(); // Forward Movement
+            SteeringFlightPitchBehavior(); // Left and right Movement
+            SteeringFlightRollBehavior(); // Down  and Up Movement
         }
         else
         {
             if(grounded)
             {
-                SteeringGroundBehavior();
-                AccelerationGroundBehavior();
-                HoverBehavior();
+                AccelerationGroundBehavior(); // Forward Movement
+                SteeringGroundBehavior(); // Left and right Movement
+                HoverBehavior(); // Only Visual effect of the model
             }
             else
             {
-                HandleGravity();
+                HandleGravity(); // Down the ship goes
             }
         }
 
