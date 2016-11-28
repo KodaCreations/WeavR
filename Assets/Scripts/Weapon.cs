@@ -73,7 +73,7 @@ public class Weapon : MonoBehaviour {
 
         foreach (ShipController s in ships)
         {
-            if (Vector3.Distance(s.transform.position, transform.position) < 10) //Funkar ej
+            if (Vector3.Distance(s.transform.position, transform.position) < 10)
                 continue;
             s.debuff = GetDebuff(s.shielded);
         }
@@ -94,9 +94,9 @@ public class Weapon : MonoBehaviour {
             case WeaponType.Mine:
                 return shieldedTarget ? new Debuff(0.1f, false, false, false, 5f) : new Debuff(0.25f, false, false, false, 5f);
             case WeaponType.EMP:
-                return new Debuff(0, false, false, true, 5f);
+                return new Debuff(0, false, false, true, 3f);
             case WeaponType.EnergyDrain:
-                return shieldedTarget ? new Debuff(0.25f, true, false, false, 5f) : new Debuff(0f, true, false, false, 1f);
+                return shieldedTarget ? new Debuff(0f, true, false, false, 5f) : new Debuff(0.25f, true, false, false, 1f);
             case WeaponType.DecreasedVision:
                 return new Debuff(0f, false, true, false, 5f);
         }
