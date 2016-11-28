@@ -21,9 +21,9 @@ public class RaceController : MonoBehaviour {
     {
         GameObject[] objects = GameObject.FindGameObjectsWithTag("Waypoint");
         Array.Resize(ref waypoints, objects.Length);
-        for(int i = 0; i < objects.Length; ++i)
+        for (int i = 0; i < objects.Length; ++i)
         {
-            waypoints[i] = objects[i].GetComponent<Waypoint>();
+            waypoints[i] = objects[objects.Length - 1 - i].GetComponent<Waypoint>();
             waypoints[i].SetRaceController(this);
         }
     }
@@ -40,11 +40,23 @@ public class RaceController : MonoBehaviour {
     {
         for(int i = 0; i < ships.Length; ++i)
         {
-            int lastWayPoint = (int)currentPositions[i];
-            float distanceWaypoints = Vector3.Distance(waypoints[i - 1].transform.position, waypoints[i].transform.position);
-            float distanceToShip = Vector3.Distance(waypoints[i - 1].transform.position, ships[i].transform.position);
+            int targetWaypoint = (int)currentPositions[i];
+            int lastWaypoint = targetWaypoint - 1;
+            if (lastWaypoint < 0)
+                lastWaypoint = waypoints.Length - 1;
+
+            Debug.Log(currentPositions[i]);
+            float distanceWaypoints = Vector3.Distance(waypoints[lastWaypoint].transform.position, waypoints[targetWaypoint].transform.position);
+            float distanceToShip = Vector3.Distance(waypoints[targetWaypoint].transform.position, ships[i].transform.position);
             float procent = distanceToShip / distanceWaypoints;
-            currentPositions[i] = lastWayPoint + procent;
+            if(targetWaypoint + procent >= waypoints.Length)
+            {
+                currentPositions[i] = 0;
+            }
+            else
+            {
+                currentPositions[i] = targetWaypoint + procent;
+            }
         }
     }
     public int GetRacePosition(ShipController ship)
