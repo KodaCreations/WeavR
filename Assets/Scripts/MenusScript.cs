@@ -38,7 +38,7 @@ public class MenusScript : MonoBehaviour {
         foreach (string trackName in System.IO.Directory.GetFiles(Application.dataPath + "/Scenes/Tracks"))
         {
             string name = trackName.Split('.')[0];
-            name = name.Remove(0, 70);
+            name = name.Split('\\')[1];
             if (!tracks.Contains(name))
                 tracks.Add(name);
         }
@@ -49,7 +49,7 @@ public class MenusScript : MonoBehaviour {
             if (trackName.Substring(trackName.Length - 3, 3) == "jpg")
             {
                 string name = trackName.Split('.')[0];
-                name = name.Remove(0, 80);
+                name = name.Split('\\')[1];
                 trackPreviews.Add((Sprite)Resources.Load<Sprite>("TrackPreviews/" + name));
             }
         }
@@ -73,6 +73,12 @@ public class MenusScript : MonoBehaviour {
         shipMenu.gameObject.SetActive(false);
         mpMenu.gameObject.SetActive(false);
         splitscreenMenu.gameObject.SetActive(false);
+    }
+
+    public void SwitchMainMenu()
+    {
+        DeactivateAllMenus();
+        mainMenu.gameObject.SetActive(true);
     }
     #endregion
 
@@ -164,7 +170,25 @@ public class MenusScript : MonoBehaviour {
         shipNameSS2.text = shipPreviewSS2.GetPreviewName();
     }
 
-    public void LoadRace()
+    public void SelectShip()
+    {
+        brain.AddSelectedShip(shipPreview.GetPreviewName().Split(' ')[1]);
+        LoadRace();
+    }
+
+    public void SelectShipSS1()
+    {
+        brain.AddSelectedShip(shipPreviewSS1.GetPreviewName().Split(' ')[1]);
+        //LoadRace();  only if both selected
+    }
+
+    public void SelectShipSS2()
+    {
+        brain.AddSelectedShip(shipPreviewSS2.GetPreviewName().Split(' ')[1]);
+        //LoadRace(); only if both selected
+    }
+
+    void LoadRace()
     {
         shipMenu.gameObject.SetActive(false);
 
