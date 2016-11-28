@@ -18,9 +18,20 @@ public class ShipController : MonoBehaviour {
     
     //Ship hover height over ground
     public float hoverHeight;
+    public Debuff debuff;
+    public Weapon.WeaponType? weapon;
+    public bool shielded;
+    private Transform target;
+    private bool drain;
 
     //Ship gravity when not on the ground an not in flightmode
     public float gravity;
+
+    //Variables for when hit by EMP
+    private float fallVelocity;
+    private float fallAccelration;
+    public float fallOffset;
+    private float modelOffset;
 
     //Ship temp values
     private GameObject camera;
@@ -101,6 +112,10 @@ public class ShipController : MonoBehaviour {
             camera.transform.SetParent(transform);
             camera.transform.position = transform.position + cameraPosition;
         }
+        debuff = null;
+        shielded = false;
+        weapon = null;
+        drain = false;
     }
     void InputHandler()
     {
@@ -123,6 +138,14 @@ public class ShipController : MonoBehaviour {
         {
             steeringForce = 1 * rotationSpeed;
         }
+        if (Input.GetKey(KeyCode.Z))
+        {
+            FireWeapon();
+        }
+        if ((weapon == Weapon.WeaponType.Missile || weapon == Weapon.WeaponType.DecreasedVision) && Input.GetKey(KeyCode.Tab))
+        {
+            Target();
+        }
         if(Input.GetKey(KeyCode.Space))
         {
             downwardForce = 1;
@@ -132,6 +155,89 @@ public class ShipController : MonoBehaviour {
             downwardForce = -1;
         }
     }
+
+    /// <summary>
+    /// Fires the weapon the ship is currently carrying, if any.
+    /// </summary>
+    private void FireWeapon()
+    {
+        if (weapon == null)
+            return;
+        switch (weapon)
+        {
+            case Weapon.WeaponType.Missile:
+                if (target)
+                {
+                    GameObject missile = Instantiate(Resources.Load("Prefabs/Missile"), transform.position + transform.forward * 10, transform.rotation) as GameObject;
+                    missile.GetComponent<GuidedWeapon>().target = target;
+                    target = null;
+                    weapon = null;
+                }
+                return;
+            case Weapon.WeaponType.Mine:
+                Instantiate(Resources.Load("Prefabs/Mine"), transform.position - transform.forward * 10, transform.rotation);
+                break;
+            case Weapon.WeaponType.EMP:
+                Instantiate(Resources.Load("Prefabs/EMP"), transform.position, transform.rotation);
+                break;
+            case Weapon.WeaponType.EnergyDrain:
+                Instantiate(Resources.Load("Prefabs/EnergyDrain"), transform.position + transform.forward * 10, transform.rotation);
+                break;
+            case Weapon.WeaponType.DecreasedVision:
+                if (target)
+                {
+                    GameObject decreasedVision = Instantiate(Resources.Load("Prefabs/DecreasedVision"), transform.position + transform.forward * 10, transform.rotation) as GameObject;
+                    decreasedVision.GetComponent<GuidedWeapon>().target = target;
+                    target = null;
+                    weapon = null;
+                }
+                return;
+        }
+        if (target == null)
+            weapon = null;
+    }
+
+    /// <summary>
+    /// Changes the target of the ship to the nearest ship, will have to be changed to target the ship in front and allow for aiming for the ship in front of that and triggers.
+    /// </summary>
+    private void Target()
+    {
+        ShipController[] enemies = FindObjectsOfType<ShipController>();
+        Transform sMin = null;
+        float minDist = Mathf.Infinity;
+        Vector3 currentPos = transform.position;
+        
+        foreach (ShipController s in enemies)
+        {
+            if (s != this)
+            {
+                float dist = Vector3.Distance(s.transform.position, currentPos);
+
+                if (dist < minDist)
+                {
+                    sMin = s.transform;
+                    minDist = dist;
+                }
+            }
+        }
+
+        target = sMin;
+    }
+
+    /// <summary>
+    /// Drains the ship of energy over a period of time if the drain variable is true.
+    /// 
+    /// Will be implemented durring the energy system implementation
+    /// </summary>
+    private void DrainEnergy()
+    {
+        if (drain)
+        {
+            Debug.Log("Energy drained");
+            drain = false;
+        }
+    }
+
     void HoverHandler()
     {
         grounded = false;
@@ -631,12 +737,15 @@ public class ShipController : MonoBehaviour {
     {
         rb.AddForce(-transform.up * gravity *  Time.deltaTime);
     }
-    // Update is called once per frame
-    void FixedUpdate()
+
+    /// <summary>
+    /// Handles the physics of the ship
+    /// </summary>
+    private void HandleShipPhysics()
     {
-        if(networkController) //Check if it has a networkController to be able to spawn without using networkManager
+        if (networkController) //Check if it has a networkController to be able to spawn without using networkManager
         {
-            if(networkController.isLocalPlayer)
+            if (networkController.isLocalPlayer)
             {
                 InputHandler();
                 networkController.CmdSendInputHandler(steeringForce, accelerationForce, downwardForce); // Send The Information To the Server
@@ -646,10 +755,10 @@ public class ShipController : MonoBehaviour {
         {
             InputHandler();
         }
-        HoverHandler(); // Set Position depending if there is a gound under the Ship
+        HoverHandler(); // Set Position depending if there is a ground under the Ship
         if (flightMode)
         {
-            if(!grounded)
+            if (!grounded)
             {
                 FlightHandler(); // Sets Ship rotation to Zero
             }
@@ -659,7 +768,7 @@ public class ShipController : MonoBehaviour {
         }
         else
         {
-            if(grounded)
+            if (grounded)
             {
                 AccelerationGroundBehavior(); // Forward Movement
                 SteeringGroundBehavior(); // Left and right Movement
@@ -669,6 +778,69 @@ public class ShipController : MonoBehaviour {
             {
                 HandleGravity(); // Down the ship goes
             }
+        }
+    }
+
+    /// <summary>
+    /// Makes the ship fall down on the ground if hit by EMP
+    /// </summary>
+    private void ShipFalling()
+    {
+        Ray ray = new Ray(transform.position, -transform.up);
+
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, 10.0f))
+        {
+            float distanceToGround = Vector3.Distance(transform.position, hit.point);
+            if (Vector3.Distance(transform.position, model.transform.position) + fallOffset < distanceToGround)
+            {
+                fallAccelration = -9.8f * Time.deltaTime;
+                fallVelocity += fallAccelration * Time.deltaTime;
+                model.transform.position -= new Vector3(0, -1, 0) * fallVelocity;
+            }
+            if (Vector3.Distance(transform.position, model.transform.position) + fallOffset > distanceToGround)
+            {
+                model.transform.position -= new Vector3(0, -1, 0) * (Vector3.Distance(transform.position, model.transform.position) + fallOffset - distanceToGround);
+            }
+            modelOffset = Vector3.Distance(transform.position, model.transform.position);
+        }
+    }
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+        if (debuff != null && debuff.shutDown)
+        {
+            ShipFalling();
+        }
+        else
+        {
+            if (debuff != null && debuff.speedReduction != 0)
+            {
+                float cfas = currentFowardAccelerationSpeed;
+                currentFowardAccelerationSpeed *= (1 - debuff.speedReduction);
+                HandleShipPhysics();
+                currentFowardAccelerationSpeed = cfas;
+            }
+            else
+            {
+                HandleShipPhysics();
+            }
+        }
+
+        if (debuff != null && debuff.energyDrain)
+            drain = true;
+
+        DrainEnergy();
+
+        if (debuff != null && debuff.DebuffFinished())
+        {
+            if (debuff.shutDown)
+            {
+                currentFowardAccelerationSpeed = 0;
+                fallVelocity = 0;
+            }
+            debuff = null;
         }
 
         // Collision
