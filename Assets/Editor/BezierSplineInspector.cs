@@ -55,13 +55,6 @@ public class BezierSplineInspector : Editor {
         //    spline.Loop = loop;
         //}
         EditorGUI.BeginChangeCheck();
-        float detail = EditorGUILayout.FloatField("Detail", spline.detail);
-        if (EditorGUI.EndChangeCheck())
-        {
-            Undo.RecordObject(spline, "Change Detail");
-            EditorUtility.SetDirty(spline);
-            spline.detail = detail;
-        }
         EditorGUI.BeginChangeCheck();
         spline.parent = (BezierSpline)EditorGUILayout.ObjectField("Parent: ", spline.parent, typeof(BezierSpline), true);
         if (EditorGUI.EndChangeCheck())
@@ -85,12 +78,52 @@ public class BezierSplineInspector : Editor {
             Undo.RecordObject(spline, "Set Parent");
             EditorUtility.SetDirty(spline);
         }
+        EditorGUILayout.Space();
+        GUILayout.Label("Mesh");
+        float detail = EditorGUILayout.FloatField("Detail", spline.detail);
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(spline, "Change Detail");
+            EditorUtility.SetDirty(spline);
+            spline.detail = detail;
+        }
         if (GUILayout.Button("Generate Mesh"))
         {
             Undo.RecordObject(spline, "Generated Mesh");
             spline.BuildMesh();
             EditorUtility.SetDirty(spline);
         }
+        EditorGUILayout.Space();
+        GUILayout.Label("Waypoints");
+        float waypointDetail = EditorGUILayout.FloatField("Distance", spline.waypointDistance);
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(spline, "Change Detail");
+            EditorUtility.SetDirty(spline);
+            spline.waypointDistance = waypointDetail;
+        }
+        EditorGUI.BeginChangeCheck();
+        spline.waypoint = (GameObject)EditorGUILayout.ObjectField("Waypoint: ", spline.waypoint, typeof(GameObject), true);
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(spline, "Set Parent");
+            EditorUtility.SetDirty(spline);
+        }
+        if (GUILayout.Button("Delete all waypoints"))
+        {
+            Undo.RecordObject(spline, "Generated Mesh");
+            spline.DeleteAllWaypoints();
+            EditorUtility.SetDirty(spline);
+        }
+        if (GUILayout.Button("Create waypoints on Spline"))
+        {
+            Undo.RecordObject(spline, "Generated Mesh");
+            spline.CreateWaypoints();
+            EditorUtility.SetDirty(spline);
+        }
+
+        EditorGUILayout.Space();
+        GUILayout.Label("Points");
         if (selectedIndex >= 0 && selectedIndex < spline.ControlPointCount)
         {
             switch (Tools.current)
@@ -135,7 +168,6 @@ public class BezierSplineInspector : Editor {
     }
     private void DrawSelectedPointInspector()
     {
-        GUILayout.Label("Selected Point");
         GUILayout.Label("Index: " + selectedIndex);
         EditorGUI.BeginChangeCheck();
         Vector3 point = EditorGUILayout.Vector3Field("Position", spline.GetControlPoint(selectedIndex));

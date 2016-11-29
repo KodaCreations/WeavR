@@ -45,11 +45,13 @@ public class SplitSegment : MonoBehaviour {
             //move The splines point to right pos
             if (attachToBack[index])
             {
-                spline.SetControlPoint(0, points[index]);
+                Vector3 pos = transform.TransformPoint(points[index]) - spline.transform.position;
+                spline.SetControlPoint(0, pos);
             }
             else
             {
-                spline.SetControlPoint(spline.ControlPointCount - 1, points[index]);
+                Vector3 pos = transform.TransformPoint(points[index]) - spline.transform.position;
+                spline.SetControlPoint(spline.ControlPointCount - 1, pos);
             }
         }
     }
