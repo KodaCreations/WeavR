@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 8954ea5b20a9c2044ab580e6612514d9
-timeCreated: 1480278926
+guid: 4d38742130ec40948aebf7084ce8434c
+timeCreated: 1480430112
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: FlightRing
+    4300000: Forcefield
     9500000: //RootNode
   materials:
     importMaterials: 1
