@@ -1,15 +1,23 @@
 fileFormatVersion: 2
-guid: 52d93c917fb0da845b82416526ed72c7
-timeCreated: 1480260634
+guid: f4281095acc92f14fb8a664a9e869cd5
+timeCreated: 1480383292
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
     100000: //RootNode
+    100002: SnowTerrain_MeshPart0
+    100004: SnowTerrain_MeshPart1
     400000: //RootNode
-    2300000: //RootNode
-    3300000: //RootNode
-    4300000: Plane
+    400002: SnowTerrain_MeshPart0
+    400004: SnowTerrain_MeshPart1
+    2300000: SnowTerrain_MeshPart0
+    2300002: SnowTerrain_MeshPart1
+    3300000: SnowTerrain_MeshPart0
+    3300002: SnowTerrain_MeshPart1
+    4300000: SnowTerrain_MeshPart0
+    4300002: SnowTerrain_MeshPart1
+    9500000: //RootNode
   materials:
     importMaterials: 1
     materialName: 0
@@ -68,7 +76,7 @@ ModelImporter:
     rootMotionBoneName: 
     hasTranslationDoF: 0
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 0
+  animationType: 2
   humanoidOversampling: 1
   additionalBone: 0
   userData: 
