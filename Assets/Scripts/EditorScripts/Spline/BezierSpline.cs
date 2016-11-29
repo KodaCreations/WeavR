@@ -20,6 +20,10 @@ public class BezierSpline : MonoBehaviour {
     public GameObject floorSegment;
     [SerializeField]
     public GameObject wallSegment;
+    [SerializeField]
+    public GameObject waypoint;
+    [SerializeField]
+    public float waypointDistance = 100;
 
     [SerializeField]
     public float detail = 100;
@@ -58,7 +62,7 @@ public class BezierSpline : MonoBehaviour {
             //Set last point to the firstpoint in Parent
             Vector3 point = points[points.Length - 1];
             Vector3 parentPoint = parent.points[0];
-            points[points.Length - 1] = point - transform.TransformPoint(point) + parent.transform.TransformPoint(parentPoint);
+            points[points.Length - 1] = parent.transform.TransformPoint(parentPoint) - transform.position;
 
             //Set the handle to mirror the parents first handle
             Vector3 handlePoint = points[points.Length - 2];
@@ -428,5 +432,13 @@ public class BezierSpline : MonoBehaviour {
             BezierControlPointMode.Mirrored,
             BezierControlPointMode.Mirrored
         };
+    }
+    public void DeleteAllWaypoints()
+    {
+        trackEditor.DeleteWaypoints();
+    }
+    public void CreateWaypoints()
+    {
+        trackEditor.CreateWaypointsOnSpline(this, waypoint, waypointDistance);
     }
 }

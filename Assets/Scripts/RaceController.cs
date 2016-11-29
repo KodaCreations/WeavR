@@ -15,10 +15,6 @@ public class RaceController : MonoBehaviour {
         FindAllWaypoints();
         FindAllShips();
         ResetBooleans();
-        foreach (Waypoint w in waypoints)
-        {
-            Debug.Log(w.name);
-        }
 	}
     void ResetBooleans()
     {
@@ -35,8 +31,8 @@ public class RaceController : MonoBehaviour {
         for (int i = 0; i < objects.Length; ++i)
         {
             string name = objects[i].name;
-            int pos = int.Parse("" + name[name.Length - 1]) - 1;
-            Debug.Log(pos);
+            name = name.Remove(0, 8);
+            int pos = int.Parse(name) - 1;
             waypoints[pos] = objects[i].GetComponent<Waypoint>();
             waypoints[pos].position = pos + 1;
             waypoints[pos].SetRaceController(this);
