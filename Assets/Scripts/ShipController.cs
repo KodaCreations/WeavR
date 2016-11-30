@@ -2,6 +2,17 @@
 using System.Collections;
 
 public class ShipController : MonoBehaviour {
+    //Ship energy variables
+    public float energyEfficiency; //How effective the ship is at converting energy into boost or shield 1 for 100%, higher value for less efficiency.
+    public float shieldEfficiency; //How much energy the shield uses compared to the turbo 1 for equaly effective, higher value for less efficiency.
+    public float maxEnergy;
+    private float energy; //For 100% energyEfficiency 1 energy = 1 second of turbo
+    private float newEnergy;
+    public bool shielded;
+    private bool turbo;
+    public float maxspeedBoost; //How much the maxspeed should be increased by when using turbo. 1 is normal speed 2 is twice as fast.
+    public float speedBoost;
+    public float rechargePerSecond;
 
     //Ship Forward Acceleration Variables
     public float forwardAccelerationSpeed;
@@ -18,9 +29,10 @@ public class ShipController : MonoBehaviour {
     
     //Ship hover height over ground
     public float hoverHeight;
+
+    //Weapon and debuff variables
     public Debuff debuff;
     public Weapon.WeaponType? weapon;
-    public bool shielded;
     private Transform target;
     private bool drain;
 
@@ -113,9 +125,12 @@ public class ShipController : MonoBehaviour {
             camera.transform.position = transform.position + cameraPosition;
         }
         debuff = null;
-        shielded = false;
         weapon = null;
         drain = false;
+        shielded = false;
+        turbo = false;
+        energy = maxEnergy;
+        newEnergy = 0;
     }
     void InputHandler()
     {
@@ -153,6 +168,24 @@ public class ShipController : MonoBehaviour {
         if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftControl))
         {
             downwardForce = -1;
+        }
+        if (Input.GetKey(KeyCode.Q) && energy > 0)
+        {
+            shielded = true;
+            energy -= Time.deltaTime * energyEfficiency;
+        }
+        else
+        {
+            shielded = false;
+        }
+        if (Input.GetKey(KeyCode.E) && energy > 0)
+        {
+            turbo = true;
+            energy -= Time.deltaTime * energyEfficiency * shieldEfficiency;
+        }
+        else
+        {
+            turbo = false;
         }
     }
 
@@ -226,15 +259,50 @@ public class ShipController : MonoBehaviour {
 
     /// <summary>
     /// Drains the ship of energy over a period of time if the drain variable is true.
-    /// 
-    /// Will be implemented durring the energy system implementation
     /// </summary>
     private void DrainEnergy()
     {
         if (drain)
         {
-            Debug.Log("Energy drained");
-            drain = false;
+            if (energy > 0)
+            {
+                energy -= Time.deltaTime * 10;
+            }
+            else
+            {
+                energy = 0;
+                drain = false;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gives more energy to the ship for recharging
+    /// </summary>
+    /// <param name="energyIncrease">The amount of energy given to the ship</param>
+    public void Recharge(float energyIncrease)
+    {
+        newEnergy += energyIncrease;
+    }
+
+    /// <summary>
+    /// Recharges the energy of the ship overtime provided there is energy to recharge with
+    /// </summary>
+    private void Recharge()
+    {
+        if (newEnergy > 0)
+        {
+            float recharge = rechargePerSecond * Time.deltaTime;
+
+            if (recharge > newEnergy)
+                recharge = newEnergy;
+            newEnergy -= recharge;
+            energy += recharge;
+            if (energy > maxEnergy)
+            {
+                energy = maxEnergy;
+                newEnergy = 0;
+            }
         }
     }
 
@@ -743,6 +811,8 @@ public class ShipController : MonoBehaviour {
     /// </summary>
     private void HandleShipPhysics()
     {
+        float turboMemory = maxForwardAccelerationSpeed; //Remembers the maxForwardAccelerationSpeed in case turbo is on
+
         if (networkController) //Check if it has a networkController to be able to spawn without using networkManager
         {
             if (networkController.isLocalPlayer)
@@ -755,6 +825,13 @@ public class ShipController : MonoBehaviour {
         {
             InputHandler();
         }
+
+        if (turbo)
+        {
+            currentFowardAccelerationSpeed += speedBoost *= Time.deltaTime;
+            maxForwardAccelerationSpeed *= maxspeedBoost;
+        }
+
         HoverHandler(); // Set Position depending if there is a ground under the Ship
         if (flightMode)
         {
@@ -779,6 +856,9 @@ public class ShipController : MonoBehaviour {
                 HandleGravity(); // Down the ship goes
             }
         }
+
+        if (turbo)
+            maxForwardAccelerationSpeed = turboMemory;
     }
 
     /// <summary>
@@ -831,6 +911,7 @@ public class ShipController : MonoBehaviour {
         if (debuff != null && debuff.energyDrain)
             drain = true;
 
+        Recharge();
         DrainEnergy();
 
         if (debuff != null && debuff.DebuffFinished())
