@@ -2,9 +2,9 @@
 using System.Collections;
 
 public class LookForTriggerState : IAiState {
-    private readonly ChasingTheRabbit ai;
+    private readonly AIShipBaseState ai;
 
-    public LookForTriggerState(ChasingTheRabbit Ai)
+    public LookForTriggerState(AIShipBaseState Ai)
     {
         ai = Ai;
     }
@@ -21,12 +21,12 @@ public class LookForTriggerState : IAiState {
 
     public void ToLookForWeapon()
     {
-        ai.currentState = ai.toLookForWeaponState;
+        
     }
 
     public void ToAttackState()
     {
-        ai.currentState = ai.toAttackState;
+        
     }
 
     void ActivateTriggerTile()
@@ -39,14 +39,5 @@ public class LookForTriggerState : IAiState {
         ai.destTriggPoint = (ai.destTriggPoint + 1) % ai.triggerPoints.Length;
 
 
-        if (!ai.chasingRabbit)
-        {
-            if (ai.triggerOrWepaon)
-            {
-
-                ai.transform.LookAt(ai.triggerPoints[ai.destTriggPoint].transform);
-                ai.transform.position += ai.transform.forward * ai.speed * Time.deltaTime;
-            }
-        }
     }
 }

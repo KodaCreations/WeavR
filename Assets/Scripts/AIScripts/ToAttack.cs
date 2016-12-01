@@ -4,9 +4,9 @@ using System.Collections;
 public class ToAttack : IAiState {
 
 
-    private readonly ChasingTheRabbit ai;
+    private readonly AIShipBaseState ai;
 	// Use this for initialization
-	public ToAttack (ChasingTheRabbit Ai)
+	public ToAttack (AIShipBaseState Ai)
     {
         ai = Ai;
 	

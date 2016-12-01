@@ -7,6 +7,7 @@ public class TheRabbit : MonoBehaviour
     public Transform[] points;
     private int destPoint = 0;
     public NavMeshAgent navAgent;
+    private EditorPath ePath;
     public GameObject AI;
     public int maxDist = 30;
     private bool active;
@@ -16,13 +17,16 @@ public class TheRabbit : MonoBehaviour
     {
         navAgent = GetComponent<NavMeshAgent>();
         GoToNextPoint();
+        for (int i = 0; i < ePath.pathObjs.Count; i++)
+        {
+            points[i] = ePath.pathObjs[i];
+        }
 
 
     }
     void GoToNextPoint()
     {
-        if (active)
-        {
+       
             if (points.Length == 0)
             {
                 return;
@@ -33,7 +37,7 @@ public class TheRabbit : MonoBehaviour
 
             destPoint = (destPoint + 1) % points.Length;
 
-        }
+        
 
 
 
@@ -55,7 +59,7 @@ public class TheRabbit : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (navAgent.remainingDistance < 20.0f)
+        if (navAgent.remainingDistance < 80.0f)
         {
             GoToNextPoint();
         }
