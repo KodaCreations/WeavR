@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Prototype.NetworkLobby;
 using UnityEngine.Networking;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
@@ -43,6 +44,11 @@ public class Brain : MonoBehaviour {
         }
     }
 
+    public void AddSelectedShip(int index)
+    {
+        playerShips.Add(availableShips[index]);
+    }
+
     // Read start positions from prefab.
     void ReadStartPositions()
     {
@@ -55,9 +61,22 @@ public class Brain : MonoBehaviour {
     // Spawn all ships at start positions.
     void SpawnShips()
     {
+        NetworkIdentity netId = GetComponent<NetworkIdentity>();
+
         for (int i = 0; i < playerShips.Count; i++)
         {
-            GameObject player = (GameObject)Instantiate(playerShips[i], startPositions[7 - i].position, startPositions[7 - i].rotation);
+            Debug.Log("Players");
+            GameObject ship = (GameObject)Instantiate(playerShips[i], startPositions[7 - i].position, startPositions[7 - i].rotation);
+
+            if (isMultiplayer)
+            {
+                Debug.Log("IsMultiplayer");
+                if (netId.isServer)
+                {
+                    Debug.Log("isServer");
+                    NetworkServer.SpawnWithClientAuthority(ship, netId.observers[i]);
+                }
+            }
 
             //Camera.main.transform.parent = player.transform;
             //Camera.main.transform.rotation = player.transform.rotation;
@@ -115,7 +134,9 @@ public class Brain : MonoBehaviour {
     }
     void Test()
     {
-        //NetworkLobbyManager nLM = GameObject.Find("LobbyManager").GetComponent<NetworkLobbyManager>();
+
+        //LobbyManager nLM = GameObject.Find("LobbyManager").GetComponent<LobbyManager>();
+        //nLM.m
         //nLM.is
     }
     void OnLevelWasLoaded(int level)
