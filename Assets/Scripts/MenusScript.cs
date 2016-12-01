@@ -189,7 +189,7 @@ public class MenusScript : MonoBehaviour {
     public void SelectShipSS2()
     {
         brain.AddSelectedShip(shipPreviewSS2.GetPreviewName().Split(' ')[1]);
-        //LoadRace(); only if both selected
+        LoadRace(); //only if both selected
     }
 
     void LoadRace()
