@@ -8,8 +8,8 @@ public class TheRabbit : MonoBehaviour
     private int destPoint = 0;
     public NavMeshAgent navAgent;
     public GameObject AI;
-    public int maxDist = 30;
-    private bool active;
+    public float maxDist = 2000;
+    public float minDist = 200;
 
     // Use this for initialization
     void Start()
@@ -21,8 +21,8 @@ public class TheRabbit : MonoBehaviour
     }
     void GoToNextPoint()
     {
-        if (active)
-        {
+      
+
             if (points.Length == 0)
             {
                 return;
@@ -32,37 +32,50 @@ public class TheRabbit : MonoBehaviour
             navAgent.destination = points[destPoint].position;
 
             destPoint = (destPoint + 1) % points.Length;
-
-        }
-
+        
 
 
     }
 
-    void WaitforChaser()
-    {
-      
-        if (Vector3.Distance(AI.transform.position, transform.position) <= maxDist)
-        {
-            active = true;
-        }
-        else
-        {
-            active = false;
-        }
-    }
-
-    // Update is called once per frame
     void Update()
     {
         if (navAgent.remainingDistance < 20.0f)
         {
             GoToNextPoint();
         }
-        WaitforChaser();
+        //WaitforChaser();
+        //SpeedUp();
         //ReSpawnAtAI();
 
     }
+    void WaitforChaser()
+    {
+        
+       
+
+        if ( Vector3.Distance(AI.transform.position, transform.position) > maxDist)
+        {
+            navAgent.speed = 0;
+        }
+        else if (Vector3.Distance(AI.transform.position, transform.position) < maxDist)
+        {
+
+            navAgent.speed = 250;
+        }
+       
+    }
+
+    void SpeedUp()
+    {
+        if (Vector3.Distance(AI.transform.position, transform.position) < minDist)
+        {
+            navAgent.speed = 700;
+        }
+        else
+            navAgent.speed = 250;
+    }
+
+    // Update is called once per frame
 
     void ReSpawnAtAI()
     {
@@ -73,8 +86,5 @@ public class TheRabbit : MonoBehaviour
         }
     }
 
-    void GoFaster()
-    {
 
-    }
 }

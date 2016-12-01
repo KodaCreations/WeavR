@@ -2,9 +2,9 @@
 using System.Collections;
 
 public class LookForWeaponState : IAiState {
-    private readonly ChasingTheRabbit ai;
+    private readonly AIShipBaseState ai;
 
-    public LookForWeaponState(ChasingTheRabbit Ai)
+    public LookForWeaponState(AIShipBaseState Ai)
     {
         ai = Ai;
     }
@@ -34,21 +34,13 @@ public class LookForWeaponState : IAiState {
 
     }
 
+    public void ToChaseState()
+    {
+
+    }
+
     void PickupWeapon()
     {
-        if (ai.destWeapPoint == 0)
-        {
-            return;
-        }
-
-        ai.destWeapPoint = (ai.destWeapPoint + 1) % ai.weaponPoints.Length;
-        if (!ai.chasingRabbit)
-        {
-            if (!ai.triggerOrWepaon)
-            {
-                ai.transform.LookAt(ai.weaponPoints[ai.destWeapPoint].transform);
-                ai.transform.position += ai.transform.forward * ai.speed * Time.deltaTime;
-            }
-        }
+    
     }
 }

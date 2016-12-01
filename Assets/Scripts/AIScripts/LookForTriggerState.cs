@@ -2,9 +2,9 @@
 using System.Collections;
 
 public class LookForTriggerState : IAiState {
-    private readonly ChasingTheRabbit ai;
+    private AIShipBaseState ai;
 
-    public LookForTriggerState(ChasingTheRabbit Ai)
+    public LookForTriggerState(AIShipBaseState Ai)
     {
         ai = Ai;
     }
@@ -12,6 +12,7 @@ public class LookForTriggerState : IAiState {
 	public void UpdateState()
     {
         ActivateTriggerTile();
+        ToChaseState();
     }
 
     public void ToLookForTrigger()
@@ -21,32 +22,43 @@ public class LookForTriggerState : IAiState {
 
     public void ToLookForWeapon()
     {
-        ai.currentState = ai.toLookForWeaponState;
+        ai.currentState = ai.lookForWeaponState;
     }
 
     public void ToAttackState()
     {
-        ai.currentState = ai.toAttackState;
+        ai.currentState = ai.attackState;
+    }
+
+    public void ToChaseState()
+    {
+        if (ai.cube.triggered)
+        {
+            ai.currentState = ai.chaseState;
+        }
     }
 
     void ActivateTriggerTile()
     {
-        if (ai.destTriggPoint == 0)
+        Vector3 targetDir = ai.cube.transform.position - ai.transform.position;
+        targetDir.Normalize();
+        float dir = ai.AngleDir(ai.transform.forward, -targetDir, ai.transform.up);
+
+
+
+        if (Vector3.Distance(ai.cube.transform.position, ai.transform.position) > 10)
         {
-            return;
+            ai.accelerationForce = 1 * ai.aiMovementSpeed;
         }
 
-        ai.destTriggPoint = (ai.destTriggPoint + 1) % ai.triggerPoints.Length;
-
-
-        if (!ai.chasingRabbit)
+        if (dir > 0.0f)
         {
-            if (ai.triggerOrWepaon)
-            {
-
-                ai.transform.LookAt(ai.triggerPoints[ai.destTriggPoint].transform);
-                ai.transform.position += ai.transform.forward * ai.speed * Time.deltaTime;
-            }
+            ai.steeringForce = -1 * ai.aiRotationSpeed;
+        }
+        else if (dir < 0.0f)
+        {
+            ai.steeringForce = 1 * ai.aiRotationSpeed;
         }
     }
+
 }

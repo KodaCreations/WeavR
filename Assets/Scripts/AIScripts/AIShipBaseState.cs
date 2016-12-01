@@ -1,8 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class AIShipBaseState : MonoBehaviour {
+public class AIShipBaseState : MonoBehaviour
+{
 
+    [HideInInspector]
+    public IAiState currentState;
+    [HideInInspector]
+    public ChaseState chaseState;
+    [HideInInspector]
+    public AttackState attackState;
+    [HideInInspector]
+    public LookForTriggerState lookForTriggerState;
+    [HideInInspector]
+    public LookForWeaponState lookForWeaponState;
+
+    float dir;
+    public bool chasing;
+    public TriggerCube cube;
     public TheRabbit rabbit;
     private Vector3 target;
     private Vector3 lineOfSight;
@@ -62,8 +77,18 @@ public class AIShipBaseState : MonoBehaviour {
 
     Rigidbody rb;
     // Use this for initialization
+
+
+    void Awake()
+    {
+        chaseState = new ChaseState(this);
+        attackState = new AttackState(this);
+        lookForTriggerState = new LookForTriggerState(this);
+        lookForWeaponState = new LookForWeaponState(this);
+    }
     void Start()
     {
+        currentState = chaseState;
         shipHoverSpeed = Mathf.PI / 2;
         shipHoverTime = 0;
         //shipWobbleAmount = 2f;
@@ -71,6 +96,7 @@ public class AIShipBaseState : MonoBehaviour {
         //shipWobbleTime = 0;
         rb = GetComponent<Rigidbody>();
         aiModel = transform.FindChild("ship").gameObject;
+        cube.GetComponent<GameObject>();
         //if(!isServer)
         //{
         //    rb.isKinematic = true;
@@ -243,7 +269,9 @@ public class AIShipBaseState : MonoBehaviour {
         SteeringGroundBehavior();
         AccelerationGroundBehavior();
         HoverBehavior();
-        Chase();
+        //Chase();
+        currentState.UpdateState();
+
         // Collision
         if (aiShipIsColliding)
         {
@@ -254,17 +282,16 @@ public class AIShipBaseState : MonoBehaviour {
             rb.constraints = RigidbodyConstraints.None;
         }
     }
-
     public float AngleDir(Vector3 fwd, Vector3 targetDir, Vector3 up)
     {
         Vector3 perp = Vector3.Cross(fwd, targetDir);
         float dir = Vector3.Dot(perp, up);
 
-        if (dir > 0.0)
+        if (dir > 0.023)
         {
             return 1.0f;
         }
-        else if (dir < 0.0)
+        else if (dir < -0.023)
         {
             return -1.0f;
         }
@@ -272,7 +299,6 @@ public class AIShipBaseState : MonoBehaviour {
             return 0.0f;
         }
     }
-
     void Chase()
     {
 
@@ -280,9 +306,8 @@ public class AIShipBaseState : MonoBehaviour {
         steeringForce = 0;
 
         //Debug.Log(accelerationForce + "");
-        Vector3 targetDir = rabbit.transform.position - transform.position;
-        targetDir.Normalize();
-        float dir = AngleDir(transform.forward, -targetDir, transform.up);
+
+        ChooseTarget();
 
 
 
@@ -300,55 +325,27 @@ public class AIShipBaseState : MonoBehaviour {
             steeringForce = 1 * aiRotationSpeed;
         }
 
-
-
-
-        //transform.LookAt(rabbit.transform);
-        ////transform.TransformDisrection(rabbit.transform.position);
-
-        //if (Vector3.Distance(transform.position, rabbit.transform.position) >= MinDist && Vector3.Distance(transform.position, rabbit.transform.position) < MaxDist)
-        //{
-        //    transform.position += transform.forward * aiMovementSpeed * Time.deltaTime;
-
-        //}
-
-        //if (Vector3.Distance(transform.position, rabbit.transform.position) > MaxDist)
-        //{
-        //    transform.position += transform.forward * (aiMovementSpeed * 1.5f) * Time.deltaTime;
-        //    //accelerationForce += 1 * aiMovementSpeed * Time.deltaTime;
-        //}
-
-        //if (Vector3.Distance(transform.position, rabbit.transform.position) < MinDist)
-        //{
-        //    transform.position += transform.forward * (aiMovementSpeed / 2) * Time.deltaTime;
-        //    //accelerationForce += 1 * (aiMovementSpeed / 2) * Time.deltaTime;
-        //}
-
-
     }
-    void InputHandler()
+
+    void ChooseTarget()
     {
-        //transform.LookAt(rabbit.transform);
-        //accelerationForce = 0;
-        //steeringForce = 0;
+        GameObject triggerPos = GameObject.Find("Cube");
+       
+            Vector3 targetDir = rabbit.transform.position - transform.position;
+            targetDir.Normalize();
+            dir = AngleDir(transform.forward, -targetDir, transform.up);
+        
 
-        //Debug.Log(accelerationForce + "");
-
-        //accelerationForce = 1 * aiMovementSpeed;
-        //transform.position = target * accelerationForce;
-
-
-        //if (Input.GetKey(KeyCode.S))
+        //if (Vector3.Distance(triggerCube.transform.position, transform.position) < 200)
         //{
-        //    accelerationForce = -1 * movementSpeed;
-        //}
-        //if (Input.GetKey(KeyCode.A))
-        //{
-        //    steeringForce = -1 * rotationSpeed;
-        //}
-        //if (Input.GetKey(KeyCode.D))
-        //{
-        //    steeringForce = 1 * rotationSpeed;
+        //    chasing = false;
+        //    Vector3 triggerDir = triggerPos.transform.position - transform.position;
+        //    triggerDir.Normalize();
+        //    dir = AngleDir(transform.forward, -triggerDir, transform.up);
+        //    if (triggerCube.entered)
+        //    {
+        //        chasing = true;
+        //    }
         //}
     }
 }

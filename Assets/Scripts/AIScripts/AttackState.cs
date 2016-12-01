@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ToAttack : IAiState {
+public class AttackState : IAiState {
 
 
-    private readonly ChasingTheRabbit ai;
+    private readonly AIShipBaseState ai;
 	// Use this for initialization
-	public ToAttack (ChasingTheRabbit Ai)
+	public AttackState (AIShipBaseState Ai)
     {
         ai = Ai;
 	
@@ -29,6 +29,11 @@ public class ToAttack : IAiState {
 
     public void ToAttackState()
     {
+        Debug.Log("Can't transition to same state");
+    }
 
+    public void ToChaseState()
+    {
+        
     }
 }
