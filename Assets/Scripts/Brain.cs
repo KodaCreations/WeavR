@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Networking;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
@@ -112,7 +113,11 @@ public class Brain : MonoBehaviour {
     {
         SceneManager.LoadScene(track);
     }
-
+    void Test()
+    {
+        //NetworkLobbyManager nLM = GameObject.Find("LobbyManager").GetComponent<NetworkLobbyManager>();
+        //nLM.is
+    }
     void OnLevelWasLoaded(int level)
     {
         // First scene has to be menus scene.
