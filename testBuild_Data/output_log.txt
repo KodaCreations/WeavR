@@ -2,26 +2,199 @@ Initialize engine version: 5.4.1f1 (649f48bbbf0f)
 GfxDevice: creating device client; threaded=1
 Direct3D:
     Version:  Direct3D 11.0 [level 11.0]
-    Renderer: NVIDIA GeForce GTX 960 (ID=0x1401)
-    Vendor:   NVIDIA
-    VRAM:     1965 MB
+    Renderer: AMD Radeon R9 200 / HD 7900 Series (ID=0x6798)
+    Vendor:   ATI
+    VRAM:     3053 MB
 Begin MonoManager ReloadAssembly
-Platform assembly: C:\Users\Spellabbet\Documents\GitHub\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.dll (this message is harmless)
-Loading C:\Users\Spellabbet\Documents\GitHub\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.dll into Unity Child Domain
-Platform assembly: C:\Users\Spellabbet\Documents\GitHub\WeavR\WeavR\testBuild_Data\Managed\Assembly-CSharp.dll (this message is harmless)
-Loading C:\Users\Spellabbet\Documents\GitHub\WeavR\WeavR\testBuild_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
-Platform assembly: C:\Users\Spellabbet\Documents\GitHub\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.UI.dll (this message is harmless)
-Loading C:\Users\Spellabbet\Documents\GitHub\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
-Platform assembly: C:\Users\Spellabbet\Documents\GitHub\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
-Loading C:\Users\Spellabbet\Documents\GitHub\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
-- Completed reload, in  0.069 seconds
-Platform assembly: C:\Users\Spellabbet\Documents\GitHub\WeavR\WeavR\testBuild_Data\Managed\System.Core.dll (this message is harmless)
-Platform assembly: C:\Users\Spellabbet\Documents\GitHub\WeavR\WeavR\testBuild_Data\Managed\System.dll (this message is harmless)
-desktop: 1920x1080 60Hz; virtual: 1920x1080 at 0,0
+Platform assembly: D:\Github\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading D:\Github\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: D:\Github\WeavR\WeavR\testBuild_Data\Managed\Assembly-CSharp-firstpass.dll (this message is harmless)
+Loading D:\Github\WeavR\WeavR\testBuild_Data\Managed\Assembly-CSharp-firstpass.dll into Unity Child Domain
+Platform assembly: D:\Github\WeavR\WeavR\testBuild_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading D:\Github\WeavR\WeavR\testBuild_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: D:\Github\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading D:\Github\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: D:\Github\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading D:\Github\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+- Completed reload, in  0.064 seconds
+Platform assembly: D:\Github\WeavR\WeavR\testBuild_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: D:\Github\WeavR\WeavR\testBuild_Data\Managed\System.dll (this message is harmless)
+OnLevelWasLoaded was found on Brain
+This message has been deprecated and will be removed in a later version of Unity.
+Add a delegate to SceneManager.sceneLoaded instead to get notifications after scene loading has completed
+ 
+(Filename:  Line: 375)
+
+desktop: 1920x1080 60Hz; virtual: 3840x1080 at -1920,0
 <RI> Initializing input.
 <RI> Input initialized.
 <RI> Initialized touch support.
-UnloadTime: 1.091937 ms
-Setting up 2 worker threads for Enlighten.
-  Thread -> id: 1818 -> priority: 1 
-  Thread -> id: 1038 -> priority: 1 
+Initialize engine version: 5.4.1f1 (649f48bbbf0f)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: AMD Radeon R9 200 / HD 7900 Series (ID=0x6798)
+    Vendor:   ATI
+    VRAM:     3053 MB
+Begin MonoManager ReloadAssembly
+Platform assembly: D:\Github\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading D:\Github\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: D:\Github\WeavR\WeavR\testBuild_Data\Managed\Assembly-CSharp-firstpass.dll (this message is harmless)
+Loading D:\Github\WeavR\WeavR\testBuild_Data\Managed\Assembly-CSharp-firstpass.dll into Unity Child Domain
+Platform assembly: D:\Github\WeavR\WeavR\testBuild_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading D:\Github\WeavR\WeavR\testBuild_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: D:\Github\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading D:\Github\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: D:\Github\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading D:\Github\WeavR\WeavR\testBuild_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+- Completed reload, in  0.041 seconds
+Platform assembly: D:\Github\WeavR\WeavR\testBuild_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: D:\Github\WeavR\WeavR\testBuild_Data\Managed\System.dll (this message is harmless)
+OnLevelWasLoaded was found on Brain
+This message has been deprecated and will be removed in a later version of Unity.
+Add a delegate to SceneManager.sceneLoaded instead to get notifications after scene loading has completed
+ 
+(Filename:  Line: 375)
+
+desktop: 1920x1080 60Hz; virtual: 3840x1080 at -1920,0
+<RI> Initializing input.
+<RI> Input initialized.
+<RI> Initialized touch support.
+UnloadTime: 0.742093 ms
+DirectoryNotFoundException: Directory 'D:/Github/WeavR/WeavR/testBuild_Data/Scenes/Tracks' not found.
+  at System.IO.Directory.GetFileSystemEntries (System.String path, System.String searchPattern, FileAttributes mask, FileAttributes attrs) [0x00000] in <filename unknown>:0 
+  at System.IO.Directory.GetFiles (System.String path, System.String searchPattern) [0x00000] in <filename unknown>:0 
+  at System.IO.Directory.GetFiles (System.String path) [0x00000] in <filename unknown>:0 
+  at MenusScript.Start () [0x00000] in <filename unknown>:0 
+ 
+(Filename:  Line: -1)
+
+Setting up 1 worker threads for Enlighten.
+  Thread -> id: 1a7c -> priority: 1 
+UnloadTime: 0.612588 ms
+DirectoryNotFoundException: Directory 'D:/Github/WeavR/WeavR/testBuild_Data/Scenes/Tracks' not found.
+  at System.IO.Directory.GetFileSystemEntries (System.String path, System.String searchPattern, FileAttributes mask, FileAttributes attrs) [0x00000] in <filename unknown>:0 
+  at System.IO.Directory.GetFiles (System.String path, System.String searchPattern) [0x00000] in <filename unknown>:0 
+  at System.IO.Directory.GetFiles (System.String path) [0x00000] in <filename unknown>:0 
+  at MenusScript.Start () [0x00000] in <filename unknown>:0 
+ 
+(Filename:  Line: -1)
+
+Setting up 1 worker threads for Enlighten.
+  Thread -> id: 2744 -> priority: 1 
+MatchMakingClient Create :https://mm.unet.unity3d.com/json/reply/CreateMatchRequest
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+
+DontDestroyOnLoad only work for root GameObjects or components on root GameObjects.
+ 
+(Filename:  Line: 386)
+
+MatchMakingClient ListMatches :https://mm.unet.unity3d.com/json/reply/ListMatchRequest
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+
+MatchMakingClient Join :https://mm.unet.unity3d.com/json/reply/JoinMatchRequest
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+
+DontDestroyOnLoad only work for root GameObjects or components on root GameObjects.
+ 
+(Filename:  Line: 386)
+
+DontDestroyOnLoad only work for root GameObjects or components on root GameObjects.
+ 
+(Filename:  Line: 386)
+
+DontDestroyOnLoad only work for root GameObjects or components on root GameObjects.
+ 
+(Filename:  Line: 386)
+
+NetworkLobbyManager no more players for this connection.
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+
+NetworkLobbyManager no more players for this connection.
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+
+NetworkLobbyManager no more players for this connection.
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+
+MatchMakingClient DropConnection :https://mm.unet.unity3d.com/json/reply/DropConnectionRequest
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+
+Unloading 4 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 1.803733 ms
+DirectoryNotFoundException: Directory 'D:/Github/WeavR/WeavR/testBuild_Data/Scenes/Tracks' not found.
+  at System.IO.Directory.GetFileSystemEntries (System.String path, System.String searchPattern, FileAttributes mask, FileAttributes attrs) [0x00000] in <filename unknown>:0 
+  at System.IO.Directory.GetFiles (System.String path, System.String searchPattern) [0x00000] in <filename unknown>:0 
+  at System.IO.Directory.GetFiles (System.String path) [0x00000] in <filename unknown>:0 
+  at MenusScript.Start () [0x00000] in <filename unknown>:0 
+ 
+(Filename:  Line: -1)
+
+
+Unloading 2 unused Assets to reduce memory usage. Loaded Objects now: 1007.
+Total: 0.911956 ms (FindLiveObjects: 0.043971 ms CreateObjectMapping: 0.029213 ms MarkObjects: 0.833349 ms  DeleteObjects: 0.005421 ms)
+
+MatchMakingClient ListMatches :https://mm.unet.unity3d.com/json/reply/ListMatchRequest
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+
+MatchMakingClient Join :https://mm.unet.unity3d.com/json/reply/JoinMatchRequest
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+
+DontDestroyOnLoad only work for root GameObjects or components on root GameObjects.
+ 
+(Filename:  Line: 386)
+
+MatchMakingClient DropConnection :https://mm.unet.unity3d.com/json/reply/DropConnectionRequest
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+
+Empty player list given to NetworkServer.Destroy(), nothing to do.
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+
+MatchMakingClient ListMatches :https://mm.unet.unity3d.com/json/reply/ListMatchRequest
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+
+MatchMakingClient Join :https://mm.unet.unity3d.com/json/reply/JoinMatchRequest
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+
+DontDestroyOnLoad only work for root GameObjects or components on root GameObjects.
+ 
+(Filename:  Line: 386)
+
+MatchMakingClient Destroy :https://mm.unet.unity3d.com/json/reply/DestroyMatchRequest
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+
+MatchMakingClient DropConnection :https://mm.unet.unity3d.com/json/reply/DropConnectionRequest
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+
+Unloading 4 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 2.073887 ms
+DirectoryNotFoundException: Directory 'D:/Github/WeavR/WeavR/testBuild_Data/Scenes/Tracks' not found.
+  at System.IO.Directory.GetFileSystemEntries (System.String path, System.String searchPattern, FileAttributes mask, FileAttributes attrs) [0x00000] in <filename unknown>:0 
+  at System.IO.Directory.GetFiles (System.String path, System.String searchPattern) [0x00000] in <filename unknown>:0 
+  at System.IO.Directory.GetFiles (System.String path) [0x00000] in <filename unknown>:0 
+  at MenusScript.Start () [0x00000] in <filename unknown>:0 
+ 
+(Filename:  Line: -1)
+
+
+Unloading 2 unused Assets to reduce memory usage. Loaded Objects now: 955.
+Total: 1.039352 ms (FindLiveObjects: 0.043067 ms CreateObjectMapping: 0.030117 ms MarkObjects: 0.961047 ms  DeleteObjects: 0.005119 ms)
+
+MatchMakingClient DropConnection :https://mm.unet.unity3d.com/json/reply/DropConnectionRequest
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+

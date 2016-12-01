@@ -24,6 +24,8 @@ public class MenusScript : MonoBehaviour {
     Transform mpMenu;
     Transform splitscreenMenu;
 
+    public Transform lobbyManager;
+
     public Brain brain;
 
 	// Use this for initialization
@@ -95,9 +97,11 @@ public class MenusScript : MonoBehaviour {
     #endregion
 
     #region MultiplayerMenu
-    public void SwitchOnlineLan()
+    public void TurnOnLobby()
     {
         brain.isMultiplayer = true;
+        DeactivateAllMenus();
+        lobbyManager.gameObject.SetActive(true);
     }
 
     public void SwitchSplitscreen()
