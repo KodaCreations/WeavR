@@ -125,6 +125,7 @@ public class RaceController : MonoBehaviour {
             if(ship == ships[i].GetComponent<ShipController>())
             {
                 shipPosition = currentPositions[i];
+                break;
             }
         }
 
