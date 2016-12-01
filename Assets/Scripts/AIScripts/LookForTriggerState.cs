@@ -2,7 +2,9 @@
 using System.Collections;
 
 public class LookForTriggerState : IAiState {
+
     private AIShipBaseState ai;
+
 
     public LookForTriggerState(AIShipBaseState Ai)
     {
@@ -44,8 +46,6 @@ public class LookForTriggerState : IAiState {
         targetDir.Normalize();
         float dir = ai.AngleDir(ai.transform.forward, -targetDir, ai.transform.up);
 
-
-
         if (Vector3.Distance(ai.cube.transform.position, ai.transform.position) > 10)
         {
             ai.accelerationForce = 1 * ai.aiMovementSpeed;
@@ -59,6 +59,7 @@ public class LookForTriggerState : IAiState {
         {
             ai.steeringForce = 1 * ai.aiRotationSpeed;
         }
+
     }
 
 }

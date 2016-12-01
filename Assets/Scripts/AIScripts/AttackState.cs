@@ -6,6 +6,7 @@ public class AttackState : IAiState {
 
     private readonly AIShipBaseState ai;
 	// Use this for initialization
+
 	public AttackState (AIShipBaseState Ai)
     {
         ai = Ai;

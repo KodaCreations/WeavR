@@ -41,6 +41,12 @@ public class LookForWeaponState : IAiState {
 
     void PickupWeapon()
     {
-    
+
+        if (ai.destWeapPoint == 0)
+        {
+            return;
+        }
+
+        ai.destWeapPoint = (ai.destWeapPoint + 1) % ai.weaponPoints.Length;
     }
 }
