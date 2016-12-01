@@ -414,9 +414,9 @@ public class BezierSpline : MonoBehaviour {
         points = new Vector3[]
         {
             new Vector3(0f, 0f, 0f),
-            new Vector3(1f, 0f, 0f),
-            new Vector3(2f, 0f, 0f),
-            new Vector3(3f, 0f, 0f)
+            new Vector3(30f, 0f, 0f),
+            new Vector3(60f, 0f, 0f),
+            new Vector3(90f, 0f, 0f)
         };
 
         angles = new float[]
