@@ -109,21 +109,21 @@ public class ShipController : MonoBehaviour {
         rb = GetComponent<Rigidbody>();
         model = transform.FindChild("Model").gameObject;
         networkController = GetComponent<ShipNetworkController>();
-        if (networkController)
-        {
-            if (networkController.isLocalPlayer)
-            {
-                camera = GameObject.Find("Main Camera");
-                camera.transform.SetParent(transform);
-                camera.transform.position = transform.position + cameraPosition;
-            }
-        }
-        else
-        {
-            camera = GameObject.Find("Main Camera");
-            camera.transform.SetParent(transform);
-            camera.transform.position = transform.position + cameraPosition;
-        }
+        //if (networkController)
+        //{
+        //    if (networkController.isLocalPlayer)
+        //    {
+        //        camera = GameObject.Find("Main Camera");
+        //        camera.transform.SetParent(transform);
+        //        camera.transform.position = transform.position + cameraPosition;
+        //    }
+        //}
+        //else
+        //{
+        //    camera = GameObject.Find("Main Camera");
+        //    camera.transform.SetParent(transform);
+        //    camera.transform.position = transform.position + cameraPosition;
+        //}
         debuff = null;
         weapon = null;
         drain = false;
