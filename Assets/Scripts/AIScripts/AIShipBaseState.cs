@@ -45,7 +45,7 @@ public class AIShipBaseState : MonoBehaviour
 
     float shipAccel;
     float shipAccelCap;
-
+    float timer = 3;
 
     public float steeringForce;
 
@@ -60,22 +60,22 @@ public class AIShipBaseState : MonoBehaviour
     float aiShipMaxBank = 40;
     float aiRollState;
 
-    float shipThrust;
-    float shipThrustCap;
+    float aishipThrust;
+    float aishipThrustCap;
 
     //Hover behavior var
-    float shipHoverAmount;
-    float shipHoverSpeed;
-    float shipHoverTime;
-    float shipCurrentHover;
+    float aishipHoverAmount;
+    float aishipHoverSpeed;
+    float aishipHoverTime;
+    float aishipCurrentHover;
 
     // Wobble behavior var
-    float shipWobbleAmount;
-    float shipWobbleSpeed;
-    float shipWobbleTime;
-    float shipCurrentWobble;
+    float aishipWobbleAmount;
+    float aishipWobbleSpeed;
+    float aishipWobbleTime;
+    float aishipCurrentWobble;
 
-    Rigidbody rb;
+    Rigidbody airb;
     // Use this for initialization
 
 
@@ -89,12 +89,12 @@ public class AIShipBaseState : MonoBehaviour
     void Start()
     {
         currentState = chaseState;
-        shipHoverSpeed = Mathf.PI / 2;
-        shipHoverTime = 0;
+        aishipHoverSpeed = Mathf.PI / 2;
+        aishipHoverTime = 0;
         //shipWobbleAmount = 2f;
         //shipWobbleSpeed = 6;
         //shipWobbleTime = 0;
-        rb = GetComponent<Rigidbody>();
+        airb = GetComponent<Rigidbody>();
         aiModel = transform.FindChild("ship").gameObject;
         cube.GetComponent<GameObject>();
         //if(!isServer)
@@ -129,26 +129,26 @@ public class AIShipBaseState : MonoBehaviour
     void HoverBehavior()
     {
         // Basic hover what uses two Sinus curves to determin the height
-        shipHoverTime += Time.deltaTime;
-        shipHoverTime = shipHoverTime % (Mathf.PI * 2);
-        shipHoverSpeed += Time.deltaTime / 2;
-        shipHoverSpeed = shipHoverSpeed % (Mathf.PI * 2);// Mathf.Clamp(shipHoverSpeed, 0, 10);
-        shipHoverAmount -= Time.deltaTime / 4;
-        shipHoverAmount = shipHoverAmount % 3;// Mathf.Clamp(shipHoverAmount, 0, 10);
+        aishipHoverTime += Time.deltaTime;
+        aishipHoverTime = aishipHoverTime % (Mathf.PI * 2);
+        aishipHoverSpeed += Time.deltaTime / 2;
+        aishipHoverSpeed = aishipHoverSpeed % (Mathf.PI * 2);// Mathf.Clamp(shipHoverSpeed, 0, 10);
+        aishipHoverAmount -= Time.deltaTime / 4;
+        aishipHoverAmount = aishipHoverAmount % 3;// Mathf.Clamp(shipHoverAmount, 0, 10);
 
-        shipCurrentHover = Mathf.Sin(shipHoverTime) + Mathf.Sin(shipHoverSpeed);
-        aiModel.transform.localPosition = new Vector3(0, shipCurrentHover * 0.03f, 0);
+        aishipCurrentHover = Mathf.Sin(aishipHoverTime) + Mathf.Sin(aishipHoverSpeed);
+        aiModel.transform.localPosition = new Vector3(0, aishipCurrentHover * 0.03f, 0);
     }
     void SteeringGroundBehavior()
     {
         // Wobble, has to be initialized with setting Wobble parameters
-        shipWobbleTime += Time.deltaTime;
-        shipWobbleSpeed -= Time.deltaTime / 2;
-        shipWobbleSpeed = Mathf.Clamp(shipWobbleSpeed, 0, 10);
-        shipWobbleAmount -= Time.deltaTime / 2;
-        shipWobbleAmount = Mathf.Clamp(shipWobbleAmount, 0, 10);
+        aishipWobbleTime += Time.deltaTime;
+        aishipWobbleSpeed -= Time.deltaTime / 2;
+        aishipWobbleSpeed = Mathf.Clamp(aishipWobbleSpeed, 0, 10);
+        aishipWobbleAmount -= Time.deltaTime / 2;
+        aishipWobbleAmount = Mathf.Clamp(aishipWobbleAmount, 0, 10);
 
-        shipCurrentWobble = Mathf.Sin(shipWobbleTime * shipWobbleSpeed) * shipWobbleAmount;
+        aishipCurrentWobble = Mathf.Sin(aishipWobbleTime * aishipWobbleSpeed) * aishipWobbleAmount;
 
         // Change Banking speed depending on current bank
         #region Banking
@@ -229,7 +229,7 @@ public class AIShipBaseState : MonoBehaviour
         }
         #endregion
 
-        aiModel.transform.localRotation = Quaternion.Euler(aiModel.transform.localEulerAngles.x, aiModel.transform.localEulerAngles.y, -aiShipCurrentBank + aiRollState + shipCurrentWobble);
+        aiModel.transform.localRotation = Quaternion.Euler(aiModel.transform.localEulerAngles.x, aiModel.transform.localEulerAngles.y, -aiShipCurrentBank + aiRollState + aishipCurrentWobble);
 
         aiNormalForce = Mathf.Lerp(aiNormalForce, steeringForce, Time.deltaTime * 3);
         transform.Rotate(Vector3.up * aiNormalForce);
@@ -254,7 +254,7 @@ public class AIShipBaseState : MonoBehaviour
     }
     void AccelerationGroundBehavior()
     {
-        rb.AddForce(transform.forward * accelerationForce * Time.deltaTime);
+        airb.AddForce(transform.forward * accelerationForce * Time.deltaTime);
     }
     // Update is called once per frame
     void FixedUpdate()
@@ -269,18 +269,35 @@ public class AIShipBaseState : MonoBehaviour
         SteeringGroundBehavior();
         AccelerationGroundBehavior();
         HoverBehavior();
+        ActivateAI();
         //Chase();
-        currentState.UpdateState();
+        if (ActivateAI() == true)
+        {
+            currentState.UpdateState();
+
+        }
 
         // Collision
         if (aiShipIsColliding)
         {
-            rb.constraints = RigidbodyConstraints.FreezeRotation;
+            airb.constraints = RigidbodyConstraints.FreezeRotation;
         }
         else
         {
-            rb.constraints = RigidbodyConstraints.None;
+            airb.constraints = RigidbodyConstraints.None;
         }
+    }
+
+    public bool ActivateAI()
+    {
+        timer -= Time.deltaTime;
+        if (timer < 0)
+        {
+            return true;
+
+        }
+
+        return false;
     }
     public float AngleDir(Vector3 fwd, Vector3 targetDir, Vector3 up)
     {
@@ -299,53 +316,55 @@ public class AIShipBaseState : MonoBehaviour
             return 0.0f;
         }
     }
-    void Chase()
-    {
+    //void Chase()
+    //{
 
-        accelerationForce = 0;
-        steeringForce = 0;
+    //    accelerationForce = 0;
+    //    steeringForce = 0;
 
-        //Debug.Log(accelerationForce + "");
+    //    //Debug.Log(accelerationForce + "");
 
-        ChooseTarget();
+    //    ChooseTarget();
 
 
 
-        if (Vector3.Distance(rabbit.transform.position, transform.position) > 10)
-        {
-            accelerationForce = 1 * aiMovementSpeed;
-        }
+    //    if (Vector3.Distance(rabbit.transform.position, transform.position) > 10)
+    //    {
+    //        accelerationForce = 1 * aiMovementSpeed;
+    //    }
 
-        if (dir > 0.0f)
-        {
-            steeringForce = -1 * aiRotationSpeed;
-        }
-        else if (dir < 0.0f)
-        {
-            steeringForce = 1 * aiRotationSpeed;
-        }
+    //    if (dir > 0.0f)
+    //    {
+    //        steeringForce = -1 * aiRotationSpeed;
+    //    }
+    //    else if (dir < 0.0f)
+    //    {
+    //        steeringForce = 1 * aiRotationSpeed;
+    //    }
 
-    }
+    //}
 
-    void ChooseTarget()
-    {
-        GameObject triggerPos = GameObject.Find("Cube");
-       
-            Vector3 targetDir = rabbit.transform.position - transform.position;
-            targetDir.Normalize();
-            dir = AngleDir(transform.forward, -targetDir, transform.up);
-        
+    //void ChooseTarget()
+    //{
+    //    GameObject triggerPos = GameObject.Find("Cube");
 
-        //if (Vector3.Distance(triggerCube.transform.position, transform.position) < 200)
-        //{
-        //    chasing = false;
-        //    Vector3 triggerDir = triggerPos.transform.position - transform.position;
-        //    triggerDir.Normalize();
-        //    dir = AngleDir(transform.forward, -triggerDir, transform.up);
-        //    if (triggerCube.entered)
-        //    {
-        //        chasing = true;
-        //    }
-        //}
-    }
+    //        Vector3 targetDir = rabbit.transform.position - transform.position;
+    //        targetDir.Normalize();
+    //        dir = AngleDir(transform.forward, -targetDir, transform.up);
+
+
+    //    //if (Vector3.Distance(triggerCube.transform.position, transform.position) < 200)
+    //    //{
+    //    //    chasing = false;
+    //    //    Vector3 triggerDir = triggerPos.transform.position - transform.position;
+    //    //    triggerDir.Normalize();
+    //    //    dir = AngleDir(transform.forward, -triggerDir, transform.up);
+    //    //    if (triggerCube.entered)
+    //    //    {
+    //    //        chasing = true;
+    //    //    }
+    //    //}
+    //}
+
+
 }

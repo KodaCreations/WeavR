@@ -14,7 +14,7 @@ public class ChaseState : IAiState {
     public void UpdateState()
     {
         ChaseTheRabbit();
-        ToLookForTrigger();
+        //ToLookForTrigger();
     }
 
     public void ToLookForTrigger()
@@ -50,7 +50,7 @@ public class ChaseState : IAiState {
         //Debug.Log(accelerationForce + "");
         Vector3 targetDir = ai.rabbit.transform.position - ai.transform.position;
         targetDir.Normalize();
-        float dir = AngleDir(ai.transform.forward, -targetDir, ai.transform.up);
+        float dir = ai.AngleDir(ai.transform.forward, -targetDir, ai.transform.up);
 
 
 
@@ -68,21 +68,21 @@ public class ChaseState : IAiState {
             ai.steeringForce = 1 * ai.aiRotationSpeed;
         }
     }
-    public float AngleDir(Vector3 fwd, Vector3 targetDir, Vector3 up)
-    {
-        Vector3 perp = Vector3.Cross(fwd, targetDir);
-        float dir = Vector3.Dot(perp, up);
+    //public float AngleDir(Vector3 fwd, Vector3 targetDir, Vector3 up)
+    //{
+    //    Vector3 perp = Vector3.Cross(fwd, targetDir);
+    //    float dir = Vector3.Dot(perp, up);
 
-        if (dir > 0.023)
-        {
-            return 1.0f;
-        }
-        else if (dir < -0.023)
-        {
-            return -1.0f;
-        }
-        else {
-            return 0.0f;
-        }
-    }
+    //    if (dir > 0.023)
+    //    {
+    //        return 1.0f;
+    //    }
+    //    else if (dir < -0.023)
+    //    {
+    //        return -1.0f;
+    //    }
+    //    else {
+    //        return 0.0f;
+    //    }
+    //}
 }
