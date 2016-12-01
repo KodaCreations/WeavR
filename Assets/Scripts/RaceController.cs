@@ -9,13 +9,22 @@ public class RaceController : MonoBehaviour {
     public GameObject[] ships;
     public float[] currentPositions;
     public int[] shipLapCounter;
+    public float counter = -1;
 	// Use this for initialization
 	void Start ()
     {
         FindAllWaypoints();
         FindAllShips();
         ResetBooleans();
+        DisableShips(true);
 	}
+    void DisableShips(bool disabled)
+    {
+        foreach(GameObject s in ships)
+        {
+            s.GetComponent<ShipController>().disabled = disabled;
+        }
+    }
     void ResetBooleans()
     {
         Array.Resize(ref waypointBooleans, ships.Length);
@@ -60,7 +69,6 @@ public class RaceController : MonoBehaviour {
     {
         for(int i = 0; i < waypointBooleans[index].Length; ++i)
         {
-            Debug.LogError(waypointBooleans[index][i]);
             if (waypointBooleans[index][i] == false)
                 return false;
         }
@@ -153,10 +161,30 @@ public class RaceController : MonoBehaviour {
             }
         }
     }
+    bool CountDown()
+    {
+        if(counter >= 0)
+        {
+            counter -= Time.deltaTime;
+            if (counter < 0)
+            {
+                counter = -1;
+                return true;
+            }
+        }
+        return false;
+    }
+    public void StartCountDown(float time)
+    {
+        DisableShips(true);
+        counter = time;
+    }
 	// Update is called once per frame
 	void Update ()
     {
         CaclulateShipPositions();
         PlaceShipsInOrder();
+        if (CountDown())
+            DisableShips(false);
 	}
 }

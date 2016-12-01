@@ -99,7 +99,7 @@ public class ShipController : MonoBehaviour {
     private bool shipIsColliding;
     public bool flightMode;
     private bool grounded;
-
+    public bool disabled;
     // Use this for initialization
     void Start()
     {
@@ -137,6 +137,9 @@ public class ShipController : MonoBehaviour {
         accelerationForce = 0;
         steeringForce = 0;
         downwardForce = 0;
+        if (disabled)
+            return;
+
         if (Input.GetKey(KeyCode.W))
         {
             accelerationForce = 1;
