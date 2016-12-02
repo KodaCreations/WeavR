@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
@@ -15,6 +16,9 @@ public class Brain : MonoBehaviour {
     Transform[] startPositions;
 
     public List<GameObject> availableShips;
+    public List<GameObject> availableAIShips;
+
+    public GameObject rabbit;
     List<GameObject> playerShips;
 
     Transform startArea;
@@ -67,16 +71,28 @@ public class Brain : MonoBehaviour {
             if (availableShips.Count > 1)
                 availableShips.Remove(playerShips[i]);
         }
+        Debug.Log(track);
+        GameObject waypoints = GameObject.Find("Waypoints");
 
         // Spawn AI Ships
-        //for (int i = 7 - playerShips.Count; i >= 0; i--)
-        //{
-        //    int random = Random.Range(0, availableShips.Count - 1);
+        for (int i = 7 - playerShips.Count; i >= 0; i--)
+        {
+            int random = UnityEngine.Random.Range(0, availableAIShips.Count - 1);
 
-        //    Instantiate(availableShips[random], startPositions[i].position, startPositions[i].rotation);
-        //    if (availableShips.Count > 1)
-        //        availableShips.Remove(availableShips[random]);
-        //}
+            GameObject aiShip = (GameObject)Instantiate(availableAIShips[random], startPositions[i].position, startPositions[i].rotation);
+            GameObject rabbitObject = (GameObject)Instantiate(rabbit, startPositions[i].position, startPositions[i].rotation);
+            TheRabbit theRabbit = rabbitObject.GetComponent<TheRabbit>();
+
+            aiShip.GetComponent<AIShipBaseState>().rabbit = theRabbit;
+            theRabbit.AI = aiShip;
+
+            theRabbit.ePath = waypoints.GetComponent<EditorPath>();
+            Array.Resize(ref theRabbit.points, waypoints.transform.childCount);
+            theRabbit.points[0] = waypoints.transform.GetChild(0);
+
+            if (availableAIShips.Count > 1)
+                availableAIShips.Remove(availableAIShips[random]);
+        }
 
         // MP ships?
     }

@@ -43,7 +43,7 @@ public class HUD : MonoBehaviour
             countdown.text = ((int)Math.Ceiling(rc.counter)).ToString();
         else
             countdown.text = "";
-        weapon.text = GetWeaponName(rc.ships[placeInList].GetComponent<ShipController>());
+        //weapon.text = GetWeaponName(rc.ships[placeInList].GetComponent<ShipController>());
     }
 
     private string GetWeaponName(ShipController sc)

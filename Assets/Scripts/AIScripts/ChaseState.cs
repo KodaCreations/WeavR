@@ -19,10 +19,10 @@ public class ChaseState : IAiState {
 
     public void ToLookForTrigger()
     {
-        if (Vector3.Distance(ai.cube.transform.position, ai.transform.position) < 200 && !ai.cube.triggered)
-        {
-            ai.currentState = ai.lookForTriggerState;
-        }
+        //if (Vector3.Distance(ai.cube.transform.position, ai.transform.position) < 200 && !ai.cube.triggered)
+        //{
+        //    ai.currentState = ai.lookForTriggerState;
+        //}
     }
 
     public void ToLookForWeapon()

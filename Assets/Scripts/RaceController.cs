@@ -22,7 +22,20 @@ public class RaceController : MonoBehaviour {
     {
         foreach(GameObject s in ships)
         {
-            s.GetComponent<ShipController>().disabled = disabled;
+            ShipController controller = s.GetComponent<ShipController>();
+            if (controller)
+                controller.disabled = disabled;
+        }
+    }
+    void ActivateAI(bool activate)
+    {
+        foreach(GameObject s in ships)
+        {
+            AIShipBaseState state = s.GetComponent<AIShipBaseState>();
+            if (state)
+            {
+                state.activateAI = activate;
+            }
         }
     }
     void ResetBooleans()
@@ -178,6 +191,7 @@ public class RaceController : MonoBehaviour {
     public void StartCountDown(float time)
     {
         DisableShips(true);
+
         counter = time;
     }
 	// Update is called once per frame
@@ -186,6 +200,9 @@ public class RaceController : MonoBehaviour {
         CaclulateShipPositions();
         PlaceShipsInOrder();
         if (CountDown())
+        {
             DisableShips(false);
+            ActivateAI(true);
+        }
 	}
 }

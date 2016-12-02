@@ -17,7 +17,6 @@ public class AIShipBaseState : MonoBehaviour
 
     float dir;
     public bool chasing;
-    public TriggerCube cube;
     public TheRabbit rabbit;
     private Vector3 target;
     private Vector3 lineOfSight;
@@ -78,6 +77,8 @@ public class AIShipBaseState : MonoBehaviour
     Rigidbody airb;
     // Use this for initialization
 
+    //Start The AI
+    public bool activateAI;
 
     void Awake()
     {
@@ -96,7 +97,6 @@ public class AIShipBaseState : MonoBehaviour
         //shipWobbleTime = 0;
         airb = GetComponent<Rigidbody>();
         aiModel = transform.FindChild("ship").gameObject;
-        cube.GetComponent<GameObject>();
         //if(!isServer)
         //{
         //    rb.isKinematic = true;
@@ -269,9 +269,7 @@ public class AIShipBaseState : MonoBehaviour
         SteeringGroundBehavior();
         AccelerationGroundBehavior();
         HoverBehavior();
-        ActivateAI();
-        //Chase();
-        if (ActivateAI() == true)
+        if (activateAI)
         {
             currentState.UpdateState();
 
@@ -288,17 +286,17 @@ public class AIShipBaseState : MonoBehaviour
         }
     }
 
-    public bool ActivateAI()
-    {
-        timer -= Time.deltaTime;
-        if (timer < 0)
-        {
-            return true;
+    //public bool ActivateAI()
+    //{
+    //    timer -= Time.deltaTime;
+    //    if (timer < 0)
+    //    {
+    //        return true;
 
-        }
+    //    }
 
-        return false;
-    }
+    //    return false;
+    //}
     public float AngleDir(Vector3 fwd, Vector3 targetDir, Vector3 up)
     {
         Vector3 perp = Vector3.Cross(fwd, targetDir);

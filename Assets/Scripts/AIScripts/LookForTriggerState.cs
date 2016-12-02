@@ -34,31 +34,31 @@ public class LookForTriggerState : IAiState {
 
     public void ToChaseState()
     {
-        if (ai.cube.triggered)
-        {
-            ai.currentState = ai.chaseState;
-        }
+        //if (ai.cube.triggered)
+        //{
+        //    ai.currentState = ai.chaseState;
+        //}
     }
 
     void ActivateTriggerTile()
     {
-        Vector3 targetDir = ai.cube.transform.position - ai.transform.position;
-        targetDir.Normalize();
-        float dir = ai.AngleDir(ai.transform.forward, -targetDir, ai.transform.up);
+    //    Vector3 targetDir = ai.cube.transform.position - ai.transform.position;
+    //    targetDir.Normalize();
+    //    float dir = ai.AngleDir(ai.transform.forward, -targetDir, ai.transform.up);
 
-        if (Vector3.Distance(ai.cube.transform.position, ai.transform.position) > 10)
-        {
-            ai.accelerationForce = 1 * ai.aiMovementSpeed;
-        }
+    //    if (Vector3.Distance(ai.cube.transform.position, ai.transform.position) > 10)
+    //    {
+    //        ai.accelerationForce = 1 * ai.aiMovementSpeed;
+    //    }
 
-        if (dir > 0.0f)
-        {
-            ai.steeringForce = -1 * ai.aiRotationSpeed;
-        }
-        else if (dir < 0.0f)
-        {
-            ai.steeringForce = 1 * ai.aiRotationSpeed;
-        }
+    //    if (dir > 0.0f)
+    //    {
+    //        ai.steeringForce = -1 * ai.aiRotationSpeed;
+    //    }
+    //    else if (dir < 0.0f)
+    //    {
+    //        ai.steeringForce = 1 * ai.aiRotationSpeed;
+    //    }
 
     }
 

@@ -8,6 +8,7 @@ public class CamScript : MonoBehaviour {
     public float distance = 3.0f;
     public float height = 3.0f;
     public float damping = 5.0f;
+    public float offset = 1.0f;
     public bool smoothRotation = true;
     public float rotationDamping = 10.0f;
 
@@ -23,7 +24,7 @@ public class CamScript : MonoBehaviour {
 
         if (smoothRotation)
         {
-            Quaternion wantedRotation = Quaternion.LookRotation(ship.position - transform.position, ship.up);
+            Quaternion wantedRotation = Quaternion.LookRotation(ship.position + ship.transform.up * offset - transform.position, ship.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, wantedRotation, Time.deltaTime * rotationDamping);
         }
 
