@@ -393,7 +393,7 @@ namespace Prototype.NetworkLobby
             Brain brain = GameObject.Find("Brain").GetComponent<Brain>();
             for (int i = 0; i < LobbyPlayerList._instance._players.Count; i++)
             {
-                brain.AddSelectedShip(LobbyPlayerList._instance._players[0].shipDropdown.value);
+                brain.AddSelectedShip(LobbyPlayerList._instance._players[i].shipDropdown.value);
             }
         }
 

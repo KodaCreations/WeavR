@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
-public class Brain : MonoBehaviour {
+public class Brain : NetworkBehaviour {
 
     public bool isSplitscreen;
     public bool isMultiplayer;
@@ -61,8 +61,11 @@ public class Brain : MonoBehaviour {
     // Spawn all ships at start positions.
     void SpawnShips()
     {
-        NetworkIdentity netId = GetComponent<NetworkIdentity>();
+        NetworkIdentity networkID = GetComponent<NetworkIdentity>();
+        networkID.RebuildObservers(false);
 
+        Debug.Log(playerShips.Count + "  PlayerShips");
+        Debug.Log(networkID.observers.Count + "  Observers");
         for (int i = 0; i < playerShips.Count; i++)
         {
             Debug.Log("Players");
@@ -71,10 +74,10 @@ public class Brain : MonoBehaviour {
             if (isMultiplayer)
             {
                 Debug.Log("IsMultiplayer");
-                if (netId.isServer)
+                if (networkID.isServer)
                 {
                     Debug.Log("isServer");
-                    NetworkServer.SpawnWithClientAuthority(ship, netId.observers[i]);
+                    NetworkServer.SpawnWithClientAuthority(ship, networkID.observers[i]);
                 }
             }
 
@@ -144,10 +147,13 @@ public class Brain : MonoBehaviour {
         // First scene has to be menus scene.
         if (level == 0)
             return;
-        Debug.Log("Hello World!");
+        Debug.Log("Hello World! 1");
         ReadStartPositions();
+        Debug.Log("Hello World! 2");
         SpawnShips();
+        Debug.Log("Hello World! 3");
         AddCameras();
+        Debug.Log("Hello World! 4");
 
         startArea.gameObject.SetActive(false);
 
