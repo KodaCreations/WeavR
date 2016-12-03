@@ -71,7 +71,7 @@ public class Brain : MonoBehaviour {
             if (availableShips.Count > 1)
                 availableShips.Remove(playerShips[i]);
         }
-        Debug.Log(track);
+
         GameObject waypoints = GameObject.Find("Waypoints");
 
         // Spawn AI Ships

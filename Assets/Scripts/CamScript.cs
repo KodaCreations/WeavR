@@ -12,10 +12,12 @@ public class CamScript : MonoBehaviour {
     public bool smoothRotation = true;
     public float rotationDamping = 10.0f;
 
+    GameObject[] allShips;
+
     // Use this for initialization
     void Start()
     {
-
+        allShips = GameObject.FindGameObjectsWithTag("Ship");
     }
     void FixedUpdate()
     {
@@ -29,5 +31,13 @@ public class CamScript : MonoBehaviour {
         }
 
         else transform.LookAt(ship, ship.up);
+    }
+
+    // Function to leave transform and move to spectator mode (lacking specific features, such as changing spectator target)
+    public void EnterSpectatorMode()
+    {
+        foreach (GameObject go in allShips)
+            if (go)
+                ship = go.transform;
     }
 }

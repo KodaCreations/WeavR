@@ -11,6 +11,7 @@ public class HUD : MonoBehaviour
     Text positionCounter;
     Text countdown;
     Text weapon;
+    Transform finishPanel;
 
     // Use this for initialization
     void Start()
@@ -20,6 +21,7 @@ public class HUD : MonoBehaviour
         positionCounter = transform.FindChild("PositionCounter").GetComponent<Text>();
         countdown = transform.FindChild("Countdown").GetComponent<Text>();
         weapon = transform.FindChild("WeaponText").GetComponent<Text>();
+        finishPanel = transform.FindChild("FinishPanel");
         ship = GetComponentInParent<CamScript>().ship.gameObject.GetComponent<ShipController>();
     }
 
@@ -44,6 +46,12 @@ public class HUD : MonoBehaviour
         else
             countdown.text = "";
         //weapon.text = GetWeaponName(rc.ships[placeInList].GetComponent<ShipController>());
+    }
+
+    public void EnableWinPanel(float position)
+    {
+        finishPanel.GetComponentInChildren<Text>().text = "Goal! \nPosition: " + position;
+        finishPanel.gameObject.SetActive(true);
     }
 
     private string GetWeaponName(ShipController sc)
