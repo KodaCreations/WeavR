@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 2d5802065a4b6be47b9d63279f175d6f
-timeCreated: 1480796797
+guid: 6dd837f77a4a1254f82c416460824e52
+timeCreated: 1480796775
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: transLargeRing
+    4300000: splitOffLeftRoad
     9500000: //RootNode
   materials:
     importMaterials: 1
