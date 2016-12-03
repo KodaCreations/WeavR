@@ -110,13 +110,15 @@ public class RaceController : MonoBehaviour {
         }
 
         // If last lap and ship[index], change cameras target, de-enable ship(ai too) and enable win message panel
-        if (shipLapCounter[index] - 1 == nrOfLaps)
+        if (shipLapCounter[index] + 1 == nrOfLaps)
         {
             if (huds[index])
             {
+                // Doesnt always get here
                 huds[index].GetComponentInParent<CamScript>().EnterSpectatorMode();
                 huds[index].EnableWinPanel(currentPositions[0]);
             }
+
             ships[index].SetActive(false);
         }
 

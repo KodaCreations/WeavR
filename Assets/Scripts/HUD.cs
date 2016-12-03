@@ -50,7 +50,7 @@ public class HUD : MonoBehaviour
 
     public void EnableWinPanel(float position)
     {
-        finishPanel.GetComponentInChildren<Text>().text = "Goal! \nPosition: " + position;
+        finishPanel.GetComponentInChildren<Text>().text = "Goal!";
         finishPanel.gameObject.SetActive(true);
     }
 
