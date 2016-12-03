@@ -109,13 +109,15 @@ public class RaceController : MonoBehaviour {
                 return false;
         }
 
-        // If last lap and ship[index] has a hud, ie. is a player, change cameras target, despawn ship and enable win message panel
-        if (shipLapCounter[index] == nrOfLaps && huds[index])
+        // If last lap and ship[index], change cameras target, de-enable ship(ai too) and enable win message panel
+        if (shipLapCounter[index] - 1 == nrOfLaps)
         {
-            huds[index].GetComponentInParent<CamScript>().EnterSpectatorMode();
+            if (huds[index])
+            {
+                huds[index].GetComponentInParent<CamScript>().EnterSpectatorMode();
+                huds[index].EnableWinPanel(currentPositions[0]);
+            }
             ships[index].SetActive(false);
-
-            huds[index].EnableWinPanel(currentPositions[0]);
         }
 
         ResetLap(index);
