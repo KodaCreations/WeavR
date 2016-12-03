@@ -1,15 +1,20 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public class RaceController : MonoBehaviour {
 
     public Waypoint[] waypoints;
     public bool[][] waypointBooleans;
     public GameObject[] ships;
+    GameObject[] originalShips;
     public float[] currentPositions;
     public int[] shipLapCounter;
     public float counter = -1;
+    public int nrOfLaps = 3;
+    HUD[] huds;
+
 	// Use this for initialization
 	void Start ()
     {
@@ -63,13 +68,31 @@ public class RaceController : MonoBehaviour {
     void FindAllShips()
     {
         ships = GameObject.FindGameObjectsWithTag("Ship");
+        originalShips = ships;
+
         Array.Resize(ref currentPositions, ships.Length);
         Array.Resize(ref shipLapCounter, ships.Length);
-        for(int i = 0; i < ships.Length; ++i)
+        Array.Resize(ref huds, ships.Length);
+
+        // Really bad way of finding the huds
+        List<GameObject> playerShips = new List<GameObject>();
+        GameObject[] cameras = GameObject.FindGameObjectsWithTag("MainCamera");
+        foreach (GameObject camera in cameras)
+            playerShips.Add(camera.GetComponent<CamScript>().ship.gameObject);
+        int cameraCounter = 0;
+
+        for (int i = 0; i < ships.Length; ++i)
         {
             currentPositions[i] = 0;
             shipLapCounter[i] = 0;
+
+            if (playerShips.Contains(ships[i]))
+            {
+                huds[i] = cameras[cameraCounter].GetComponentInChildren<HUD>();
+                cameraCounter++;
+            }
         }
+
     }
     private void ResetLap(int index)
     {
@@ -85,6 +108,20 @@ public class RaceController : MonoBehaviour {
             if (waypointBooleans[index][i] == false)
                 return false;
         }
+
+        // If last lap and ship[index], change cameras target, de-enable ship(ai too) and enable win message panel
+        if (shipLapCounter[index] + 1 == nrOfLaps)
+        {
+            if (huds[index])
+            {
+                // Doesnt always get here
+                huds[index].GetComponentInParent<CamScript>().EnterSpectatorMode();
+                huds[index].EnableWinPanel(currentPositions[0]);
+            }
+
+            ships[index].SetActive(false);
+        }
+
         ResetLap(index);
         return true;
     }
@@ -175,6 +212,8 @@ public class RaceController : MonoBehaviour {
             }
         }
     }
+
+
     bool CountDown()
     {
         if(counter >= 0)
@@ -204,5 +243,5 @@ public class RaceController : MonoBehaviour {
             DisableShips(false);
             ActivateAI(true);
         }
-	}
+    }
 }
