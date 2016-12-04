@@ -101,7 +101,7 @@ public class Brain : MonoBehaviour {
         GameObject[] go = GameObject.FindGameObjectsWithTag("Ship");
         if(isSplitscreen)
         {
-            GameObject splitScreenCamera = (GameObject)Instantiate(Resources.Load("Prefabs/SplitScreenCameraPrefab"), null);
+            GameObject splitScreenCamera = (GameObject)Instantiate(Resources.Load("Prefabs/Cameras/SplitScreenCameraPrefab"), null);
 
             GameObject camera1 = splitScreenCamera.transform.GetChild(0).gameObject;
             camera1.transform.rotation = go[0].transform.rotation;
@@ -116,7 +116,7 @@ public class Brain : MonoBehaviour {
         }
         else
         {
-            GameObject camera = (GameObject)Instantiate(Resources.Load("Prefabs/CameraPrefab"), null);
+            GameObject camera = (GameObject)Instantiate(Resources.Load("Prefabs/Cameras/CameraPrefab"), null);
 
             camera.transform.rotation = go[0].transform.rotation;
             camera.transform.position = go[0].transform.position - go[0].transform.forward * 8;
@@ -134,7 +134,7 @@ public class Brain : MonoBehaviour {
         // First scene has to be menus scene.
         if (level == 0)
             return;
-        Debug.Log("Hello World!");
+
         ReadStartPositions();
         SpawnShips();
         AddCameras();

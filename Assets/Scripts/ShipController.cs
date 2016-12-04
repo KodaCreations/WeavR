@@ -2,6 +2,11 @@
 using System.Collections;
 
 public class ShipController : MonoBehaviour {
+
+    //Misc
+    public string shipName;
+
+
     //Ship energy variables
     public float energyEfficiency; //How effective the ship is at converting energy into boost or shield 1 for 100%, higher value for less efficiency.
     public float shieldEfficiency; //How much energy the shield uses compared to the turbo 1 for equaly effective, higher value for less efficiency.

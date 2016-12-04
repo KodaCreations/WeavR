@@ -176,13 +176,13 @@ public class MenusScript : MonoBehaviour {
 
     public void SelectShip()
     {
-        brain.AddSelectedShip(shipPreview.GetPreviewName().Split(' ')[1]);
+        brain.AddSelectedShip(shipPreview.GetShipPrefabName().Split(' ')[1]);
         LoadRace();
     }
 
     public void SelectShipSS1()
     {
-        brain.AddSelectedShip(shipPreviewSS1.GetPreviewName().Split(' ')[1]);
+        brain.AddSelectedShip(shipPreviewSS1.GetShipPrefabName().Split(' ')[1]);
         //LoadRace();  only if both selected
     }
 

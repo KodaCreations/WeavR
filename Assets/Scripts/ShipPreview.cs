@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class ShipPreview : MonoBehaviour {
 
     List<GameObject> instantiatedPreviews;
+    List<string> shipNames;
     int previewIndex;
 
     public Vector3 previewScale = new Vector3(1, 1, 1);
@@ -17,6 +18,7 @@ public class ShipPreview : MonoBehaviour {
         brain = GameObject.Find("Brain").GetComponent<Brain>();
 
         instantiatedPreviews = new List<GameObject>();
+        shipNames = new List<string>();
 
         foreach (GameObject go in brain.availableShips)
         {
@@ -27,6 +29,8 @@ public class ShipPreview : MonoBehaviour {
             instantiatedPreviews[instantiatedPreviews.Count - 1].transform.localPosition = Vector3.zero;
 
             Instantiate(go.transform.GetChild(0), transform.position, transform.rotation, instantiatedPreviews[instantiatedPreviews.Count - 1].transform);
+
+            shipNames.Add(go.GetComponent<ShipController>().shipName);
         }
 
         instantiatedPreviews[0].SetActive(true);
@@ -52,6 +56,11 @@ public class ShipPreview : MonoBehaviour {
     }
 
     public string GetPreviewName()
+    {
+        return shipNames[previewIndex];
+    }
+
+    public string GetShipPrefabName()
     {
         return instantiatedPreviews[previewIndex].name;
     }
