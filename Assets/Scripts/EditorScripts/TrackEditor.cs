@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -15,13 +16,14 @@ public class TrackEditor : MonoBehaviour {
     Mesh defaultMesh;
     Mesh mesh;
     GameObject road;
-
+    Material[] mat;
 
     public List<List<Vector3>> segmentVertices;
     public List<List<Vector3>> defaultSegmentVertices;  // Road segment vertices divided into seperate lists, by column.
     public List<List<int>> segmentVerticesID;           // Road segment Indices divided into seperate lists mirroing segment Verttices;
     public List<bool> segmentVerticesUsed;
     public float roadDetail = 1;                        // How detailed (distance between forward vertices) the road should be. 
+    int counter = 0;
     float roadTime = 0;
     void Initialize(string whatTag, string whatLayer, string whatName, GameObject roadSegment, BezierSpline spline)
     {
@@ -167,6 +169,7 @@ public class TrackEditor : MonoBehaviour {
         this.whatName = whatName;
         this.roadDetail = detail;
         spline = thisSpline;
+        counter = 0;
 
         if (GameObject.Find(thisSpline.name + trackSegment.name + "(Clone)"))
             DestroyImmediate(GameObject.Find(thisSpline.name + trackSegment.name + "(Clone)"));
@@ -178,6 +181,7 @@ public class TrackEditor : MonoBehaviour {
         int splineCurves = spline.CurveCountAll;
         while (currentTime < splineCurves - 0.002f)
         {
+            ++counter;
             PlaceSegmentsOnSpline(currentTime);
         }
         SaveMesh();
@@ -191,7 +195,6 @@ public class TrackEditor : MonoBehaviour {
         {
             float vertexDistance = Mathf.Abs(defaultSegmentVertices[i][0].x - oldPos.x);
             float detail = vertexDistance / roadDetail;
-            //Debug.Log(detail);
             if (detail < 1)
                 detail = 1;
             point = spline.GetPointConstantSpeed(ref currentTime, vertexDistance, roadDetail);
@@ -256,6 +259,21 @@ public class TrackEditor : MonoBehaviour {
     void SaveMesh()
     {
         //Save the mesh so that the prefab can get it somehow
+        road.GetComponent<MeshFilter>().sharedMesh.subMeshCount = defaultMesh.subMeshCount;
+        for (int i = 1; i < defaultMesh.subMeshCount; ++i)
+        {
+            int[] triangles = defaultMesh.GetTriangles(i);
+            Array.Resize(ref triangles, defaultMesh.GetTriangles(i).Length * counter);
+            for(int j = 0; j < counter; ++j)
+            {
+                int totalTriangles = defaultMesh.GetTriangles(i).Length;
+                for (int k = 0; k < totalTriangles; ++k)
+                {
+                    triangles[j * totalTriangles + k] = defaultMesh.GetTriangles(i)[k] + defaultMesh.vertices.Length * j;
+                }
+            }
+            road.GetComponent<MeshFilter>().sharedMesh.SetTriangles(triangles, i);
+        }
 #if UNITY_EDITOR
         UnityEditor.AssetDatabase.CreateAsset(road.GetComponent<MeshFilter>().sharedMesh, "Assets/Prefabs/Tracks/TrackAssets/" + name + whatName + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + ".asset");
         UnityEditor.AssetDatabase.SaveAssets();
