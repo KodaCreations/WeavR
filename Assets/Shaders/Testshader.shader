@@ -4,7 +4,7 @@
 	{
 		_MainTex ("Texture", 2D) = "white" {}
 		_ShipPos("Ship Pos", Vector) = (1, 1, 1, 1)
-		_DistanceBeforeVisable("Distance Before visable", Float) = 0
+		_DistanceBeforeVisable("Distance Before visable", Float) = 20
 	}
 	SubShader
 	{

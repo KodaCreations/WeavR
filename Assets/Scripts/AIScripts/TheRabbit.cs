@@ -101,7 +101,7 @@ public class TheRabbit : MonoBehaviour
 
     void ReSpawnAtAI()
     {
-        if (Vector3.Distance(transform.position, AI.transform.position) > 400)
+        if (Vector3.Distance(transform.position, AI.transform.position) > 100)
         {
             transform.position = AI.transform.position;
 
