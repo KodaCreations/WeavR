@@ -313,11 +313,11 @@ public class ShipController : MonoBehaviour {
             {
                 if (shipCurrentBank > 15)
                 {
-                    shipBankSpeed = Mathf.Lerp(shipBankSpeed, 5, Time.fixedDeltaTime * shipSpeedBank);
+                    shipBankSpeed = Mathf.Lerp(shipBankSpeed, 10, Time.fixedDeltaTime * shipSpeedBank);
                 }
                 else
                 {
-                    shipBankSpeed = Mathf.Lerp(shipBankSpeed, 3, Time.fixedDeltaTime * shipSpeedBank);
+                    shipBankSpeed = Mathf.Lerp(shipBankSpeed, 7, Time.fixedDeltaTime * shipSpeedBank);
                 }
             }
             else
@@ -335,11 +335,11 @@ public class ShipController : MonoBehaviour {
 
                 if (shipCurrentBank < -15)
                 {
-                    shipBankSpeed = Mathf.Lerp(shipBankSpeed, 5, Time.fixedDeltaTime * shipSpeedBank);
+                    shipBankSpeed = Mathf.Lerp(shipBankSpeed, 10, Time.fixedDeltaTime * shipSpeedBank);
                 }
                 else
                 {
-                    shipBankSpeed = Mathf.Lerp(shipBankSpeed, 3, Time.fixedDeltaTime * shipSpeedBank);
+                    shipBankSpeed = Mathf.Lerp(shipBankSpeed, 7, Time.fixedDeltaTime * shipSpeedBank);
                 }
             }
             else
