@@ -21,15 +21,15 @@ public class RaceController : MonoBehaviour {
         FindAllWaypoints();
         FindAllShips();
         ResetBooleans();
-        DisableShips(true);
+        ActivateShips(false);
 	}
-    void DisableShips(bool disabled)
+    void ActivateShips(bool activate)
     {
         foreach(GameObject s in ships)
         {
             ShipController controller = s.GetComponent<ShipController>();
             if (controller)
-                controller.disabled = disabled;
+                controller.Activate = activate;
         }
     }
     void ActivateAI(bool activate)
@@ -229,7 +229,7 @@ public class RaceController : MonoBehaviour {
     }
     public void StartCountDown(float time)
     {
-        DisableShips(true);
+        ActivateShips(false);
 
         counter = time;
     }
@@ -240,7 +240,7 @@ public class RaceController : MonoBehaviour {
         PlaceShipsInOrder();
         if (CountDown())
         {
-            DisableShips(false);
+            ActivateShips(true);
             ActivateAI(true);
         }
     }

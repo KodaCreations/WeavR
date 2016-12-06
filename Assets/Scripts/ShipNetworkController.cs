@@ -26,9 +26,9 @@ public class ShipNetworkController : NetworkBehaviour
         steeringForce = steeringInput;
         accelerationForce = accelerationInput;
         downwardForce = downwardInput;
-        ship.steeringForce = steeringForce;
-        ship.accelerationForce = accelerationForce;
-        ship.downwardForce = downwardForce;
+        ship.SteeringForce = steeringForce;
+        ship.AccelerationForce = accelerationForce;
+        ship.DownwardForce = downwardForce;
     }
     // Update is called once per frame
     void Update()
@@ -37,9 +37,16 @@ public class ShipNetworkController : NetworkBehaviour
             ship = GetComponent<ShipController>();
         else
         {
-            ship.steeringForce = steeringForce;
-            ship.accelerationForce = accelerationForce;
-            ship.downwardForce = downwardForce;
+            if(isLocalPlayer)
+            {
+                CmdSendInputHandler(ship.SteeringForce, ship.AccelerationForce, ship.downwardSpeed);
+            }
+            else
+            {
+                ship.SteeringForce = steeringForce;
+                ship.AccelerationForce = accelerationForce;
+                ship.DownwardForce = downwardForce;
+            }
         }
     }
 }
