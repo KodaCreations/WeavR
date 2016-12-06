@@ -12,7 +12,7 @@ public class MenusScript : MonoBehaviour {
     public Text shipNameSS1; 
     public Text shipNameSS2;
 
-    List<string> tracks;
+    public List<string> tracks;
     public Text trackName;
     int trackIndex;
     List<Sprite> trackPreviews;
@@ -36,14 +36,17 @@ public class MenusScript : MonoBehaviour {
         mpMenu = transform.FindChild("Multiplayer Menu");
         splitscreenMenu = transform.FindChild("Splitscreen Menu");
 
-        tracks = new List<string>();
-        foreach (string trackName in System.IO.Directory.GetFiles(Application.dataPath + "/Scenes/Tracks"))
-        {
-            string name = trackName.Split('.')[0];
-            name = name.Split('\\')[1];
-            if (!tracks.Contains(name))
-                tracks.Add(name);
-        }
+        //tracks = new List<string>();
+        //foreach (string track in System.IO.Directory.GetFiles(Application.dataPath + "/Resources/Scenes/Tracks"))
+        //{
+        //    Debug.Log(track);
+        //    string name = track;
+        //    //name = name.Split('/')[name.Split('/').Length-1];
+        //    name = name.Split('\\')[1];
+        //    name = name.Split('.')[0];
+        //    if (!tracks.Contains(name))
+        //        tracks.Add(name);
+        //}
 
         trackPreviews = new List<Sprite>();
         foreach (string trackName in System.IO.Directory.GetFiles(Application.dataPath + "/Resources/TrackPreviews"))
