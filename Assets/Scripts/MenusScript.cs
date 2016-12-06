@@ -2,9 +2,11 @@
 using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.IO;
 
 public class MenusScript : MonoBehaviour {
 
+    // Ship variables, singleplayer and splitscreen
     ShipPreview shipPreview;
     ShipPreview shipPreviewSS1;
     ShipPreview shipPreviewSS2;
@@ -12,42 +14,39 @@ public class MenusScript : MonoBehaviour {
     public Text shipNameSS1; 
     public Text shipNameSS2;
 
-    public List<string> tracks;
+    // Track variables
+    List<string> trackNames;
     public Text trackName;
     int trackIndex;
     List<Sprite> trackPreviews;
     public Image trackPreview;
 
+    // All menus
     Transform mainMenu;
     Transform trackMenu;
     Transform shipMenu;
     Transform mpMenu;
     Transform splitscreenMenu;
 
+    // Multiplayer manager
     public Transform lobbyManager;
 
+    // Brain
     public Brain brain;
 
-	// Use this for initialization
-	void Start () {
+	void Start ()
+    {
+        // Find all menus
         mainMenu = transform.FindChild("Main Menu");
         trackMenu = transform.FindChild("Track Selection Menu");
         shipMenu = transform.FindChild("Ship Selection Menu");
         mpMenu = transform.FindChild("Multiplayer Menu");
         splitscreenMenu = transform.FindChild("Splitscreen Menu");
 
-        tracks = new List<string>();
-        foreach (string track in System.IO.Directory.GetFiles(Application.dataPath + "/Resources/Scenes/Tracks"))
-        {
-            Debug.Log(track);
-            string name = track;
-            //name = name.Split('/')[name.Split('/').Length-1];
-            name = name.Split('\\')[1];
-            name = name.Split('.')[0];
-            if (!tracks.Contains(name))
-                tracks.Add(name);
-        }
+        // Get loadable track names from brain.
+        trackNames = brain.loadableTrackNames;
 
+        // Load pictures for tracks, if they exist. 
         trackPreviews = new List<Sprite>();
         foreach (string trackName in System.IO.Directory.GetFiles(Application.dataPath + "/Resources/TrackPreviews"))
         {
@@ -60,14 +59,13 @@ public class MenusScript : MonoBehaviour {
         }
 	}
 
-    // Functions to be called by canvases
-
+    // Functions to be called by menus.
     #region SharedMenuFunctions
-    public void SwitchTrackSelection()
+    public void SwitchToTrackSelectionMenu()
     {
         DeactivateAllMenus();
         trackMenu.gameObject.SetActive(true);
-        trackName.text = tracks[0];
+        trackName.text = trackNames[0];
         trackPreview.sprite = trackPreviews[0];
     }
 
@@ -80,7 +78,7 @@ public class MenusScript : MonoBehaviour {
         splitscreenMenu.gameObject.SetActive(false);
     }
 
-    public void SwitchMainMenu()
+    public void SwitchToMainMenu()
     {
         DeactivateAllMenus();
         mainMenu.gameObject.SetActive(true);
@@ -88,7 +86,7 @@ public class MenusScript : MonoBehaviour {
     #endregion
 
     #region MainMenu
-    public void SwitchMultiplayer()
+    public void SwitchToMultiplayerMenu()
     {
         mainMenu.gameObject.SetActive(false);
         mpMenu.gameObject.SetActive(true);
@@ -107,30 +105,30 @@ public class MenusScript : MonoBehaviour {
         lobbyManager.gameObject.SetActive(true);
     }
 
-    public void SwitchSplitscreen()
+    public void SwitchToSplitscreenMenu()
     {
         brain.isSplitscreen = true;
-        SwitchTrackSelection();
+        SwitchToTrackSelectionMenu();
     }
 
     #endregion
 
-    #region TrackSelection
+    #region TrackSelectionMenu
     public void NextTrack(int direction)
     {
         trackIndex += direction;
-        if (trackIndex > tracks.Count - 1)
+        if (trackIndex > trackNames.Count - 1)
             trackIndex = 0;
         if (trackIndex < 0)
-            trackIndex = tracks.Count - 1;
+            trackIndex = trackNames.Count - 1;
 
-        trackName.text = tracks[trackIndex];
+        trackName.text = trackNames[trackIndex];
     }
 
-    public void SwitchShipSelection()
+    public void SwitchToShipSelectionMenu()
     {
         DeactivateAllMenus();
-        brain.track = trackName.text;
+        brain.selectedTrack = trackName.text;
 
         if (!brain.isSplitscreen)
         {
@@ -157,8 +155,7 @@ public class MenusScript : MonoBehaviour {
     }
     #endregion
 
-    #region ShipSelection
-
+    #region ShipSelectionMenu
     public void NextShip(int direction)
     {
         shipPreview.SwitchPreview(direction);
