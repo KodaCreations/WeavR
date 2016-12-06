@@ -36,17 +36,17 @@ public class MenusScript : MonoBehaviour {
         mpMenu = transform.FindChild("Multiplayer Menu");
         splitscreenMenu = transform.FindChild("Splitscreen Menu");
 
-        //tracks = new List<string>();
-        //foreach (string track in System.IO.Directory.GetFiles(Application.dataPath + "/Resources/Scenes/Tracks"))
-        //{
-        //    Debug.Log(track);
-        //    string name = track;
-        //    //name = name.Split('/')[name.Split('/').Length-1];
-        //    name = name.Split('\\')[1];
-        //    name = name.Split('.')[0];
-        //    if (!tracks.Contains(name))
-        //        tracks.Add(name);
-        //}
+        tracks = new List<string>();
+        foreach (string track in System.IO.Directory.GetFiles(Application.dataPath + "/Resources/Scenes/Tracks"))
+        {
+            Debug.Log(track);
+            string name = track;
+            //name = name.Split('/')[name.Split('/').Length-1];
+            name = name.Split('\\')[1];
+            name = name.Split('.')[0];
+            if (!tracks.Contains(name))
+                tracks.Add(name);
+        }
 
         trackPreviews = new List<Sprite>();
         foreach (string trackName in System.IO.Directory.GetFiles(Application.dataPath + "/Resources/TrackPreviews"))
