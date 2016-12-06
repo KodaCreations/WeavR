@@ -6,37 +6,46 @@ using UnityEngine.SceneManagement;
 
 public class Brain : MonoBehaviour {
 
-    public bool isSplitscreen;
-    public bool isMultiplayer;
+    public float countDownTimer = 5;            // Timer to start race
 
-    public string track;
+    public bool isSplitscreen;                  // Is the game in splitscreen mode?
+    public bool isMultiplayer;                  // Is the game in online mode?
+    [HideInInspector]
+    public string selectedTrack;                // Track that has been selected by the player
 
-    public float countDownTimer = 5;
+    public List<string> loadableTrackNames;     // Names of all loadable tracks, need to match scene names
+    public List<GameObject> availableShips;     // All available ship prefabs
+    public List<GameObject> availableAIShips;   // All available ai ship prefabs
 
-    Transform[] startPositions;
+    public GameObject rabbit;                   // Ai rabbit prefab
 
-    public List<GameObject> availableShips;
-    public List<GameObject> availableAIShips;
+    Transform startArea;                        // Start area transform, automatically searched for start tag
+    Transform[] startPositions;                 // 8 transforms that are children of startArea.
 
-    public GameObject rabbit;
-    List<GameObject> playerShips;
-
-    Transform startArea;
+    List<GameObject> playerShips;               // Ships chosen by the player
 
 	void Start () 
     {
+        // Keep this object through scenes.
         DontDestroyOnLoad(transform.gameObject);
+
+        // If there are no loadable tracks/scenes added to brain, throw an error and stop the code.
+        if (loadableTrackNames.Count == 0)
+        {
+            Debug.LogError("No loadable tracks added to brain!");
+            return;
+        }
 
         startPositions = new Transform[8];
         playerShips = new List<GameObject>();
 	}
 	
-
 	void Update () 
     {
 	
 	}
 
+    // Adds the player's chosen ship to the list, called from menusScript.
     public void AddSelectedShip(string name)
     {
         foreach (GameObject go in availableShips)
@@ -62,19 +71,14 @@ public class Brain : MonoBehaviour {
         {
             GameObject player = (GameObject)Instantiate(playerShips[i], startPositions[7 - i].position, startPositions[7 - i].rotation);
 
-            //Camera.main.transform.parent = player.transform;
-            //Camera.main.transform.rotation = player.transform.rotation;
-            //Camera.main.transform.position = new Vector3(0, 100, -5);
-
-
             // Remove from available ships to let AI choose from remainding ones.
             if (availableShips.Count > 1)
                 availableShips.Remove(playerShips[i]);
         }
 
+        // Spawn AI Ships
         GameObject waypoints = GameObject.Find("Waypoints");
 
-        // Spawn AI Ships
         for (int i = 7 - playerShips.Count; i >= 0; i--)
         {
             int random = UnityEngine.Random.Range(0, availableAIShips.Count - 1);
@@ -96,6 +100,8 @@ public class Brain : MonoBehaviour {
 
         // MP ships?
     }
+
+    // Add cameras to the scene, depending on mode.
     private void AddCameras()
     {
         GameObject[] go = GameObject.FindGameObjectsWithTag("Ship");
@@ -123,25 +129,31 @@ public class Brain : MonoBehaviour {
             camera.GetComponent<CamScript>().ship = go[0].transform;
         }
     }
-    // Set up race and ask controller to start it.
+
+    // Load the correct track/scene, called by menusScript.
     public void StartRace()
     {
-        SceneManager.LoadScene(track);
+        SceneManager.LoadScene(selectedTrack);
     }
 
+    // When a new level has been loaded.
     void OnLevelWasLoaded(int level)
     {
-        // First scene has to be menus scene.
+        // Don't continue if you're in the menus (i.e. level 0).
         if (level == 0)
             return;
 
+        // Look for the start positions.
         ReadStartPositions();
+        // Spawn all ships at the start positions.
         SpawnShips();
+        // Add cameras to the scene.
         AddCameras();
 
+        // Disable visual presentation of start area.
         startArea.gameObject.SetActive(false);
 
-        // controller, plz, can you plz start the race
+        // Ask the race controller to start the race.
         RaceController raceController = GameObject.Find("RaceController").GetComponent<RaceController>();
         raceController.StartCountDown(countDownTimer);
     }
