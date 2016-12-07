@@ -17,6 +17,7 @@ public class AIController : MonoBehaviour {
 
     public TheRabbit rabbit;
     public ShipController ship;
+    public bool activateAI;
 
     // Use this for initialization
     void Awake()
@@ -35,8 +36,8 @@ public class AIController : MonoBehaviour {
     // Update is called once per frame
     void Update ()
     {
-        currentState.UpdateState();
-	
+        if(activateAI)
+            currentState.UpdateState();
 	}
 
 

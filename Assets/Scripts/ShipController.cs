@@ -6,6 +6,7 @@ public class ShipController : MonoBehaviour {
     //Misc
     [Header("Misc")]
     public string shipName;
+    public bool activate;
 
 
     //Ship energy variables
@@ -109,7 +110,6 @@ public class ShipController : MonoBehaviour {
     private bool shipIsColliding;
     private bool flightMode;
     private bool grounded;
-    private bool activate;
     // Use this for initialization
     void Start()
     {

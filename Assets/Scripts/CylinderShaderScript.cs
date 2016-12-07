@@ -35,7 +35,7 @@ public class CylinderShaderScript : MonoBehaviour {
             ShipController controller = ship.GetComponent<ShipController>();
             if(controller)
             {
-                ship.GetComponent<Renderer>().material.SetVector("_ShipPos", new Vector4(ship.transform.position.x, ship.transform.position.y, ship.transform.position.z, 0));
+                //ship.GetComponent<Renderer>().material.SetVector("_ShipPos", new Vector4(ship.transform.position.x, ship.transform.position.y, ship.transform.position.z, 0));
                 if (controller.FlightMode)
                 {
                     GetComponent<MeshCollider>().enabled = true;

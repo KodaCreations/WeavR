@@ -17,7 +17,7 @@ public class Waypoint : MonoBehaviour {
     }
     void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "Model")
+        if(other.tag == "Ship")
         {
             raceController.SetPosition(other.GetComponent<ShipController>(), position);
         }
