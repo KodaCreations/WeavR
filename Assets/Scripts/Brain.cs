@@ -10,6 +10,9 @@ public class Brain : MonoBehaviour {
 
     public bool isSplitscreen;                  // Is the game in splitscreen mode?
     public bool isMultiplayer;                  // Is the game in online mode?
+    public bool player1UsingGamepad;            // Is player 1 using gamepad?
+    public bool player2UsingGamepad;            // Is player 2 using gamepad?
+
     [HideInInspector]
     public string selectedTrack;                // Track that has been selected by the player
 
@@ -70,6 +73,23 @@ public class Brain : MonoBehaviour {
         for (int i = 0; i < playerShips.Count; i++)
         {
             GameObject player = (GameObject)Instantiate(playerShips[i], startPositions[7 - i].position, startPositions[7 - i].rotation);
+
+            // Set the input schemes of the players.
+            InputHandler IH = player.GetComponent<InputHandler>();
+            KeyCode[] scheme;
+            if (i == 0)
+            {
+                scheme = ControlSchemes.GetScheme1();
+                if (player1UsingGamepad)
+                    IH.usingGamepad = true;
+            }
+            else
+            {
+                scheme = ControlSchemes.GetScheme2();
+                if (player2UsingGamepad)
+                    IH.usingGamepad = true;
+            }
+            IH.SetKeys(scheme[0], scheme[1], scheme[2], scheme[3], scheme[4]);
 
             // Remove from available ships to let AI choose from remainding ones.
             if (availableShips.Count > 1)
