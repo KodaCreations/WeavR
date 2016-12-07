@@ -36,7 +36,7 @@ public class RaceController : MonoBehaviour {
     {
         foreach(GameObject s in ships)
         {
-            AIShipBaseState state = s.GetComponent<AIShipBaseState>();
+            AIController state = s.GetComponent<AIController>();
             if (state)
             {
                 state.activateAI = activate;

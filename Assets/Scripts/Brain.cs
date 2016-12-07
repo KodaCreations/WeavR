@@ -87,7 +87,7 @@ public class Brain : MonoBehaviour {
             GameObject rabbitObject = (GameObject)Instantiate(rabbit, startPositions[i].position, startPositions[i].rotation);
             TheRabbit theRabbit = rabbitObject.GetComponent<TheRabbit>();
 
-            aiShip.GetComponent<AIShipBaseState>().rabbit = theRabbit;
+            aiShip.GetComponent<AIController>().rabbit = theRabbit;
             theRabbit.AI = aiShip;
 
             theRabbit.ePath = waypoints.GetComponent<EditorPath>();
