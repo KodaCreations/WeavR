@@ -2,9 +2,9 @@
 using System.Collections;
 
 public class LookForWeaponState : IAiState {
-    private readonly AIShipBaseState ai;
+    private readonly AIController ai;
 
-    public LookForWeaponState(AIShipBaseState Ai)
+    public LookForWeaponState(AIController Ai)
     {
         ai = Ai;
     }
@@ -42,11 +42,5 @@ public class LookForWeaponState : IAiState {
     void PickupWeapon()
     {
 
-        if (ai.destWeapPoint == 0)
-        {
-            return;
-        }
-
-        ai.destWeapPoint = (ai.destWeapPoint + 1) % ai.weaponPoints.Length;
     }
 }

@@ -3,10 +3,10 @@ using System.Collections;
 
 public class LookForTriggerState : IAiState {
 
-    private AIShipBaseState ai;
+    private AIController ai;
 
 
-    public LookForTriggerState(AIShipBaseState Ai)
+    public LookForTriggerState(AIController Ai)
     {
         ai = Ai;
     }

@@ -4,10 +4,10 @@ using System.Collections;
 public class AttackState : IAiState {
 
 
-    private readonly AIShipBaseState ai;
+    private readonly AIController ai;
 	// Use this for initialization
 
-	public AttackState (AIShipBaseState Ai)
+	public AttackState (AIController Ai)
     {
         ai = Ai;
 	

@@ -82,10 +82,7 @@ public class AIShipBaseState : MonoBehaviour
 
     void Awake()
     {
-        chaseState = new ChaseState(this);
-        attackState = new AttackState(this);
-        lookForTriggerState = new LookForTriggerState(this);
-        lookForWeaponState = new LookForWeaponState(this);
+     
     }
     void Start()
     {

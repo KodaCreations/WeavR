@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ChaseState : IAiState {
+public class ChaseState : IAiState
+{
 
-    private readonly AIShipBaseState ai;
+    private readonly AIController ai;
 
-    public ChaseState(AIShipBaseState Ai)
+    public ChaseState(AIController Ai)
     {
         ai = Ai;
     }
@@ -13,7 +14,11 @@ public class ChaseState : IAiState {
     // Use this for initialization
     public void UpdateState()
     {
-        ChaseTheRabbit();
+        if (ai.ship)
+        {
+            ChaseTheRabbit();
+
+        }
         //ToLookForTrigger();
     }
 
@@ -44,28 +49,29 @@ public class ChaseState : IAiState {
     void ChaseTheRabbit()
     {
 
-        ai.accelerationForce = 0;
-        ai.steeringForce = 0;
+        ai.ship.AccelerationForce = 0;
+        ai.ship.SteeringForce = 0;
+        ai.ship.DownwardForce = 0;
+        ai.ship.shielded = false;
+        ai.ship.Turbo = false;
 
         //Debug.Log(accelerationForce + "");
         Vector3 targetDir = ai.rabbit.transform.position - ai.transform.position;
         targetDir.Normalize();
         float dir = ai.AngleDir(ai.transform.forward, -targetDir, ai.transform.up);
 
-
-
         if (Vector3.Distance(ai.rabbit.transform.position, ai.transform.position) > 10)
         {
-            ai.accelerationForce = 1 * ai.aiMovementSpeed;
+            ai.ship.AccelerationForce = 1;
         }
 
         if (dir > 0.0f)
         {
-            ai.steeringForce = -1 * ai.aiRotationSpeed;
+            ai.ship.SteeringForce = -1 * ai.ship.rotationSpeed;
         }
         else if (dir < 0.0f)
         {
-            ai.steeringForce = 1 * ai.aiRotationSpeed;
+            ai.ship.SteeringForce = 1 * ai.ship.rotationSpeed;
         }
     }
     //public float AngleDir(Vector3 fwd, Vector3 targetDir, Vector3 up)
