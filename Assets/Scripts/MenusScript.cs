@@ -14,6 +14,11 @@ public class MenusScript : MonoBehaviour {
     public Text shipNameSS1; 
     public Text shipNameSS2;
 
+    public Button selectButtonSS1;
+    public Button selectButtonSS2;
+
+    int shipsSelectedCount;
+
     // Track variables
     List<string> trackNames;
     public Text trackName;
@@ -27,6 +32,7 @@ public class MenusScript : MonoBehaviour {
     Transform shipMenu;
     Transform mpMenu;
     Transform splitscreenMenu;
+    Transform settingsMenu;
 
     // Multiplayer manager
     public Transform lobbyManager;
@@ -42,6 +48,7 @@ public class MenusScript : MonoBehaviour {
         shipMenu = transform.FindChild("Ship Selection Menu");
         mpMenu = transform.FindChild("Multiplayer Menu");
         splitscreenMenu = transform.FindChild("Splitscreen Menu");
+        settingsMenu = transform.FindChild("Settings Menu");
 
         // Get loadable track names from brain.
         trackNames = brain.loadableTrackNames;
@@ -76,6 +83,7 @@ public class MenusScript : MonoBehaviour {
         shipMenu.gameObject.SetActive(false);
         mpMenu.gameObject.SetActive(false);
         splitscreenMenu.gameObject.SetActive(false);
+        settingsMenu.gameObject.SetActive(false);
     }
 
     public void SwitchToMainMenu()
@@ -91,6 +99,11 @@ public class MenusScript : MonoBehaviour {
         mainMenu.gameObject.SetActive(false);
         mpMenu.gameObject.SetActive(true);
     }
+    public void SwitchToSettingsMenu()
+    {
+        DeactivateAllMenus();
+        settingsMenu.gameObject.SetActive(true);
+    }
     public void QuitGame()
     {
         Application.Quit();
@@ -105,7 +118,7 @@ public class MenusScript : MonoBehaviour {
         lobbyManager.gameObject.SetActive(true);
     }
 
-    public void SwitchToSplitscreenMenu()
+    public void SwitchToSplitscreenTrackMenu()
     {
         brain.isSplitscreen = true;
         SwitchToTrackSelectionMenu();
@@ -144,18 +157,18 @@ public class MenusScript : MonoBehaviour {
             splitscreenMenu.gameObject.SetActive(true);
 
             if (!shipPreviewSS1)
-                shipPreviewSS1 = splitscreenMenu.GetChild(0).GetComponentInChildren<ShipPreview>();
+                shipPreviewSS1 = splitscreenMenu.GetChild(2).GetComponentInChildren<ShipPreview>();
 
             shipNameSS1.text = shipPreviewSS1.GetPreviewName();
 
             if (!shipPreviewSS2)
-                shipPreviewSS2 = splitscreenMenu.GetChild(1).GetComponentInChildren<ShipPreview>();
+                shipPreviewSS2 = splitscreenMenu.GetChild(3).GetComponentInChildren<ShipPreview>();
             shipNameSS2.text = shipPreviewSS2.GetPreviewName();
         }
     }
     #endregion
 
-    #region ShipSelectionMenu
+    #region ShipSelectionMenus
     public void NextShip(int direction)
     {
         shipPreview.SwitchPreview(direction);
@@ -182,14 +195,28 @@ public class MenusScript : MonoBehaviour {
 
     public void SelectShipSS1()
     {
+        selectButtonSS1.interactable = false;
         brain.AddSelectedShip(shipPreviewSS1.GetShipPrefabName().Split(' ')[1]);
-        //LoadRace();  only if both selected
+        shipsSelectedCount++;
+        if (shipsSelectedCount == 2)
+            LoadRace();
     }
 
     public void SelectShipSS2()
     {
-        brain.AddSelectedShip(shipPreviewSS2.GetPreviewName().Split(' ')[1]);
-        LoadRace(); //only if both selected
+        selectButtonSS2.interactable = false;
+        brain.AddSelectedShip(shipPreviewSS2.GetShipPrefabName().Split(' ')[1]);
+        shipsSelectedCount++;
+        if (shipsSelectedCount == 2)
+            LoadRace();
+    }
+
+    public void UseGamepad(int playerIndex)
+    {
+        if (playerIndex == 0)
+            brain.player1UsingGamepad = !brain.player1UsingGamepad;
+        else if (playerIndex == 1)
+            brain.player2UsingGamepad = !brain.player2UsingGamepad;
     }
 
     void LoadRace()

@@ -3,14 +3,40 @@ using System.Collections;
 
 public class InputHandler : MonoBehaviour {
 
+    public KeyCode forwardKey;
+    public KeyCode backwardKey;
+    public KeyCode leftKey;
+    public KeyCode rightKey;
+    public KeyCode turboKey;
+
     ShipController ship;
-	// Use this for initialization
+
+    [HideInInspector]
+    public bool usingGamepad;
+    int gamepadNumber;
+
 	void Start ()
     {
         ship = gameObject.GetComponent<ShipController>();
 	}
 
-    void InputController()
+    // Set new input keys
+    public void SetKeys(KeyCode forwardKey, KeyCode backwardKey, KeyCode leftKey, KeyCode rightKey, KeyCode turboKey)
+    {
+        this.forwardKey = forwardKey;
+        this.backwardKey = backwardKey;
+        this.leftKey = leftKey;
+        this.rightKey = rightKey;
+        this.turboKey = turboKey;
+    }
+
+    // Use gamepad instead of keyboard, needs to know which index of controllers to use
+    public void UseGamepad(int gamepadNumber)
+    {
+        this.gamepadNumber = gamepadNumber;
+    }
+
+    void HandleInput()
     {
         ship.AccelerationForce = 0;
         ship.SteeringForce = 0;
@@ -20,53 +46,78 @@ public class InputHandler : MonoBehaviour {
         if (!ship.Activate)
             return;
 
-        if (Input.GetKey(KeyCode.W))
+        if (!usingGamepad)
         {
-            ship.AccelerationForce = 1;
+            if (Input.GetKey(forwardKey))
+            {
+                ship.AccelerationForce = 1;
+            }
+            if (Input.GetKey(backwardKey))
+            {
+                ship.AccelerationForce = -1;
+            }
+            if (Input.GetKey(leftKey))
+            {
+                ship.SteeringForce = -1 * ship.rotationSpeed;
+            }
+            if (Input.GetKey(rightKey))
+            {
+                ship.SteeringForce = 1 * ship.rotationSpeed;
+            }
+            //if (Input.GetKey(KeyCode.Z))
+            //{
+            //    ship.FireWeapon();
+            //}
+            //if ((ship.weapon == Weapon.WeaponType.Missile || ship.weapon == Weapon.WeaponType.DecreasedVision) && Input.GetKey(KeyCode.Tab))
+            //{
+            //    ship.Target();
+            //}
+            //if (Input.GetKey(KeyCode.Space))
+            //{
+            //    ship.DownwardForce = 1;
+            //}
+            //if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftControl))
+            //{
+            //    ship.DownwardForce = -1;
+            //}
+            //if (Input.GetKey(KeyCode.Q) && ship.Energy > 0)
+            //{
+            //    ship.shielded = true;
+            //    ship.Energy -= Time.deltaTime * ship.energyEfficiency;
+            //}
+            if (Input.GetKey(turboKey) && ship.Energy > 0)
+            {
+                ship.Turbo = true;
+                ship.Energy -= Time.deltaTime * ship.energyEfficiency * ship.shieldEfficiency;
+            }
         }
-        if (Input.GetKey(KeyCode.S))
+        else
         {
-            ship.AccelerationForce = -1;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            ship.SteeringForce = -1 * ship.rotationSpeed;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            ship.SteeringForce = 1 * ship.rotationSpeed;
-        }
-        if (Input.GetKey(KeyCode.Z))
-        {
-            ship.FireWeapon();
-        }
-        if ((ship.weapon == Weapon.WeaponType.Missile || ship.weapon == Weapon.WeaponType.DecreasedVision) && Input.GetKey(KeyCode.Tab))
-        {
-            ship.Target();
-        }
-        if (Input.GetKey(KeyCode.Space))
-        {
-            ship.DownwardForce = 1;
-        }
-        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftControl))
-        {
-            ship.DownwardForce = -1;
-        }
-        if (Input.GetKey(KeyCode.Q) && ship.Energy > 0)
-        {
-            ship.shielded = true;
-            ship.Energy -= Time.deltaTime * ship.energyEfficiency;
-        }
-        if (Input.GetKey(KeyCode.E) && ship.Energy > 0)
-        {
-            ship.Turbo = true;
-            ship.Energy -= Time.deltaTime * ship.energyEfficiency * ship.shieldEfficiency;
+            float horizontalInput = Input.GetAxis("Horizontal" + gamepadNumber);
+
+            if (Input.GetKey("joystick " + gamepadNumber + " button 0"))
+            {
+                ship.AccelerationForce = 1;
+            }
+            if (Input.GetKey("joystick " + gamepadNumber + " button 1"))
+            {
+                ship.AccelerationForce = -1;
+            }
+            if (horizontalInput != 0)
+            {
+                ship.SteeringForce =  horizontalInput * ship.rotationSpeed;
+            }
+            if (Input.GetKey("joystick " + gamepadNumber + " button 4") && ship.Energy > 0)
+            {
+                ship.Turbo = true;
+                ship.Energy -= Time.deltaTime * ship.energyEfficiency * ship.shieldEfficiency;
+            }
         }
     }
-	// Update is called once per frame
-	void Update ()
+
+    void Update ()
     {
         if (ship)
-            InputController();
+            HandleInput();
 	}
 }
