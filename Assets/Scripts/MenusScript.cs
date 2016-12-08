@@ -83,7 +83,7 @@ public class MenusScript : MonoBehaviour {
         shipMenu.gameObject.SetActive(false);
         mpMenu.gameObject.SetActive(false);
         splitscreenMenu.gameObject.SetActive(false);
-        //settingsMenu.gameObject.SetActive(false); //gave an error and don't know that it is for
+        settingsMenu.gameObject.SetActive(false); 
     }
 
     public void SwitchToMainMenu()
