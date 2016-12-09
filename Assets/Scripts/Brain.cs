@@ -27,6 +27,9 @@ public class Brain : MonoBehaviour {
 
     List<GameObject> playerShips;               // Ships chosen by the player
 
+    public float cameraIntroLength;             // Length in seconds for the cameras to do their introduction on splines
+    List<CamScript> cameraReferences;           // References to cameras in scene
+
 	void Start () 
     {
         // Keep this object through scenes.
@@ -41,7 +44,8 @@ public class Brain : MonoBehaviour {
 
         startPositions = new Transform[8];
         playerShips = new List<GameObject>();
-	}
+        cameraReferences = new List<CamScript>();
+    }
 	
 	void Update () 
     {
@@ -125,7 +129,10 @@ public class Brain : MonoBehaviour {
     private void AddCameras()
     {
         GameObject[] go = GameObject.FindGameObjectsWithTag("Ship");
-        if(isSplitscreen)
+        BezierSpline introSplineStart = GameObject.FindGameObjectWithTag("IntroSplineStart").GetComponent<BezierSpline>();
+        BezierSpline introSplineLookatStart = GameObject.FindGameObjectWithTag("IntroSplineLookatStart").GetComponent<BezierSpline>();
+
+        if (isSplitscreen)
         {
             GameObject splitScreenCamera = (GameObject)Instantiate(Resources.Load("Prefabs/Cameras/SplitScreenCameraPrefab"), null);
 
@@ -137,8 +144,20 @@ public class Brain : MonoBehaviour {
             camera2.transform.rotation = go[1].transform.rotation;
             camera2.transform.position = go[1].transform.position - go[1].transform.forward * 8;
 
-            camera1.GetComponent<CamScript>().ship = go[0].transform;
-            camera2.GetComponent<CamScript>().ship = go[1].transform;
+            CamScript camScript1 = camera1.GetComponent<CamScript>();
+            CamScript camScript2 = camera2.GetComponent<CamScript>();
+
+            camScript1.ship = go[0].transform;
+            camScript2.ship = go[1].transform;
+
+            camScript1.camSpline = introSplineStart;
+            camScript1.camLookAtSpline = introSplineLookatStart;
+
+            camScript2.camSpline = introSplineStart;
+            camScript2.camLookAtSpline = introSplineLookatStart;
+
+            cameraReferences.Add(camScript1);
+            cameraReferences.Add(camScript2);
         }
         else
         {
@@ -146,7 +165,14 @@ public class Brain : MonoBehaviour {
 
             camera.transform.rotation = go[0].transform.rotation;
             camera.transform.position = go[0].transform.position - go[0].transform.forward * 8;
-            camera.GetComponent<CamScript>().ship = go[0].transform;
+
+            CamScript camScript = camera.GetComponent<CamScript>();
+            camScript.ship = go[0].transform;
+
+            camScript.camSpline = introSplineStart;
+            camScript.camLookAtSpline = introSplineLookatStart;
+
+            cameraReferences.Add(camScript);
         }
     }
 
@@ -163,6 +189,11 @@ public class Brain : MonoBehaviour {
         if (level == 0)
             return;
 
+        StartCoroutine(SetupRace());
+    }
+
+    IEnumerator SetupRace()
+    {
         // Look for the start positions.
         ReadStartPositions();
         // Spawn all ships at the start positions.
@@ -173,7 +204,21 @@ public class Brain : MonoBehaviour {
         // Disable visual presentation of start area.
         startArea.gameObject.SetActive(false);
 
-        // Ask the race controller to start the race.
+        // Fade in screen effect
+
+
+        // Tell cameras to start the introduction
+        foreach (CamScript camera in cameraReferences)
+            camera.StartIntro(1 / cameraIntroLength);
+
+        // Wait for cameras to finish introduction spline
+        yield return new WaitForSeconds(cameraIntroLength);
+
+        // Activate HUD
+        foreach (CamScript camera in cameraReferences)
+            camera.transform.FindChild("HUD").gameObject.SetActive(true);
+
+        // Ask the race controller to start the race when cameras are done.
         RaceController raceController = GameObject.Find("RaceController").GetComponent<RaceController>();
         raceController.StartCountDown(countDownTimer);
     }
