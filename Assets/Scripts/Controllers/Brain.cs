@@ -93,7 +93,7 @@ public class Brain : MonoBehaviour {
                     if (player2UsingGamepad)
                         IH.usingGamepad = true;
                 }
-                IH.SetKeys(scheme[0], scheme[1], scheme[2], scheme[3], scheme[4]);
+                IH.SetKeys(scheme[0], scheme[1], scheme[2], scheme[3], scheme[4], scheme[5]);
 
                 // Remove from available ships to let AI choose from remainding ones.
                 if (availableShips.Count > 1)
