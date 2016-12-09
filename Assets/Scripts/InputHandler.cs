@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using XInputDotNetPure;
 using System.Collections;
 
 public class InputHandler : MonoBehaviour {
@@ -16,9 +17,13 @@ public class InputHandler : MonoBehaviour {
     public bool usingGamepad;
     int gamepadNumber;
 
+    PlayerIndex playerIndex;
+
 	void Start ()
     {
         ship = gameObject.GetComponent<ShipController>();
+
+        GamePad.SetVibration(XInputDotNetPure.PlayerIndex, 0, 1);
 	}
 
     // Set new input keys
