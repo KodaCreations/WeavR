@@ -7,6 +7,7 @@ public class ShipController : MonoBehaviour {
     [Header("Misc")]
     public string shipName;
     public bool activate;
+    public int id;
 
 
     //Ship energy variables
@@ -286,9 +287,9 @@ public class ShipController : MonoBehaviour {
     {
         // Basic hover what uses two Sinus curves to determin the height
         shipHoverTime += Time.deltaTime;
-        shipHoverTime = shipHoverTime % (Mathf.PI * 2.5f);
+        shipHoverTime = shipHoverTime % (Mathf.PI * 2.0f);
         shipHoverSpeed += Time.deltaTime / 2;
-        shipHoverSpeed = shipHoverSpeed % (Mathf.PI * 2.5f);
+        shipHoverSpeed = shipHoverSpeed % (Mathf.PI * 2.0f);
         shipHoverAmount -= Time.deltaTime / 4;
         shipHoverAmount = shipHoverAmount % 3;
 
