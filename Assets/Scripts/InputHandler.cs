@@ -93,25 +93,37 @@ public class InputHandler : MonoBehaviour {
         }
         else
         {
+            // Get input
             float horizontalInput = Input.GetAxis("Horizontal" + gamepadNumber);
+            float throttleInput = Input.GetAxis("Throttle" + gamepadNumber);
 
-            if (Input.GetKey("joystick " + gamepadNumber + " button 0"))
+            Debug.Log(throttleInput);
+
+            // Check if inside deadzone
+            //if (Mathf.Abs(horizontalInput) < gamePadDeadzone)
+            //    horizontalInput = 0;
+            //if (Mathf.Abs(throttleInput) < gamePadDeadzone)
+            //    throttleInput = 0;
+
+            // Apply forces
+            if (throttleInput != 0)
             {
-                ship.AccelerationForce = 1;
+                ship.AccelerationForce = throttleInput;
             }
-            if (Input.GetKey("joystick " + gamepadNumber + " button 1"))
-            {
-                ship.AccelerationForce = -1;
-            }
+
+            //if (Input.GetKey("joystick " + gamepadNumber + " button 1"))
+            //{
+            //    ship.AccelerationForce = -1;
+            //}
             if (horizontalInput != 0)
             {
                 ship.SteeringForce =  horizontalInput * ship.rotationSpeed;
             }
-            if (Input.GetKey("joystick " + gamepadNumber + " button 4") && ship.Energy > 0)
-            {
-                ship.Turbo = true;
-                ship.Energy -= Time.deltaTime * ship.energyEfficiency * ship.shieldEfficiency;
-            }
+            //if (Input.GetKey("joystick " + gamepadNumber + " button 4") && ship.Energy > 0)
+            //{
+            //    ship.Turbo = true;
+            //    ship.Energy -= Time.deltaTime * ship.energyEfficiency * ship.shieldEfficiency;
+            //}
         }
     }
 
