@@ -38,7 +38,6 @@ public class HUD : MonoBehaviour
                 break;
             }
         }
-
         lapCounter.text = rc.shipLapCounter[placeInList] + "/" + "?";
         positionCounter.text = rc.GetRacePosition(ship) + "/" + rc.ships.Length;
         if (rc.counter >= 0)

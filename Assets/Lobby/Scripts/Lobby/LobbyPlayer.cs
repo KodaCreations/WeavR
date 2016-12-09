@@ -20,6 +20,7 @@ namespace Prototype.NetworkLobby
         public Button readyButton;
         public Button waitingPlayerButton;
         public Button removePlayerButton;
+        public Dropdown shipDropdown;
 
         public GameObject localIcone;
         public GameObject remoteIcone;
@@ -29,6 +30,8 @@ namespace Prototype.NetworkLobby
         public string playerName = "";
         [SyncVar(hook = "OnMyColor")]
         public Color playerColor = Color.white;
+        [SyncVar]
+        public int playerShip = 0;
 
         public Color OddRowColor = new Color(250.0f / 255.0f, 250.0f / 255.0f, 250.0f / 255.0f, 1.0f);
         public Color EvenRowColor = new Color(180.0f / 255.0f, 180.0f / 255.0f, 180.0f / 255.0f, 1.0f);
@@ -64,6 +67,7 @@ namespace Prototype.NetworkLobby
             //will be created with the right value currently on server
             OnMyName(playerName);
             OnMyColor(playerColor);
+            OnMyShip(playerShip);
         }
 
         public override void OnStartAuthority()
@@ -122,12 +126,18 @@ namespace Prototype.NetworkLobby
             //we switch from simple name display to name input
             colorButton.interactable = true;
             nameInput.interactable = true;
+            shipDropdown.interactable = true;
 
             nameInput.onEndEdit.RemoveAllListeners();
             nameInput.onEndEdit.AddListener(OnNameChanged);
 
             colorButton.onClick.RemoveAllListeners();
             colorButton.onClick.AddListener(OnColorClicked);
+
+            shipDropdown.onValueChanged.RemoveAllListeners();
+            shipDropdown.onValueChanged.AddListener(delegate {
+                OnShipChanged(shipDropdown);
+            });
 
             readyButton.onClick.RemoveAllListeners();
             readyButton.onClick.AddListener(OnReadyClicked);
@@ -154,6 +164,9 @@ namespace Prototype.NetworkLobby
         {
             if (readyState)
             {
+                Brain brain = GameObject.Find("Brain").GetComponent<Brain>();
+                brain.AddSelectedShip("NetworkPlaceholderShipPrefab");
+
                 ChangeReadyButtonColor(TransparentColor);
 
                 Text textComponent = readyButton.transform.GetChild(0).GetComponent<Text>();
@@ -161,6 +174,7 @@ namespace Prototype.NetworkLobby
                 textComponent.color = ReadyColor;
                 readyButton.interactable = false;
                 colorButton.interactable = false;
+                shipDropdown.interactable = false;
                 nameInput.interactable = false;
             }
             else
@@ -172,6 +186,7 @@ namespace Prototype.NetworkLobby
                 textComponent.color = Color.white;
                 readyButton.interactable = isLocalPlayer;
                 colorButton.interactable = isLocalPlayer;
+                shipDropdown.interactable = isLocalPlayer;
                 nameInput.interactable = isLocalPlayer;
             }
         }
@@ -194,6 +209,11 @@ namespace Prototype.NetworkLobby
             playerColor = newColor;
             colorButton.GetComponent<Image>().color = newColor;
         }
+        public void OnMyShip(int index)
+        {
+            playerShip = index;
+            shipDropdown.value = playerShip;
+        }
 
         //===== UI Handler
 
@@ -202,6 +222,11 @@ namespace Prototype.NetworkLobby
         public void OnColorClicked()
         {
             CmdColorChange();
+        }
+
+        public void OnShipChanged(Dropdown target)
+        {
+            CmdShipChanged(target.value);
         }
 
         public void OnReadyClicked()
@@ -286,6 +311,13 @@ namespace Prototype.NetworkLobby
         }
 
         [Command]
+        public void CmdShipChanged(int value)
+        {
+            shipDropdown.value = value;
+            playerShip = value;
+        }
+
+        [Command]
         public void CmdNameChanged(string name)
         {
             playerName = name;
@@ -310,6 +342,11 @@ namespace Prototype.NetworkLobby
                     break;
                 }
             }
+        }
+        void Update()
+        {
+            if (!isLocalPlayer)
+                shipDropdown.value = playerShip;
         }
     }
 }

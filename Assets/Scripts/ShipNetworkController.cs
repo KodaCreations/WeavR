@@ -12,12 +12,21 @@ public class ShipNetworkController : NetworkBehaviour
 
     [SyncVar]
     public float downwardForce;
+    
 
     // Use this for initialization
     ShipController ship;
     void Start()
     {
         ship = GetComponent<ShipController>();
+        if(isLocalPlayer)
+        {
+            GameObject camera = (GameObject)Instantiate(Resources.Load("Prefabs/Cameras/CameraPrefab"), null);
+
+            camera.transform.rotation = ship.transform.rotation;
+            camera.transform.position = ship.transform.position - ship.transform.forward * 8;
+            camera.GetComponent<CamScript>().ship = ship.transform;
+        }
     }
 
     [Command]
