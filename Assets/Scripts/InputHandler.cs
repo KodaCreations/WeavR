@@ -7,6 +7,7 @@ public class InputHandler : MonoBehaviour {
     public KeyCode backwardKey;
     public KeyCode leftKey;
     public KeyCode rightKey;
+    public KeyCode brakeKey;
     public KeyCode turboKey;
 
     ShipController ship;
@@ -21,12 +22,13 @@ public class InputHandler : MonoBehaviour {
 	}
 
     // Set new input keys
-    public void SetKeys(KeyCode forwardKey, KeyCode backwardKey, KeyCode leftKey, KeyCode rightKey, KeyCode turboKey)
+    public void SetKeys(KeyCode forwardKey, KeyCode backwardKey, KeyCode leftKey, KeyCode rightKey, KeyCode brakeKey, KeyCode turboKey)
     {
         this.forwardKey = forwardKey;
         this.backwardKey = backwardKey;
         this.leftKey = leftKey;
         this.rightKey = rightKey;
+        this.brakeKey = brakeKey;
         this.turboKey = turboKey;
     }
 
@@ -64,6 +66,23 @@ public class InputHandler : MonoBehaviour {
             {
                 ship.SteeringForce = 1 * ship.rotationSpeed;
             }
+            if (Input.GetKey(brakeKey))
+            {
+                if (ship.currentFowardAccelerationSpeed > 1)
+                {
+                    ship.AccelerationForce = -ship.brakingAcceleration;
+                }
+                else if (ship.currentFowardAccelerationSpeed < 1)
+                    ship.AccelerationForce = ship.brakingAcceleration;
+                else
+                    ship.AccelerationForce = 0;
+            }
+            if (Input.GetKey(turboKey) && ship.Energy > 0)
+            {
+                ship.Turbo = true;
+                ship.Energy -= Time.deltaTime * ship.energyEfficiency * ship.shieldEfficiency;
+            }
+
             //if (Input.GetKey(KeyCode.Z))
             //{
             //    ship.FireWeapon();
@@ -85,29 +104,41 @@ public class InputHandler : MonoBehaviour {
             //    ship.shielded = true;
             //    ship.Energy -= Time.deltaTime * ship.energyEfficiency;
             //}
-            if (Input.GetKey(turboKey) && ship.Energy > 0)
-            {
-                ship.Turbo = true;
-                ship.Energy -= Time.deltaTime * ship.energyEfficiency * ship.shieldEfficiency;
-            }
         }
         else
         {
+            // Get input
             float horizontalInput = Input.GetAxis("Horizontal" + gamepadNumber);
+            float throttleInput = Input.GetAxis("Throttle" + gamepadNumber);
+            float reverseInput = Input.GetAxis("Reverse" + gamepadNumber);
 
-            if (Input.GetKey("joystick " + gamepadNumber + " button 0"))
+            float combinedInput = throttleInput + reverseInput;
+
+            // Forward and backward
+            if (combinedInput != 0)
             {
-                ship.AccelerationForce = 1;
+                ship.AccelerationForce = combinedInput;
             }
-            if (Input.GetKey("joystick " + gamepadNumber + " button 1"))
+
+            // Braking
+            if (Input.GetKey("joystick " + (gamepadNumber + 1) + " button 2"))
             {
-                ship.AccelerationForce = -1;
+                if (ship.currentFowardAccelerationSpeed > 1)
+                {
+                    ship.AccelerationForce = -ship.brakingAcceleration;
+                }
+                else if (ship.currentFowardAccelerationSpeed < 1)
+                    ship.AccelerationForce = ship.brakingAcceleration;
+                else
+                    ship.AccelerationForce = 0;
             }
             if (horizontalInput != 0)
             {
                 ship.SteeringForce =  horizontalInput * ship.rotationSpeed;
             }
-            if (Input.GetKey("joystick " + gamepadNumber + " button 4") && ship.Energy > 0)
+
+            // Boost
+            if (Input.GetKey("joystick " + (gamepadNumber + 1) + " button 1") && ship.Energy > 0)
             {
                 ship.Turbo = true;
                 ship.Energy -= Time.deltaTime * ship.energyEfficiency * ship.shieldEfficiency;
