@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ public class Brain : MonoBehaviour {
     Transform startArea;                        // Start area transform, automatically searched for start tag
     Transform[] startPositions;                 // 8 transforms that are children of startArea.
 
-    List<GameObject> playerShips;               // Ships chosen by the player
+    public List<GameObject> playerShips;               // Ships chosen by the player
 
 	void Start () 
     {
@@ -66,14 +67,48 @@ public class Brain : MonoBehaviour {
         for (int i = 0; i < startArea.childCount; i++)
             startPositions[i] = startArea.GetChild(i);
     }
+    void SpawnShipsNetwork()
+    {
+        if(false)
+        {
+            for (int i = 0; i < playerShips.Count; i++)
+            {
+                GameObject player = (GameObject)Instantiate(playerShips[i], startPositions[7 - i].position, startPositions[7 - i].rotation);
+                //NetworkIdentity id = GetComponent<NetworkIdentity>();
+                //Debug.Log(id.observers.Count);
 
+                //NetworkServer.SpawnWithClientAuthority(player, id.observers[i]);
+                // Set the input schemes of the players.
+                InputHandler IH = player.GetComponent<InputHandler>();
+                KeyCode[] scheme;
+                if (i == 0)
+                {
+                    scheme = ControlSchemes.GetScheme1();
+                    if (player1UsingGamepad)
+                        IH.usingGamepad = true;
+                }
+                else
+                {
+                    scheme = ControlSchemes.GetScheme2();
+                    if (player2UsingGamepad)
+                        IH.usingGamepad = true;
+                }
+                IH.SetKeys(scheme[0], scheme[1], scheme[2], scheme[3], scheme[4]);
+
+                // Remove from available ships to let AI choose from remainding ones.
+                if (availableShips.Count > 1)
+                    availableShips.Remove(playerShips[i]);
+            }
+            NetworkServer.SpawnObjects();
+        }
+    }
     // Spawn all ships at start positions.
     void SpawnShips()
     {
         for (int i = 0; i < playerShips.Count; i++)
         {
             GameObject player = (GameObject)Instantiate(playerShips[i], startPositions[7 - i].position, startPositions[7 - i].rotation);
-
+            
             // Set the input schemes of the players.
             InputHandler IH = player.GetComponent<InputHandler>();
             KeyCode[] scheme;
@@ -165,13 +200,20 @@ public class Brain : MonoBehaviour {
 
         // Look for the start positions.
         ReadStartPositions();
-        // Spawn all ships at the start positions.
-        SpawnShips();
-        // Add cameras to the scene.
-        AddCameras();
+        if (isMultiplayer)
+        {
+            SpawnShipsNetwork();
+        }
+        else
+        {
+            // Spawn all ships at the start positions.
+            SpawnShips();
+            // Add cameras to the scene.
+            AddCameras();
+        }
 
         // Disable visual presentation of start area.
-        startArea.gameObject.SetActive(false);
+        //startArea.gameObject.SetActive(false); // Needs to be active if you want to find it with a tag
 
         // Ask the race controller to start the race.
         RaceController raceController = GameObject.Find("RaceController").GetComponent<RaceController>();

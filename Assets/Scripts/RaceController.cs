@@ -236,6 +236,9 @@ public class RaceController : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
+        if (ships.Length != GameObject.FindGameObjectsWithTag("Ship").Length)
+            Start();
+
         CaclulateShipPositions();
         PlaceShipsInOrder();
         if (CountDown())
