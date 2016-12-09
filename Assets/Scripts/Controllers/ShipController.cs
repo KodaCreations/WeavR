@@ -25,11 +25,13 @@ public class ShipController : MonoBehaviour {
     [Header("Acceleration Values")]
     [Tooltip("Foward movement of the ship")]
     public float forwardAccelerationSpeed;
-    private float currentFowardAccelerationSpeed;
+    [HideInInspector]
+    public float currentFowardAccelerationSpeed;
     [Tooltip("The falloff acceleration if there is no accelerationForce")]
     public float noAccelerationDrag;
     public float maxForwardAccelerationSpeed;
     public float flightMinimumAccelerationSpeed;
+    public float brakingAcceleration = 5;
     
     //Ship Flight downwardSpeed
     public float downwardSpeed;
