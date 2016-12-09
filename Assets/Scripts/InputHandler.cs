@@ -75,7 +75,7 @@ public class InputHandler : MonoBehaviour {
                 else
                     ship.AccelerationForce = 0;
             }
-            if (Input.GetKey(turboKey) && ship.Energy > 0)
+            if (Input.GetKey(turboKey) && ship.Energy > 0 && !ship.Overheated)
             {
                 ship.Turbo = true;
                 ship.Energy -= Time.deltaTime * ship.energyEfficiency; //*ship.shieldEfficiency;
@@ -140,10 +140,14 @@ public class InputHandler : MonoBehaviour {
             }
 
             // Boost
-            if (Input.GetKey("joystick " + (gamepadNumber + 1) + " button 1") && ship.Energy > 0)
+            if (Input.GetKey("joystick " + (gamepadNumber + 1) + " button 1") && ship.Energy > 0 && !ship.Overheated)
             {
                 ship.Turbo = true;
                 ship.Energy -= Time.deltaTime * ship.energyEfficiency;// * ship.shieldEfficiency;
+            }
+            else
+            {
+                ship.Turbo = false;
             }
         }
     }

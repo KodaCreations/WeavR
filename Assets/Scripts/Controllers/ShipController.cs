@@ -15,12 +15,12 @@ public class ShipController : MonoBehaviour {
     public float energyEfficiency; //How effective the ship is at converting energy into boost or shield 1 for 100%, higher value for less efficiency.
     //public float shieldEfficiency; //How much energy the shield uses compared to the turbo 1 for equaly effective, higher value for less efficiency.
     public float overheatAfter; //How long time of active boost it will take for the ship to overheat
-    public float overheatLockTimer; //How long it will take before the overheat timer starts going down if overheated
+    public float overheatLockTime; //How long it will take before the overheat timer starts going down if overheated
     public float maxEnergy;
     private float energy; //For 100% energyEfficiency 1 energy = 1 second of turbo
     private float newEnergy;
     private float currentHeat;
-    private float overheatTimer;
+    private float heatTimer;
     public bool shielded;
     private bool turbo;
     private bool overheated;
@@ -784,7 +784,16 @@ public class ShipController : MonoBehaviour {
         }
 
         if (turbo)
+        {
             maxForwardAccelerationSpeed = turboMemory;
+            currentHeat += Time.deltaTime;
+            if (currentHeat > overheatAfter)
+            {
+                currentHeat = overheatAfter;
+                overheated = true;
+                heatTimer = overheatLockTime;
+            }
+        }
     }
 
     /// <summary>
@@ -834,6 +843,18 @@ public class ShipController : MonoBehaviour {
             }
         }
 
+        if(overheated)
+        if (overheated && (heatTimer -= Time.deltaTime) <= 0)
+        {
+            heatTimer = 0;
+            overheated = false;
+        }
+        if (currentHeat != 0 && !turbo && !overheated)
+        {
+            if ((currentHeat -= heatReductionPerSecond * Time.deltaTime) < 0)
+                currentHeat = 0;
+        }
+
         if (debuff != null && debuff.energyDrain)
             drain = true;
 
@@ -865,6 +886,7 @@ public class ShipController : MonoBehaviour {
     public float DownwardForce { get { return downwardForce; } set { downwardForce = value; } }
     public float Energy { get { return energy; } set { energy = value; } }
     public bool Turbo { get { return turbo; } set { turbo = value; } }
+    public bool Overheated { get { return overheated; } set { overheated = value; } }
     public bool FlightMode { get { return flightMode; } set { flightMode = value; } }
     public bool Activate { get { return activate; } set { activate = value; } }
 }
