@@ -12,15 +12,21 @@ public class ShipController : MonoBehaviour {
     //Ship energy variables
     [Header("Energy System")]
     public float energyEfficiency; //How effective the ship is at converting energy into boost or shield 1 for 100%, higher value for less efficiency.
-    public float shieldEfficiency; //How much energy the shield uses compared to the turbo 1 for equaly effective, higher value for less efficiency.
+    //public float shieldEfficiency; //How much energy the shield uses compared to the turbo 1 for equaly effective, higher value for less efficiency.
+    public float overheatAfter; //How long time of active boost it will take for the ship to overheat
+    public float overheatLockTimer; //How long it will take before the overheat timer starts going down if overheated
     public float maxEnergy;
     private float energy; //For 100% energyEfficiency 1 energy = 1 second of turbo
     private float newEnergy;
+    private float currentHeat;
+    private float overheatTimer;
     public bool shielded;
     private bool turbo;
+    private bool overheated;
     public float maxspeedBoost; //How much the maxspeed should be increased by when using turbo. 1 is normal speed 2 is twice as fast.
     public float speedBoost;
     public float rechargePerSecond;
+    public float heatReductionPerSecond;
 
     [Header("Acceleration Values")]
     [Tooltip("Foward movement of the ship")]
@@ -123,10 +129,12 @@ public class ShipController : MonoBehaviour {
         debuff = null;
         weapon = null;
         drain = false;
-        shielded = false;
+        //shielded = false;
         turbo = false;
+        overheated = false;
         energy = maxEnergy;
         newEnergy = 0;
+        currentHeat = 0;
     }
 
     /// <summary>
@@ -745,7 +753,7 @@ public class ShipController : MonoBehaviour {
 
         if (turbo)
         {
-            currentFowardAccelerationSpeed += speedBoost *= Time.deltaTime;
+            currentFowardAccelerationSpeed += speedBoost * Time.deltaTime;
             maxForwardAccelerationSpeed *= maxspeedBoost;
         }
 

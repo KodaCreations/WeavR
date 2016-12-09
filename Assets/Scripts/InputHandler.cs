@@ -43,8 +43,6 @@ public class InputHandler : MonoBehaviour {
         ship.AccelerationForce = 0;
         ship.SteeringForce = 0;
         ship.DownwardForce = 0;
-        ship.shielded = false;
-        ship.Turbo = false;
         if (!ship.Activate)
             return;
 
@@ -80,7 +78,11 @@ public class InputHandler : MonoBehaviour {
             if (Input.GetKey(turboKey) && ship.Energy > 0)
             {
                 ship.Turbo = true;
-                ship.Energy -= Time.deltaTime * ship.energyEfficiency * ship.shieldEfficiency;
+                ship.Energy -= Time.deltaTime * ship.energyEfficiency; //*ship.shieldEfficiency;
+            }
+            else
+            {
+                ship.Turbo = false;
             }
 
             //if (Input.GetKey(KeyCode.Z))
@@ -141,7 +143,7 @@ public class InputHandler : MonoBehaviour {
             if (Input.GetKey("joystick " + (gamepadNumber + 1) + " button 1") && ship.Energy > 0)
             {
                 ship.Turbo = true;
-                ship.Energy -= Time.deltaTime * ship.energyEfficiency * ship.shieldEfficiency;
+                ship.Energy -= Time.deltaTime * ship.energyEfficiency;// * ship.shieldEfficiency;
             }
         }
     }
