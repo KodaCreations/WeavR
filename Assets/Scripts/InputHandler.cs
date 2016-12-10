@@ -12,7 +12,7 @@ public class InputHandler : MonoBehaviour {
 
     ShipController ship;
 
-    [HideInInspector]
+    //[HideInInspector]
     public bool usingGamepad;
     int gamepadNumber;
 
