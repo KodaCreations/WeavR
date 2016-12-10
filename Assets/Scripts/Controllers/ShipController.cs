@@ -405,7 +405,22 @@ public class ShipController : MonoBehaviour {
     void OnCollisionEnter(Collision other)
     {
         if (other.gameObject.tag == "Wall" || other.gameObject.tag == "Ship")
-            shipIsColliding = true;   
+            shipIsColliding = true;
+        if(other.gameObject.tag == "Wall")
+        {
+                for(int i = 0; i < other.contacts.Length;++i)
+                {
+                    float dot = Vector3.Dot(transform.forward, -other.contacts[i].normal);
+                    Debug.DrawRay(other.contacts[i].point, other.contacts[i].normal, Color.black, 3);
+
+                    if(dot > 0)
+                    {
+                        float pow = 3; // The curve that the bouncyness of the walls.
+                        float knockback = Mathf.Pow(dot, pow);
+                        float test = transform.InverseTransformDirection(rb.velocity).x;
+                    }
+                }
+        }
     }
 
 
@@ -483,7 +498,7 @@ public class ShipController : MonoBehaviour {
     //    }
     //}
 
-    void OnCollisionExit()
+    void OnCollisionExit(Collision other)
     {
         shipIsColliding = false;
     }
