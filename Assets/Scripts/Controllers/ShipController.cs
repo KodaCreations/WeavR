@@ -7,20 +7,27 @@ public class ShipController : MonoBehaviour {
     [Header("Misc")]
     public string shipName;
     public bool activate;
+    public int id;
 
 
     //Ship energy variables
     [Header("Energy System")]
     public float energyEfficiency; //How effective the ship is at converting energy into boost or shield 1 for 100%, higher value for less efficiency.
-    public float shieldEfficiency; //How much energy the shield uses compared to the turbo 1 for equaly effective, higher value for less efficiency.
+    //public float shieldEfficiency; //How much energy the shield uses compared to the turbo 1 for equaly effective, higher value for less efficiency.
+    public float overheatAfter; //How long time of active boost it will take for the ship to overheat
+    public float overheatLockTime; //How long it will take before the overheat timer starts going down if overheated
     public float maxEnergy;
     private float energy; //For 100% energyEfficiency 1 energy = 1 second of turbo
     private float newEnergy;
+    private float currentHeat;
+    private float heatTimer;
     public bool shielded;
     private bool turbo;
+    private bool overheated;
     public float maxspeedBoost; //How much the maxspeed should be increased by when using turbo. 1 is normal speed 2 is twice as fast.
     public float speedBoost;
     public float rechargePerSecond;
+    public float heatReductionPerSecond;
 
     [Header("Acceleration Values")]
     [Tooltip("Foward movement of the ship")]
@@ -123,10 +130,12 @@ public class ShipController : MonoBehaviour {
         debuff = null;
         weapon = null;
         drain = false;
-        shielded = false;
+        //shielded = false;
         turbo = false;
+        overheated = false;
         energy = maxEnergy;
         newEnergy = 0;
+        currentHeat = 0;
     }
 
     /// <summary>
@@ -286,9 +295,9 @@ public class ShipController : MonoBehaviour {
     {
         // Basic hover what uses two Sinus curves to determin the height
         shipHoverTime += Time.deltaTime;
-        shipHoverTime = shipHoverTime % (Mathf.PI * 2.5f);
+        shipHoverTime = shipHoverTime % (Mathf.PI * 2.0f);
         shipHoverSpeed += Time.deltaTime / 2;
-        shipHoverSpeed = shipHoverSpeed % (Mathf.PI * 2.5f);
+        shipHoverSpeed = shipHoverSpeed % (Mathf.PI * 2.0f);
         shipHoverAmount -= Time.deltaTime / 4;
         shipHoverAmount = shipHoverAmount % 3;
 
@@ -745,7 +754,7 @@ public class ShipController : MonoBehaviour {
 
         if (turbo)
         {
-            currentFowardAccelerationSpeed += speedBoost *= Time.deltaTime;
+            currentFowardAccelerationSpeed += speedBoost * Time.deltaTime;
             maxForwardAccelerationSpeed *= maxspeedBoost;
         }
 
@@ -775,7 +784,16 @@ public class ShipController : MonoBehaviour {
         }
 
         if (turbo)
+        {
             maxForwardAccelerationSpeed = turboMemory;
+            currentHeat += Time.deltaTime;
+            if (currentHeat > overheatAfter)
+            {
+                currentHeat = overheatAfter;
+                overheated = true;
+                heatTimer = overheatLockTime;
+            }
+        }
     }
 
     /// <summary>
@@ -825,6 +843,18 @@ public class ShipController : MonoBehaviour {
             }
         }
 
+        if(overheated)
+        if (overheated && (heatTimer -= Time.deltaTime) <= 0)
+        {
+            heatTimer = 0;
+            overheated = false;
+        }
+        if (currentHeat != 0 && !turbo && !overheated)
+        {
+            if ((currentHeat -= heatReductionPerSecond * Time.deltaTime) < 0)
+                currentHeat = 0;
+        }
+
         if (debuff != null && debuff.energyDrain)
             drain = true;
 
@@ -856,6 +886,7 @@ public class ShipController : MonoBehaviour {
     public float DownwardForce { get { return downwardForce; } set { downwardForce = value; } }
     public float Energy { get { return energy; } set { energy = value; } }
     public bool Turbo { get { return turbo; } set { turbo = value; } }
+    public bool Overheated { get { return overheated; } set { overheated = value; } }
     public bool FlightMode { get { return flightMode; } set { flightMode = value; } }
     public bool Activate { get { return activate; } set { activate = value; } }
 }
