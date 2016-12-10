@@ -68,14 +68,21 @@ public class BezierSplineInspector : Editor {
         spline.wallSegment = (GameObject)EditorGUILayout.ObjectField("Wall: ", spline.wallSegment, typeof(GameObject), true);
         if (EditorGUI.EndChangeCheck())
         {
-            Undo.RecordObject(spline, "Set Parent");
+            Undo.RecordObject(spline, "Set Wall");
             EditorUtility.SetDirty(spline);
         }
         EditorGUI.BeginChangeCheck();
         spline.floorSegment = (GameObject)EditorGUILayout.ObjectField("Floor: ", spline.floorSegment, typeof(GameObject), true);
         if (EditorGUI.EndChangeCheck())
         {
-            Undo.RecordObject(spline, "Set Parent");
+            Undo.RecordObject(spline, "Set Floor");
+            EditorUtility.SetDirty(spline);
+        }
+        EditorGUI.BeginChangeCheck();
+        spline.colliderSegment = (GameObject)EditorGUILayout.ObjectField("Collider: ", spline.colliderSegment, typeof(GameObject), true);
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(spline, "Set Segment");
             EditorUtility.SetDirty(spline);
         }
         EditorGUILayout.Space();
@@ -111,13 +118,13 @@ public class BezierSplineInspector : Editor {
         }
         if (GUILayout.Button("Delete all waypoints"))
         {
-            Undo.RecordObject(spline, "Generated Mesh");
+            Undo.RecordObject(spline, "Delete all waypoints");
             spline.DeleteAllWaypoints();
             EditorUtility.SetDirty(spline);
         }
         if (GUILayout.Button("Create waypoints on Spline"))
         {
-            Undo.RecordObject(spline, "Generated Mesh");
+            Undo.RecordObject(spline, "Create waypoints on Spline");
             spline.CreateWaypoints();
             EditorUtility.SetDirty(spline);
         }

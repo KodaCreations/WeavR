@@ -21,6 +21,8 @@ public class BezierSpline : MonoBehaviour {
     [SerializeField]
     public GameObject wallSegment;
     [SerializeField]
+    public GameObject colliderSegment;
+    [SerializeField]
     public GameObject waypoint;
     [SerializeField]
     public float waypointDistance = 100;
@@ -204,8 +206,14 @@ public class BezierSpline : MonoBehaviour {
     }
     public void BuildMesh()
     {
-        trackEditor.BuildTheWall(wallSegment, this, "Wall", "Ignore Raycast", "WallTest", detail);
-        trackEditor.BuildTheWall(floorSegment, this, "Untagged", "Only Raycast", "FloorTest", detail);
+        if(wallSegment)
+            trackEditor.BuildTheWall(wallSegment, this, "Wall", "Ignore Raycast", "WallTest", detail);
+        
+        if(floorSegment)
+            trackEditor.BuildTheWall(floorSegment, this, "Untagged", "Only Raycast", "FloorTest", detail);
+        
+        if(colliderSegment)
+            trackEditor.BuildTheWall(colliderSegment, this, "Wall", "Ignore Raycast", "ColliderTest", detail);
     }
     public int ControlPointCount
     {
