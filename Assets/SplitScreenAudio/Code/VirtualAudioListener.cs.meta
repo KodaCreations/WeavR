@@ -1,0 +1,30 @@
+fileFormatVersion: 2
+guid: 278a243ff17e24541827bfa36e730d8b
+labels:
+- Virtual
+- Audio
+- Source
+- Split
+- Screen
+- Multiplayer
+- Listener
+- Sound
+- Effects
+- Pan
+- Doppler
+- Volume
+- Rolloff
+- Effect
+- Pitch
+- Multi
+- Multiple
+- Player
+- Players
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: -100
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

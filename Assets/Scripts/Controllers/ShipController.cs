@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ShipController : MonoBehaviour {
 
@@ -32,8 +33,10 @@ public class ShipController : MonoBehaviour {
     [Header("Acceleration Values")]
     [Tooltip("Foward movement of the ship")]
     public float forwardAccelerationSpeed;
+
     [HideInInspector]
-    public float currentFowardAccelerationSpeed;
+    private float currentForwardAccelerationSpeed;
+
     [Tooltip("The falloff acceleration if there is no accelerationForce")]
     public float noAccelerationDrag;
     public float maxForwardAccelerationSpeed;
@@ -119,6 +122,14 @@ public class ShipController : MonoBehaviour {
     private bool shipIsColliding;
     private bool flightMode;
     private bool grounded;
+
+
+    [Header("Audio")]
+    public string engineAudioName;
+    public string boostAudioName;
+    VirtualAudioSource_NormalizedMultiSources engineAudioSource;
+    VirtualAudioSource_NormalizedMultiSources boostAudioSource;
+
     // Use this for initialization
     void Start()
     {
@@ -136,6 +147,45 @@ public class ShipController : MonoBehaviour {
         energy = maxEnergy;
         newEnergy = 0;
         currentHeat = 0;
+
+        // Audio init
+        AudioController audioController = GameObject.Find("AudioController").GetComponent<AudioController>();       // Audio controller probably should be made static..
+
+        SpawnAudioSourceObject(audioController, engineAudioName);
+
+        GameObject engineAudioObject = new GameObject("EngineAudioSource");
+        engineAudioObject.transform.parent = transform;
+        engineAudioObject.transform.localPosition = Vector3.zero;
+        engineAudioObject.SetActive(false);
+        engineAudioSource = engineAudioObject.AddComponent<VirtualAudioSource_NormalizedMultiSources>();
+        engineAudioSource.mySource = GameObject.Find(engineAudioName + " (sound effect for: " + transform.name + ")").GetComponent<AudioSource>();
+        engineAudioSource.playOnEnable = true;
+        engineAudioSource.loopCoroutine = true;
+        engineAudioObject.SetActive(true);
+
+        SpawnAudioSourceObject(audioController, boostAudioName);
+
+        GameObject boostAudioObject = new GameObject("BoostAudioSource");
+        boostAudioObject.transform.parent = transform;
+        boostAudioObject.transform.localPosition = Vector3.zero;
+        boostAudioObject.SetActive(false);
+        boostAudioSource = boostAudioObject.AddComponent<VirtualAudioSource_NormalizedMultiSources>();
+        boostAudioSource.mySource = GameObject.Find(boostAudioName + " (sound effect for: " + transform.name + ")").GetComponent<AudioSource>();
+        boostAudioSource.playOnEnable = false;
+        boostAudioSource.loopCoroutine = false;
+        boostAudioObject.SetActive(true);
+    }
+
+    // Need to spawn an object for each sound, needs to be seperate for each ship
+    void SpawnAudioSourceObject(AudioController audioController, string audioName)
+    {
+        GameObject newSourceObject = new GameObject(audioName + " (sound effect for: " + transform.name + ")");
+        AudioSource source = newSourceObject.AddComponent<AudioSource>();
+        source.clip = audioController.GetAudioClip(audioName);
+        source.playOnAwake = false;
+        source.loop = false;
+        source.dopplerLevel = 0;
+        source.spatialBlend = 0.5f;
     }
 
     /// <summary>
@@ -492,42 +542,42 @@ public class ShipController : MonoBehaviour {
         //Calculate new CurrentAccelerationForwardSpeed and clamp if out of range
         if(accelerationForce > 0 || accelerationForce < 0)
         {
-            currentFowardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
-            if (currentFowardAccelerationSpeed > maxForwardAccelerationSpeed)
-                currentFowardAccelerationSpeed = maxForwardAccelerationSpeed;
+            currentForwardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
+            if (currentForwardAccelerationSpeed > maxForwardAccelerationSpeed)
+                currentForwardAccelerationSpeed = maxForwardAccelerationSpeed;
         }
         else
         {
-            if (currentFowardAccelerationSpeed > 0 + 150)
-                currentFowardAccelerationSpeed -= noAccelerationDrag * Time.deltaTime;
-            else if (currentFowardAccelerationSpeed < 0 - 150)
-                currentFowardAccelerationSpeed += noAccelerationDrag * Time.deltaTime;
+            if (currentForwardAccelerationSpeed > 0 + 150)
+                currentForwardAccelerationSpeed -= noAccelerationDrag * Time.deltaTime;
+            else if (currentForwardAccelerationSpeed < 0 - 150)
+                currentForwardAccelerationSpeed += noAccelerationDrag * Time.deltaTime;
             else
-                currentFowardAccelerationSpeed = 0;
+                currentForwardAccelerationSpeed = 0;
         }
 
         //Add The force to the Ship
-        rb.AddForce(transform.forward * currentFowardAccelerationSpeed * Time.deltaTime);
+        rb.AddForce(transform.forward * currentForwardAccelerationSpeed * Time.deltaTime);
     }
     void AccelerationFlightBehavior()
     {
         //Calculate new CurrentAccelerationForwardSpeed and clamp if out of range
         if (accelerationForce > 0 || accelerationForce < 0)
         {
-            currentFowardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
-            if (currentFowardAccelerationSpeed > maxForwardAccelerationSpeed)
-                currentFowardAccelerationSpeed = maxForwardAccelerationSpeed;
+            currentForwardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
+            if (currentForwardAccelerationSpeed > maxForwardAccelerationSpeed)
+                currentForwardAccelerationSpeed = maxForwardAccelerationSpeed;
         }
         else
         {
-            if (currentFowardAccelerationSpeed > flightMinimumAccelerationSpeed)
-                currentFowardAccelerationSpeed -= noAccelerationDrag * Time.deltaTime;
+            if (currentForwardAccelerationSpeed > flightMinimumAccelerationSpeed)
+                currentForwardAccelerationSpeed -= noAccelerationDrag * Time.deltaTime;
             else
-                currentFowardAccelerationSpeed = flightMinimumAccelerationSpeed;
+                currentForwardAccelerationSpeed = flightMinimumAccelerationSpeed;
         }
 
         //Add The force to the Ship
-        rb.AddForce(transform.forward * currentFowardAccelerationSpeed * Time.deltaTime);
+        rb.AddForce(transform.forward * currentForwardAccelerationSpeed * Time.deltaTime);
     }
     void FlightHandler()
     {
@@ -754,7 +804,8 @@ public class ShipController : MonoBehaviour {
 
         if (turbo)
         {
-            currentFowardAccelerationSpeed += speedBoost * Time.deltaTime;
+            currentForwardAccelerationSpeed += speedBoost * Time.deltaTime;
+
             maxForwardAccelerationSpeed *= maxspeedBoost;
         }
 
@@ -827,9 +878,26 @@ public class ShipController : MonoBehaviour {
 
         foreach (ParticleSystem p in particles)
         {
-            p.startLifetime = 0.5f + currentFowardAccelerationSpeed / maxForwardAccelerationSpeed * (turbo ? 1 : 2);
+            p.startLifetime = 0.5f + currentForwardAccelerationSpeed / maxForwardAccelerationSpeed * (turbo ? 1 : 2);
             ParticleSystem.EmissionModule em = p.emission;
-            em.rate = (currentFowardAccelerationSpeed > 0 ? currentFowardAccelerationSpeed / maxForwardAccelerationSpeed * 1000 : 10) * (turbo ? 1 : 1.5f);
+            em.rate = (currentForwardAccelerationSpeed > 0 ? currentForwardAccelerationSpeed / maxForwardAccelerationSpeed * 1000 : 10) * (turbo ? 1 : 1.5f);
+        }
+    }
+
+    // Handle sound effects
+    void HandleSounds()
+    {
+        engineAudioSource.pitch = currentForwardAccelerationSpeed / maxForwardAccelerationSpeed + 1;
+
+        if (turbo)
+        {
+            if (!boostAudioSource.isPlaying)
+                boostAudioSource.Play();
+        }
+        else
+        {
+            if (boostAudioSource.isPlaying)
+                boostAudioSource.Stop();
         }
     }
 
@@ -844,10 +912,10 @@ public class ShipController : MonoBehaviour {
         {
             if (debuff != null && debuff.speedReduction != 0)
             {
-                float cfas = currentFowardAccelerationSpeed;
-                currentFowardAccelerationSpeed *= (1 - debuff.speedReduction);
+                float cfas = currentForwardAccelerationSpeed;
+                currentForwardAccelerationSpeed *= (1 - debuff.speedReduction);
                 HandleShipPhysics();
-                currentFowardAccelerationSpeed = cfas;
+                currentForwardAccelerationSpeed = cfas;
             }
             else
             {
@@ -878,7 +946,7 @@ public class ShipController : MonoBehaviour {
         {
             if (debuff.shutDown)
             {
-                currentFowardAccelerationSpeed = 0;
+                currentForwardAccelerationSpeed = 0;
                 fallVelocity = 0;
             }
             debuff = null;
@@ -893,13 +961,18 @@ public class ShipController : MonoBehaviour {
         {
             rb.constraints = RigidbodyConstraints.None;
         }
+
+        HandleSounds();
     }
     public float SteeringForce { get { return steeringForce; } set { steeringForce = value; } }
     public float AccelerationForce { get { return accelerationForce; } set { accelerationForce = value; } }
     public float DownwardForce { get { return downwardForce; } set { downwardForce = value; } }
     public float Energy { get { return energy; } set { energy = value; } }
+    public float CurrentHeat { get { return currentHeat; } set { currentHeat = value; } }
     public bool Turbo { get { return turbo; } set { turbo = value; } }
     public bool Overheated { get { return overheated; } set { overheated = value; } }
     public bool FlightMode { get { return flightMode; } set { flightMode = value; } }
     public bool Activate { get { return activate; } set { activate = value; } }
+    public float CurrentForwardAccelerationForce { get { return currentForwardAccelerationSpeed; } }
+
 }

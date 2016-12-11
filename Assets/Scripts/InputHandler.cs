@@ -66,11 +66,11 @@ public class InputHandler : MonoBehaviour {
             }
             if (Input.GetKey(brakeKey))
             {
-                if (ship.currentFowardAccelerationSpeed > 1)
+                if (ship.CurrentForwardAccelerationForce > 1)
                 {
                     ship.AccelerationForce = -ship.brakingAcceleration;
                 }
-                else if (ship.currentFowardAccelerationSpeed < 1)
+                else if (ship.CurrentForwardAccelerationForce < 1)
                     ship.AccelerationForce = ship.brakingAcceleration;
                 else
                     ship.AccelerationForce = 0;
@@ -78,7 +78,9 @@ public class InputHandler : MonoBehaviour {
             if (Input.GetKey(turboKey) && ship.Energy > 0 && !ship.Overheated)
             {
                 ship.Turbo = true;
-                ship.Energy -= Time.deltaTime * ship.energyEfficiency; //*ship.shieldEfficiency;
+                ship.Energy -= Time.deltaTime * ship.energyEfficiency;
+                if (ship.Energy < 0)
+                    ship.Energy = 0;
             }
             else
             {
@@ -125,11 +127,11 @@ public class InputHandler : MonoBehaviour {
             // Braking
             if (Input.GetKey("joystick " + (gamepadNumber + 1) + " button 2"))
             {
-                if (ship.currentFowardAccelerationSpeed > 1)
+                if (ship.CurrentForwardAccelerationForce > 1)
                 {
                     ship.AccelerationForce = -ship.brakingAcceleration;
                 }
-                else if (ship.currentFowardAccelerationSpeed < 1)
+                else if (ship.CurrentForwardAccelerationForce < 1)
                     ship.AccelerationForce = ship.brakingAcceleration;
                 else
                     ship.AccelerationForce = 0;
@@ -143,7 +145,9 @@ public class InputHandler : MonoBehaviour {
             if (Input.GetKey("joystick " + (gamepadNumber + 1) + " button 1") && ship.Energy > 0 && !ship.Overheated)
             {
                 ship.Turbo = true;
-                ship.Energy -= Time.deltaTime * ship.energyEfficiency;// * ship.shieldEfficiency;
+                ship.Energy -= Time.deltaTime * ship.energyEfficiency;
+                if (ship.Energy < 0)
+                    ship.Energy = 0;
             }
             else
             {

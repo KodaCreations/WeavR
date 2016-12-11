@@ -1,0 +1,143 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1138\cocoasubrtf510
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\b\fs36 \cf0 Overview:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b0\fs24 \cf0 \
+	To use this asset, you'll want to attach one of 3 provided VirtualAudioSource scripts to each emitter of an audio clip. Attach one VirtualAudioListener to each object you want to listen for sound. You'll want to keep your actual audio sources and actual audio listeners as separate game objects, as the scripts will be modifying their transforms to simulate accurate input. See the provided scene for an example.\
+\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b\fs36 \cf0 VirtualAudioListener:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b0\fs24 \cf0 \
+	Attach this script to each object you want to listen to sounds. In a split screen game, you will most likely want to attach one listener to each player's camera in the scene. Make sure to give the actual AudioListener component its own GameObject! \
+\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b\fs36 \cf0 VirtualAudioSource:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b0\fs24 \cf0 \
+	To set up VirtualAudioSources, just drag and drop one of the following scripts onto the object you want to emit a sound, then link the VirtualAudioSource to the actual AudioSource to be associated with it. Make sure to give each actual AudioSource component its own GameObject! Each VirtualAudioSource provided allows you to force a 2D or 3D sound, depending on the virtual listener. Unless you are attempting to achieve a very specific 2D/3D blend for a single audio source, it is HIGHLY recommended to leave these set to true.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b \cf0 VirtualAudioSource_PanByListenerIndex -
+\b0 \
+	This type of audio source is the only type that does not modify the transforms of your audio sources, so it is permissible (though not advised, in case you want to switch types) to attach it to the same GameObject as your AudioSource. \
+\
+	This source is also the only source that makes use of the pan2DForListener value of the VirtualAudioListener. The way this works is that the closer the pan2DForListener value is to -1, the more the sound will play out of the left speaker when heard by that listener. The closer it is to 1, the more it will play out of the right speaker when heard by that listener. A value of 0 will cause it to play out of both speakers evenly. When there are multiple listeners, these values are weighted against each other based on the results of the rolloff function for the audio source to determine an acceptable pan level. If you are creating a two person game, it is recommended to set one value to 1 and the other to -1. This will allow both players to know which player a particular sound is relevant to.\
+\
+	This source provides a number of options to mirror its 3D counterparts. The volumeRolloffType can be set to linear, logarithmic, or custom. If this needs to be changed during the game through scripts, be sure to call UpdateRolloffDelegate afterwards or the change will not be reflected until you do. If the volumeRolloffType is set to custom, then the customRolloff animation curve can be used to set the rolloff, and the values of volumeScalar, volumeInsideParenthesisAddition, and volumeOutsideParenthesisAddition are ignored. If the volumeRolloffType is linear or logarithmic, the customRolloff variable is ignored instead and standard function form is followed. That is, for an equation where x is the distance from the source and y is the resultant rolloff,\
+\
+Linear:\
+y = volumeScalar*(x+volumeInsideParenthesisAddition)+volumeOutsideParenthesisAddition\
+\
+Logarithmic:\
+y = volumeScalar*log(x+volumeInsideParenthesisAddition)+volumeOutsideParenthesisAddition\
+\
+	The baselineFunctionValue exists as a divisor to the rolloff function. In most cases, you want this to be set to whatever your function's value should be when there is zero distance separating the source and listener. In most cases, it should be fine to leave this at 1f. \
+	The minimumFunctionValue allows you to enforce a lower limit to the rolloff function. This is useful if you always want to be able to hear a sound, no matter how far away it is. In most cases, it will be fine to leave this at 0f.\
+\
+	The pitchBaseline determines what the original pitch of the sound is. The dopplerPitchRange variable can use the doppler effect to modify this value to the degree of the value you set. If you set the value to 0f, you'll disable the doppler effect. Set disableDoppler to true to disable doppler entirely if you won't use it, as this will save some calculations. The dopplerMaxSpeed field allows you to change at what speed the doppler effect becomes most effective. Higher values will result in higher movement speeds being required to notice the doppler effect.\
+\
+
+\b VirtualAudioSource_ClosestListenerOnly -
+\b0 \
+	This type of VirtualAudioSource preserves the 3D settings from the AudioSource and only plays the audio clip for the VirtualAudioListener that is closer to the VirtualAudioSource.\
+\
+	The lockPlayingClipToListener variable allows you to toggle whether the currently playing clip is allowed to switch which listener it is playing for if another listener becomes closer midway through the clip. If set to true, the audio clip will play relative to the source that was closest at the start for the entire duration of the clip.\
+\
+	The loopCoroutine variable is useful for when you want the sound to loop but also have lockPlayingClipToListener ticked. It will allow the sound to switch which listener it is locked to between plays, but is also subject to replay the sound on a per-update basis, meaning that there might be a small, variable delay between each loop.\
+\
+
+\b VirtualAudioSource_NormalizedMultiSources -
+\b0 \
+	This type of VirtualAudioSource makes a number of clones the original AudioSource so that the number of AudioSources per playing clip is equivalent to the number of VirtualAudioListeners. The AudioSources then all have their clips played simultaneously with the volumes being adjusted based how many listeners there are.\
+\
+	The volume parameter allows you to set a baseline volume for the sound. It should be set to what you would set your AudioSource volume to normally if there was only one listener. When using this type of VirtualAudioSource, volume rolloff settings are lifted directly from the AudioSource itself.\
+\
+	Note that because this method makes clones of the audio clips to be played back simultaneously, this method may be limited by the number of audio sources that Unity allows to be played back at once.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b\fs36 \cf0 Playing Audio:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b0\fs24 \cf0 \
+	To play an audio clip, simply call the Play() method that the VirtualAudioSource provides. You can also directly control which object the coroutine is started from by passing the desired MonoBehaviour to the method. You may wish to not play the sound if it is already playing. To check this, you can use the isPlaying property of the VirtualAudioSource. Be aware that if you call the Play function while the linked AudioSource is still playing and attach the coroutine to an object other than what the current Play is playing from, you will need to stop the original coroutine yourself or they will both run at the same time. \
+\
+\
+//Example 1:\
+mySource.Play();\
+mySource.Play(); //Fine, the first coroutine is stopped for you\
+\
+//Example 2:\
+mySource.Play(otherObj);\
+mySource.Play(otherObj);  //Fine, the first coroutine is stopped for you\
+\
+//Example 3:\
+mySource.Play(otherObj);\
+otherObj.StopCoroutine(VirtualAudioSource.PLAY_AUDIO_SOURCE_STRING); //necessary if you don't want the same operations happening twice per frame\
+mySource.Play(secondObj);\
+\
+//Example 4:\
+mySource.Play();\
+mySource.StopCoroutine(VirtualAudioSource.PLAY_AUDIO_SOURCE_STRING); //necessary if you don't want the same operations happening twice per frame;\
+mySource.Play(otherObj);\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b\fs36 \cf0 Changing types at runtime:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b0\fs24 \cf0 \
+	In most projects, this will be completely unnecessary, but if you need to switch what kind of virtual listener plays the same audio source while the game is running, there are two variables you will need to keep track of and revert to their original values when you switch. These are the "volume" and "pitch" variables of the AudioSource class. Because each VirtualAudioSource modifies these in different ways, if you switch types at runtime without resetting these values, they may cause undesired behavior with regards to the volume and pitch of the sound. \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b\fs36 \cf0 UPDATES:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b0\fs24 \cf0 Feb. 26, 2015\
+	Added methods and properties to the VirtualAudioSources that correspond to and interface with methods and properties of Unity's AudioSources. This should make managing settings easier in general. PlayScheduled, SetScheduledStartTime, and SetScheduledEndTime are the only functions excluded at this time. \
+\
+	I'm not sure how I would manage keeping track of / starting the coroutines required to update the AudioSources when an audio event could be scheduled in the distant future short of keeping them always running. If this is a feature you need to use, contact me and I'll see what I can do.\
+\
+Mar. 13, 2015\
+	Added a playOnEnable boolean to the VirtualAudioSource class. This is meant to be a script-free way to replace Unity's playOnAwake in the AudioSource class. If playOnEnable is ticked, it will wait until the VirtualAudioSource is done setting up before starting to play the sound. To function properly, playOnAwake should ALWAYS be unchecked on Unity's AudioSource objects.\
+\
+	Note that to ensure that sounds can be played on the first frame that VirtualAudioListeners are initialized, VirtualListeners should be set to execute before the default time. This can be done by going to Edit -> Project Settings -> Script Exectution Order, and then dragging the VirtualAudioListener script to the space above "Default Time." Click "Apply" when done.\
+\
+	I also added a "loopCoroutine" boolean to the "VirtualAudioSource_ClosestListenerOnly" class. This is useful for when you want the sound to loop but also have lockPlayingClipToListener ticked. It will allow the sound to switch which listener it is locked to between plays.\
+\
+	Finally, I changed the way VirtualAudioSource_NormalizedMultiSources handles the AudioSource copies. Now, VirtualAudioSource_NormalizedMultiSources deletes the extra AudioSources it created any time it is disabled.\
+\
+Aug 20, 2016\
+	Expanded the "loopCoroutine" to be able to be used with all VirtualAudioSources after finding that it was useful for preventing de-synchronizations that can happen when using the NormalizedMultiSource method combined with doppler effects and moving around one of the listeners. This speeds up or slows down the clip (expected behavior) but only does so for the source that is being played for the moving listener, meaning that if the source is looped using Unity's loop variable, the next cycle may come sooner or later than the other clones, which can make audio sound awful if looping over a long period of time.\
+\
+Oct 20, 2016\
+	Fixed two bugs with "loopCoroutine" - Pause and Stop functions are now respected while loopCoroutine is true, and disabling all VirtualAudioListeners or in use AudioSources while looping should no longer cause crashes.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b\fs36 \cf0 Final Note:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b0\fs24 \cf0 	\
+	If you still have questions, you can send me (LunaArgenteus) a private message on the Unity forums, send an email with "Split Screen Audio" in the subject line to LunaArgenteus@gmail.com, or post in this thread: \
+\
+http://forum.unity3d.com/threads/273344/\
+\
+Happy Game Developing!\
+\
+\
+	}
