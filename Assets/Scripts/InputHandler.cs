@@ -22,8 +22,6 @@ public class InputHandler : MonoBehaviour {
 	void Start ()
     {
         ship = gameObject.GetComponent<ShipController>();
-
-        GamePad.SetVibration(XInputDotNetPure.PlayerIndex, 0, 1);
 	}
 
     // Set new input keys
@@ -147,6 +145,8 @@ public class InputHandler : MonoBehaviour {
             {
                 ship.Turbo = true;
                 ship.Energy -= Time.deltaTime * ship.energyEfficiency * ship.shieldEfficiency;
+
+                GamePad.SetVibration(0, 1, 1);
             }
         }
     }
