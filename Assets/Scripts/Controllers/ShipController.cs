@@ -955,6 +955,7 @@ public class ShipController : MonoBehaviour {
     public float AccelerationForce { get { return accelerationForce; } set { accelerationForce = value; } }
     public float DownwardForce { get { return downwardForce; } set { downwardForce = value; } }
     public float Energy { get { return energy; } set { energy = value; } }
+    public float CurrentHeat { get { return currentHeat; } set { currentHeat = value; } }
     public bool Turbo { get { return turbo; } set { turbo = value; } }
     public bool Overheated { get { return overheated; } set { overheated = value; } }
     public bool FlightMode { get { return flightMode; } set { flightMode = value; } }
