@@ -821,6 +821,18 @@ public class ShipController : MonoBehaviour {
         }
     }
 
+    void HandleParticles()
+    {
+        ParticleSystem[] particles = GetComponentsInChildren<ParticleSystem>();
+
+        foreach (ParticleSystem p in particles)
+        {
+            p.startLifetime = 0.5f + currentFowardAccelerationSpeed / maxForwardAccelerationSpeed * (turbo ? 1 : 2);
+            ParticleSystem.EmissionModule em = p.emission;
+            em.rate = (currentFowardAccelerationSpeed > 0 ? currentFowardAccelerationSpeed / maxForwardAccelerationSpeed * 1000 : 10) * (turbo ? 1 : 1.5f);
+        }
+    }
+
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -841,6 +853,7 @@ public class ShipController : MonoBehaviour {
             {
                 HandleShipPhysics();
             }
+            HandleParticles();
         }
 
         if(overheated)
