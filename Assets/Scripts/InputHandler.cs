@@ -66,11 +66,11 @@ public class InputHandler : MonoBehaviour {
             }
             if (Input.GetKey(brakeKey))
             {
-                if (ship.currentFowardAccelerationSpeed > 1)
+                if (ship.CurrentForwardAccelerationForce > 1)
                 {
                     ship.AccelerationForce = -ship.brakingAcceleration;
                 }
-                else if (ship.currentFowardAccelerationSpeed < 1)
+                else if (ship.CurrentForwardAccelerationForce < 1)
                     ship.AccelerationForce = ship.brakingAcceleration;
                 else
                     ship.AccelerationForce = 0;
@@ -127,11 +127,11 @@ public class InputHandler : MonoBehaviour {
             // Braking
             if (Input.GetKey("joystick " + (gamepadNumber + 1) + " button 2"))
             {
-                if (ship.currentFowardAccelerationSpeed > 1)
+                if (ship.CurrentForwardAccelerationForce > 1)
                 {
                     ship.AccelerationForce = -ship.brakingAcceleration;
                 }
-                else if (ship.currentFowardAccelerationSpeed < 1)
+                else if (ship.CurrentForwardAccelerationForce < 1)
                     ship.AccelerationForce = ship.brakingAcceleration;
                 else
                     ship.AccelerationForce = 0;

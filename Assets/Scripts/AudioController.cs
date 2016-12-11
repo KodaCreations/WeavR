@@ -1,41 +1,71 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class AudioController : MonoBehaviour {
 
     AudioSource audioSource;
     AudioClip audioClip;
-    public string filename;
+    //public string filename;
 
-	// Use this for initialization
-	void Start () 
+    public List<AudioClip> menuMusic;
+    public List<AudioClip> raceMusic;
+
+    [Tooltip("Sound effects that do NOT have their own position in the world")]
+    public List<AudioClip> abstractSoundEffects;
+    [Tooltip("Sound effect that have a position in the world")]
+    public List<AudioClip> objectSoundEffects;
+
+    Dictionary<string, AudioClip> audioClipDict;
+
+    void Start()
     {
+        // Keep this object through scenes.
+        DontDestroyOnLoad(transform.gameObject);
+
+        audioClipDict = new Dictionary<string, AudioClip>();
+
+        foreach(AudioClip audioClip in menuMusic)
+            audioClipDict.Add(audioClip.name, audioClip);
+        foreach (AudioClip audioClip in raceMusic)
+            audioClipDict.Add(audioClip.name, audioClip);
+        foreach (AudioClip audioClip in abstractSoundEffects)
+            audioClipDict.Add(audioClip.name, audioClip);
+        foreach (AudioClip audioClip in objectSoundEffects)
+            audioClipDict.Add(audioClip.name, audioClip);
+
         audioSource = GetComponent<AudioSource>();
-        audioSource.playOnAwake = false;
+        audioSource.clip = audioClipDict[menuMusic[0].name];
+        audioSource.Play();
+    }
 
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
-
-    public void PlayFile()
+    public AudioClip GetAudioClip(string filename)
     {
-        
-        if (!audioSource.isPlaying)
-        {
-            audioSource.Play();
-        }
+        return audioClipDict[filename];
+    }
+
+    // Update is called once per frame
+    void Update ()
+    {
+	
+	}
+
+    public void PlayFile(string filename, bool loop)
+    {
+        audioSource.Stop();
+        audioSource.loop = loop;
+
+        audioSource.clip = audioClipDict[filename];
+        audioSource.Play();    
+    }
+
+    public void Stop()
+    {
+        audioSource.Stop();
     }
 
     public void LoadFile(string filename)
     {
-        audioSource.clip = (AudioClip)Resources.Load(filename);
+        //audioSource.clip = (AudioClip)Resources.Load(filename);
     }
-
-
-
-
 }
