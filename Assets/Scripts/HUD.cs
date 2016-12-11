@@ -5,13 +5,15 @@ using System;
 
 public class HUD : MonoBehaviour
 {
-    RaceController rc;
-    ShipController ship;
-    Text lapCounter;
-    Text positionCounter;
-    Text countdown;
-    Text weapon;
-    Transform finishPanel;
+    private RaceController rc;
+    private ShipController ship;
+    private Text lapCounter;
+    private Text positionCounter;
+    private Text countdown;
+    private Text weapon;
+    private Transform finishPanel;
+    private RectTransform energy;
+    private RectTransform overheat;
 
     // Use this for initialization
     void Start()
@@ -22,6 +24,8 @@ public class HUD : MonoBehaviour
         countdown = transform.FindChild("Countdown").GetComponent<Text>();
         weapon = transform.FindChild("WeaponText").GetComponent<Text>();
         finishPanel = transform.FindChild("FinishPanel");
+        energy = transform.FindChild("EnergyPercentPanel").GetComponent<RectTransform>();
+        overheat = transform.FindChild("OverheatPercentPanel").GetComponent<RectTransform>();
         ship = GetComponentInParent<CamScript>().ship.gameObject.GetComponent<ShipController>();
     }
 
@@ -45,6 +49,10 @@ public class HUD : MonoBehaviour
         else
             countdown.text = "";
         //weapon.text = GetWeaponName(rc.ships[placeInList].GetComponent<ShipController>());
+        energy.localScale = new Vector3(ship.Energy / ship.maxEnergy, 1, 1);
+        overheat.localScale = new Vector3(ship.CurrentHeat / ship.overheatAfter, 1, 1);
+        //energy.sizeDelta = new Vector2(ship.Energy / ship.maxEnergy * maxPanelWidth, energy.sizeDelta.y);
+        //overheat.sizeDelta = new Vector2(ship.CurrentHeat / ship.overheatAfter * maxPanelWidth, overheat.sizeDelta.y);
     }
 
     public void EnableWinPanel(float position)
