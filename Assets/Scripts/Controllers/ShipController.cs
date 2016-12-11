@@ -872,6 +872,18 @@ public class ShipController : MonoBehaviour {
         }
     }
 
+    void HandleParticles()
+    {
+        ParticleSystem[] particles = GetComponentsInChildren<ParticleSystem>();
+
+        foreach (ParticleSystem p in particles)
+        {
+            p.startLifetime = 0.5f + currentForwardAccelerationSpeed / maxForwardAccelerationSpeed * (turbo ? 1 : 2);
+            ParticleSystem.EmissionModule em = p.emission;
+            em.rate = (currentForwardAccelerationSpeed > 0 ? currentForwardAccelerationSpeed / maxForwardAccelerationSpeed * 1000 : 10) * (turbo ? 1 : 1.5f);
+        }
+    }
+
     // Handle sound effects
     void HandleSounds()
     {
@@ -909,6 +921,7 @@ public class ShipController : MonoBehaviour {
             {
                 HandleShipPhysics();
             }
+            HandleParticles();
         }
 
         if(overheated)
