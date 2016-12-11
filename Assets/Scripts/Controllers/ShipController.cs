@@ -32,8 +32,9 @@ public class ShipController : MonoBehaviour {
     [Header("Acceleration Values")]
     [Tooltip("Foward movement of the ship")]
     public float forwardAccelerationSpeed;
-    [HideInInspector]
-    public float currentFowardAccelerationSpeed;
+
+    private float currentForwardAccelerationSpeed;
+
     [Tooltip("The falloff acceleration if there is no accelerationForce")]
     public float noAccelerationDrag;
     public float maxForwardAccelerationSpeed;
@@ -492,42 +493,42 @@ public class ShipController : MonoBehaviour {
         //Calculate new CurrentAccelerationForwardSpeed and clamp if out of range
         if(accelerationForce > 0 || accelerationForce < 0)
         {
-            currentFowardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
-            if (currentFowardAccelerationSpeed > maxForwardAccelerationSpeed)
-                currentFowardAccelerationSpeed = maxForwardAccelerationSpeed;
+            currentForwardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
+            if (currentForwardAccelerationSpeed > maxForwardAccelerationSpeed)
+                currentForwardAccelerationSpeed = maxForwardAccelerationSpeed;
         }
         else
         {
-            if (currentFowardAccelerationSpeed > 0 + 150)
-                currentFowardAccelerationSpeed -= noAccelerationDrag * Time.deltaTime;
-            else if (currentFowardAccelerationSpeed < 0 - 150)
-                currentFowardAccelerationSpeed += noAccelerationDrag * Time.deltaTime;
+            if (currentForwardAccelerationSpeed > 0 + 150)
+                currentForwardAccelerationSpeed -= noAccelerationDrag * Time.deltaTime;
+            else if (currentForwardAccelerationSpeed < 0 - 150)
+                currentForwardAccelerationSpeed += noAccelerationDrag * Time.deltaTime;
             else
-                currentFowardAccelerationSpeed = 0;
+                currentForwardAccelerationSpeed = 0;
         }
 
         //Add The force to the Ship
-        rb.AddForce(transform.forward * currentFowardAccelerationSpeed * Time.deltaTime);
+        rb.AddForce(transform.forward * currentForwardAccelerationSpeed * Time.deltaTime);
     }
     void AccelerationFlightBehavior()
     {
         //Calculate new CurrentAccelerationForwardSpeed and clamp if out of range
         if (accelerationForce > 0 || accelerationForce < 0)
         {
-            currentFowardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
-            if (currentFowardAccelerationSpeed > maxForwardAccelerationSpeed)
-                currentFowardAccelerationSpeed = maxForwardAccelerationSpeed;
+            currentForwardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
+            if (currentForwardAccelerationSpeed > maxForwardAccelerationSpeed)
+                currentForwardAccelerationSpeed = maxForwardAccelerationSpeed;
         }
         else
         {
-            if (currentFowardAccelerationSpeed > flightMinimumAccelerationSpeed)
-                currentFowardAccelerationSpeed -= noAccelerationDrag * Time.deltaTime;
+            if (currentForwardAccelerationSpeed > flightMinimumAccelerationSpeed)
+                currentForwardAccelerationSpeed -= noAccelerationDrag * Time.deltaTime;
             else
-                currentFowardAccelerationSpeed = flightMinimumAccelerationSpeed;
+                currentForwardAccelerationSpeed = flightMinimumAccelerationSpeed;
         }
 
         //Add The force to the Ship
-        rb.AddForce(transform.forward * currentFowardAccelerationSpeed * Time.deltaTime);
+        rb.AddForce(transform.forward * currentForwardAccelerationSpeed * Time.deltaTime);
     }
     void FlightHandler()
     {
@@ -754,7 +755,8 @@ public class ShipController : MonoBehaviour {
 
         if (turbo)
         {
-            currentFowardAccelerationSpeed += speedBoost * Time.deltaTime;
+            currentForwardAccelerationSpeed += speedBoost * Time.deltaTime;
+
             maxForwardAccelerationSpeed *= maxspeedBoost;
         }
 
@@ -832,10 +834,10 @@ public class ShipController : MonoBehaviour {
         {
             if (debuff != null && debuff.speedReduction != 0)
             {
-                float cfas = currentFowardAccelerationSpeed;
-                currentFowardAccelerationSpeed *= (1 - debuff.speedReduction);
+                float cfas = currentForwardAccelerationSpeed;
+                currentForwardAccelerationSpeed *= (1 - debuff.speedReduction);
                 HandleShipPhysics();
-                currentFowardAccelerationSpeed = cfas;
+                currentForwardAccelerationSpeed = cfas;
             }
             else
             {
@@ -865,7 +867,7 @@ public class ShipController : MonoBehaviour {
         {
             if (debuff.shutDown)
             {
-                currentFowardAccelerationSpeed = 0;
+                currentForwardAccelerationSpeed = 0;
                 fallVelocity = 0;
             }
             debuff = null;
@@ -889,4 +891,6 @@ public class ShipController : MonoBehaviour {
     public bool Overheated { get { return overheated; } set { overheated = value; } }
     public bool FlightMode { get { return flightMode; } set { flightMode = value; } }
     public bool Activate { get { return activate; } set { activate = value; } }
+    public float CurrentForwardAccelerationForce { get { return currentForwardAccelerationSpeed; } }
+
 }

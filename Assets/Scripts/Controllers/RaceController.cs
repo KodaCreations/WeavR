@@ -25,7 +25,7 @@ public class RaceController : MonoBehaviour
         ResetBooleans();
         ActivateShips(false);       
         audioController = GetComponent<AudioController>();
-        audioController.LoadFile("Music/Soundtrack1");
+        //audioController.LoadFile("Music/Soundtrack1");
     }
     void ActivateShips(bool activate)
     {
@@ -249,7 +249,7 @@ public class RaceController : MonoBehaviour
         {
             ActivateShips(true);
             ActivateAI(true);
-            audioController.PlayFile();
+            //audioController.PlayFile();
         
         }
     }
