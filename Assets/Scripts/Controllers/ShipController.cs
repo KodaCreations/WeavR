@@ -288,6 +288,9 @@ public class ShipController : MonoBehaviour {
             wantedTrackRot = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.Cross(transform.right, hit.normal), hit.normal), Time.deltaTime * correctionRotDelay);
             transform.rotation = Quaternion.Slerp(transform.rotation, wantedTrackRot, Time.deltaTime * correctionRotDelay);
 
+            //Vector3 collisionNormal = transform.InverseTransformDirection(wantedTrackRot);
+            transform.Rotate(Vector3.up * collisionNormal.x * (transform.InverseTransformDirection(rb.velocity).z) / 70);
+
             Debug.DrawRay(hit.point, hit.normal, Color.red, 2.0f);
         }
     }
@@ -452,7 +455,6 @@ public class ShipController : MonoBehaviour {
             for (int i = 0; i < contactNum; i++)
             {
                 rb.angularVelocity = new Vector3(0, 0, 0);
-                Vector3 collisionSpeed = rb.GetPointVelocity(other.contacts[i].point);
                 Vector3 collisionNormal = transform.InverseTransformDirection((transform.position - other.contacts[i].point).normalized);
                 transform.Rotate(Vector3.up * collisionNormal.x * (transform.InverseTransformDirection(rb.velocity).z) / 70);
             }
