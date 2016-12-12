@@ -125,14 +125,14 @@ public class Brain : MonoBehaviour {
             if (i == 0)
             {
                 scheme = ControlSchemes.GetScheme1();
-                if (player1UsingGamepad)
-                    IH.usingGamepad = true;
+                if (player1UsingGamepad)              
+                    IH.UseGamepad(0);
             }
             else
             {
                 scheme = ControlSchemes.GetScheme2();
                 if (player2UsingGamepad)
-                    IH.usingGamepad = true;
+                    IH.UseGamepad(1);
             }
             IH.SetKeys(scheme[0], scheme[1], scheme[2], scheme[3], scheme[4], scheme[5]);
 

@@ -211,19 +211,21 @@ public class MenusScript : MonoBehaviour {
             LoadRace();
     }
 
+    void LoadRace()
+    {
+        shipMenu.gameObject.SetActive(false);
+
+        brain.StartRace();
+    }
+    #endregion
+
+    #region SettingsMenu
     public void UseGamepad(int playerIndex)
     {
         if (playerIndex == 0)
             brain.player1UsingGamepad = !brain.player1UsingGamepad;
         else if (playerIndex == 1)
             brain.player2UsingGamepad = !brain.player2UsingGamepad;
-    }
-
-    void LoadRace()
-    {
-        shipMenu.gameObject.SetActive(false);
-
-        brain.StartRace();
     }
     #endregion
 }

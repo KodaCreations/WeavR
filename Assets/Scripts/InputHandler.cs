@@ -38,6 +38,7 @@ public class InputHandler : MonoBehaviour {
     // Use gamepad instead of keyboard, needs to know which index of controllers to use
     public void UseGamepad(int gamepadNumber)
     {
+        usingGamepad = true;
         this.gamepadNumber = gamepadNumber;
     }
 
