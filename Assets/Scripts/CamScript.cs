@@ -88,7 +88,7 @@ public class CamScript : MonoBehaviour {
         if (!onSpline)
         {
             // Calculate the %, current speed / max speed.
-            float speedPercentage = shipController.CurrentForwardAccelerationForce / shipController.maxForwardAccelerationSpeed;
+            float speedPercentage = Mathf.Clamp(shipController.CurrentForwardAccelerationForce / shipController.maxForwardAccelerationSpeed, 0, 1);
 
             // Follow from behind or from front
             if (followBehind)

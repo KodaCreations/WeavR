@@ -31,6 +31,10 @@ public class Brain : MonoBehaviour {
     public float cameraIntroLength;             // Length in seconds for the cameras to do their introduction on splines
     List<CamScript> cameraReferences;           // References to cameras in scene
 
+    AudioController audioController;
+
+    
+
 	void Start () 
     {
         // Keep this object through scenes.
@@ -46,6 +50,8 @@ public class Brain : MonoBehaviour {
         startPositions = new Transform[8];
         playerShips = new List<GameObject>();
         cameraReferences = new List<CamScript>();
+
+        audioController = GameObject.Find("AudioController").GetComponent<AudioController>();
     }
 	
 	void Update () 
@@ -112,7 +118,7 @@ public class Brain : MonoBehaviour {
         for (int i = 0; i < playerShips.Count; i++)
         {
             GameObject player = (GameObject)Instantiate(playerShips[i], startPositions[7 - i].position, startPositions[7 - i].rotation);
-            
+            player.name = "PlayerShip number: " + i;
             // Set the input schemes of the players.
             InputHandler IH = player.GetComponent<InputHandler>();
             KeyCode[] scheme;
@@ -143,6 +149,7 @@ public class Brain : MonoBehaviour {
             int random = UnityEngine.Random.Range(0, availableAIShips.Count - 1);
 
             GameObject aiShip = (GameObject)Instantiate(availableAIShips[random], startPositions[i].position, startPositions[i].rotation);
+            aiShip.name = "AIShip number " + i; 
             GameObject rabbitObject = (GameObject)Instantiate(rabbit, startPositions[i].position, startPositions[i].rotation);
             TheRabbit theRabbit = rabbitObject.GetComponent<TheRabbit>();
 
@@ -211,9 +218,28 @@ public class Brain : MonoBehaviour {
         }
     }
 
+    void SetupSoundEffects()
+    {
+        // Create audio sources for all sound effects
+        //List<AudioClip> audioEffects = audioController.GetObjectSoundEffects();
+
+        //foreach (AudioClip clip in audioEffects)
+        //{
+        //    GameObject newSourceObject = new GameObject(clip.name + " sound effect");
+        //    AudioSource source = newSourceObject.AddComponent<AudioSource>();
+        //    source.clip = clip;
+        //    source.playOnAwake = false;
+        //    source.loop = false;
+        //    source.dopplerLevel = 0;
+        //    source.spatialBlend = 1;
+        //}
+
+    }
+
     // Load the correct track/scene, called by menusScript.
     public void StartRace()
     {
+        audioController.Stop();
         SceneManager.LoadScene(selectedTrack);
     }
 
@@ -229,6 +255,9 @@ public class Brain : MonoBehaviour {
 
     IEnumerator SetupRace()
     {
+        // Setup sound effects
+        //SetupSoundEffects();
+
         // Look for the start positions.
         ReadStartPositions();
         if (isMultiplayer)
@@ -244,7 +273,7 @@ public class Brain : MonoBehaviour {
         }
 
         // Disable visual presentation of start area.
-        //startArea.gameObject.SetActive(false); // Needs to be active if you want to find it with a tag
+        startArea.gameObject.SetActive(false); 
 
         // Fade in screen effect
 
@@ -252,6 +281,8 @@ public class Brain : MonoBehaviour {
         // Tell cameras to start the introduction
         foreach (CamScript camera in cameraReferences)
             camera.StartIntro(1 / cameraIntroLength);
+
+        // Audio controller play intro song
 
         // Wait for cameras to finish introduction spline
         yield return new WaitForSeconds(cameraIntroLength);
@@ -263,6 +294,13 @@ public class Brain : MonoBehaviour {
         // Ask the race controller to start the race when cameras are done.
         RaceController raceController = GameObject.Find("RaceController").GetComponent<RaceController>();
         raceController.StartCountDown(countDownTimer);
+
+        // audio controller play countdown
+        audioController.PlayFile("Countdown", false);
+
+        // Wait and then start race music
+        yield return new WaitForSeconds(countDownTimer + 1);
+        audioController.PlayFile("Soundtrack1", true);
     }
 
 }

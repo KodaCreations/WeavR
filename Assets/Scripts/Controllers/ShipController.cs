@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ShipController : MonoBehaviour {
 
@@ -32,7 +33,6 @@ public class ShipController : MonoBehaviour {
     [Header("Acceleration Values")]
     [Tooltip("Foward movement of the ship")]
     public float forwardAccelerationSpeed;
-
     private float currentForwardAccelerationSpeed;
 
     [Tooltip("The falloff acceleration if there is no accelerationForce")]
@@ -120,6 +120,14 @@ public class ShipController : MonoBehaviour {
     private bool shipIsColliding;
     private bool flightMode;
     private bool grounded;
+
+
+    [Header("Audio")]
+    public string engineAudioName;
+    public string boostAudioName;
+    VirtualAudioSource_NormalizedMultiSources engineAudioSource;
+    VirtualAudioSource_NormalizedMultiSources boostAudioSource;
+
     // Use this for initialization
     void Start()
     {
@@ -137,6 +145,45 @@ public class ShipController : MonoBehaviour {
         energy = maxEnergy;
         newEnergy = 0;
         currentHeat = 0;
+
+        // Audio init
+        AudioController audioController = GameObject.Find("AudioController").GetComponent<AudioController>();       // Audio controller probably should be made static..
+
+        SpawnAudioSourceObject(audioController, engineAudioName);
+
+        GameObject engineAudioObject = new GameObject("EngineAudioSource");
+        engineAudioObject.transform.parent = transform;
+        engineAudioObject.transform.localPosition = Vector3.zero;
+        engineAudioObject.SetActive(false);
+        engineAudioSource = engineAudioObject.AddComponent<VirtualAudioSource_NormalizedMultiSources>();
+        engineAudioSource.mySource = GameObject.Find(engineAudioName + " (sound effect for: " + transform.name + ")").GetComponent<AudioSource>();
+        engineAudioSource.playOnEnable = true;
+        engineAudioSource.loopCoroutine = true;
+        engineAudioObject.SetActive(true);
+
+        SpawnAudioSourceObject(audioController, boostAudioName);
+
+        GameObject boostAudioObject = new GameObject("BoostAudioSource");
+        boostAudioObject.transform.parent = transform;
+        boostAudioObject.transform.localPosition = Vector3.zero;
+        boostAudioObject.SetActive(false);
+        boostAudioSource = boostAudioObject.AddComponent<VirtualAudioSource_NormalizedMultiSources>();
+        boostAudioSource.mySource = GameObject.Find(boostAudioName + " (sound effect for: " + transform.name + ")").GetComponent<AudioSource>();
+        boostAudioSource.playOnEnable = false;
+        boostAudioSource.loopCoroutine = false;
+        boostAudioObject.SetActive(true);
+    }
+
+    // Need to spawn an object for each sound, needs to be seperate for each ship
+    void SpawnAudioSourceObject(AudioController audioController, string audioName)
+    {
+        GameObject newSourceObject = new GameObject(audioName + " (sound effect for: " + transform.name + ")");
+        AudioSource source = newSourceObject.AddComponent<AudioSource>();
+        source.clip = audioController.GetAudioClip(audioName);
+        source.playOnAwake = false;
+        source.loop = false;
+        source.dopplerLevel = 0;
+        source.spatialBlend = 0.5f;
     }
 
     /// <summary>
@@ -823,6 +870,35 @@ public class ShipController : MonoBehaviour {
         }
     }
 
+    void HandleParticles()
+    {
+        ParticleSystem[] particles = GetComponentsInChildren<ParticleSystem>();
+
+        foreach (ParticleSystem p in particles)
+        {
+            p.startLifetime = 0.5f + currentForwardAccelerationSpeed / maxForwardAccelerationSpeed * (turbo ? 1 : 2);
+            ParticleSystem.EmissionModule em = p.emission;
+            em.rate = (currentForwardAccelerationSpeed > 0 ? currentForwardAccelerationSpeed / maxForwardAccelerationSpeed * 1000 : 10) * (turbo ? 1 : 1.5f);
+        }
+    }
+
+    // Handle sound effects
+    void HandleSounds()
+    {
+        engineAudioSource.pitch = currentForwardAccelerationSpeed / maxForwardAccelerationSpeed + 1;
+
+        if (turbo)
+        {
+            if (!boostAudioSource.isPlaying)
+                boostAudioSource.Play();
+        }
+        else
+        {
+            if (boostAudioSource.isPlaying)
+                boostAudioSource.Stop();
+        }
+    }
+
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -843,6 +919,7 @@ public class ShipController : MonoBehaviour {
             {
                 HandleShipPhysics();
             }
+            HandleParticles();
         }
 
         if(overheated)
@@ -882,11 +959,14 @@ public class ShipController : MonoBehaviour {
         {
             rb.constraints = RigidbodyConstraints.None;
         }
+
+        HandleSounds();
     }
     public float SteeringForce { get { return steeringForce; } set { steeringForce = value; } }
     public float AccelerationForce { get { return accelerationForce; } set { accelerationForce = value; } }
     public float DownwardForce { get { return downwardForce; } set { downwardForce = value; } }
     public float Energy { get { return energy; } set { energy = value; } }
+    public float CurrentHeat { get { return currentHeat; } set { currentHeat = value; } }
     public bool Turbo { get { return turbo; } set { turbo = value; } }
     public bool Overheated { get { return overheated; } set { overheated = value; } }
     public bool FlightMode { get { return flightMode; } set { flightMode = value; } }
