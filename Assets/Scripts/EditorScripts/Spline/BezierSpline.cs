@@ -21,6 +21,8 @@ public class BezierSpline : MonoBehaviour {
     [SerializeField]
     public GameObject wallSegment;
     [SerializeField]
+    public GameObject colliderSegment;
+    [SerializeField]
     public GameObject waypoint;
     [SerializeField]
     public float waypointDistance = 100;
@@ -204,8 +206,14 @@ public class BezierSpline : MonoBehaviour {
     }
     public void BuildMesh()
     {
-        trackEditor.BuildTheWall(wallSegment, this, "Wall", "Ignore Raycast", "WallTest", detail);
-        trackEditor.BuildTheWall(floorSegment, this, "Untagged", "Only Raycast", "FloorTest", detail);
+        if(wallSegment)
+            trackEditor.BuildTheWall(wallSegment, this, "Wall", "Ignore Raycast", "WallTest", detail);
+        
+        if(floorSegment)
+            trackEditor.BuildTheWall(floorSegment, this, "Untagged", "Only Raycast", "FloorTest", detail);
+        
+        if(colliderSegment)
+            trackEditor.BuildTheWall(colliderSegment, this, "Wall", "Ignore Raycast", "ColliderTest", detail);
     }
     public int ControlPointCount
     {
@@ -218,6 +226,39 @@ public class BezierSpline : MonoBehaviour {
     public float GetControlRotation(int index)
     {
         return angles[index];
+    }
+    public Vector3 GetPointCam(float t, ref bool onSpline)
+    {
+        if (t >= 1)
+        {
+            if (parent != null)
+            {
+                Vector3 newPos = parent.GetPointCam(t - 1, ref onSpline);
+                return newPos;
+            }
+            else
+            {
+                onSpline = false;
+            }
+        }
+
+        int i;
+        if (t >= 1f)
+        {
+            t = 1f;
+            i = points.Length - 4;
+        }
+        else
+        {
+            t = Mathf.Clamp01(t) * CurveCount;
+            i = (int)t;
+            t -= i;
+            i *= 3;
+        }
+
+        //if (onSpline)
+            return transform.TransformPoint(Bezier.GetPoint(points[i], points[i + 1], points[i + 2], points[i + 3], t));
+        //return transform.TransformPoint(Bezier.GetPoint(points[i], points[i + 1], points[i + 2], points[i + 3], t));
     }
     public Vector3 GetPoint(float t)
     {

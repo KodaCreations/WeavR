@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ShipController : MonoBehaviour {
 
@@ -7,30 +8,37 @@ public class ShipController : MonoBehaviour {
     [Header("Misc")]
     public string shipName;
     public bool activate;
+    public int id;
 
 
     //Ship energy variables
     [Header("Energy System")]
     public float energyEfficiency; //How effective the ship is at converting energy into boost or shield 1 for 100%, higher value for less efficiency.
-    public float shieldEfficiency; //How much energy the shield uses compared to the turbo 1 for equaly effective, higher value for less efficiency.
+    //public float shieldEfficiency; //How much energy the shield uses compared to the turbo 1 for equaly effective, higher value for less efficiency.
+    public float overheatAfter; //How long time of active boost it will take for the ship to overheat
+    public float overheatLockTime; //How long it will take before the overheat timer starts going down if overheated
     public float maxEnergy;
     private float energy; //For 100% energyEfficiency 1 energy = 1 second of turbo
     private float newEnergy;
+    private float currentHeat;
+    private float heatTimer;
     public bool shielded;
     private bool turbo;
+    private bool overheated;
     public float maxspeedBoost; //How much the maxspeed should be increased by when using turbo. 1 is normal speed 2 is twice as fast.
     public float speedBoost;
     public float rechargePerSecond;
+    public float heatReductionPerSecond;
 
     [Header("Acceleration Values")]
     [Tooltip("Foward movement of the ship")]
     public float forwardAccelerationSpeed;
-    [HideInInspector]
-    public float currentFowardAccelerationSpeed;
+    private float currentForwardAccelerationSpeed;
+
     [Tooltip("The falloff acceleration if there is no accelerationForce")]
     public float noAccelerationDrag;
     public float maxForwardAccelerationSpeed;
-    public float flightMinimumAccelerationSpeed;
+    public float maxBackwardAccelerationSpeed;
     public float brakingAcceleration = 5;
     
     //Ship Flight downwardSpeed
@@ -68,7 +76,6 @@ public class ShipController : MonoBehaviour {
     //The Values that determin where the ship shall move that are changed in the Input or AI
     private float steeringForce; //Left or Right
     private float accelerationForce; //Forward or Backwards
-    private float downwardForce; //Down or Up in FlightMode
 
     //Forces to help with Calculations
     private float normalForce;
@@ -77,11 +84,7 @@ public class ShipController : MonoBehaviour {
     //Values that help with the model rotation so thtat it looks smoother
     private float shipCurrentBank;
     private float shipReturnBankSpeed;
-    private float shipCurrentPitchBank;
-    private float shipBankPitchSpeed;
-    private float shipReturnBankPitchSpeed;
     private float shipBankVelocity;
-    private float shipPitchBankVelocity;
     private float shipBankSpeed;
     [Header("Ship Yaw Handling")]
     public float shipBankReturnSpeed;
@@ -110,12 +113,18 @@ public class ShipController : MonoBehaviour {
     private Rigidbody rb;
     private GameObject model;
     private bool shipIsColliding;
-    private bool flightMode;
     private bool grounded;
+
+
+    [Header("Audio")]
+    public string engineAudioName;
+    public string boostAudioName;
+    VirtualAudioSource_NormalizedMultiSources engineAudioSource;
+    VirtualAudioSource_NormalizedMultiSources boostAudioSource;
+
     // Use this for initialization
     void Start()
     {
-        flightMode = false;
         shipHoverSpeed = Mathf.PI / 2;
 
         rb = GetComponent<Rigidbody>();
@@ -123,10 +132,51 @@ public class ShipController : MonoBehaviour {
         debuff = null;
         weapon = null;
         drain = false;
-        shielded = false;
+        //shielded = false;
         turbo = false;
+        overheated = false;
         energy = maxEnergy;
         newEnergy = 0;
+        currentHeat = 0;
+
+        // Audio init
+        AudioController audioController = GameObject.Find("AudioController").GetComponent<AudioController>();       // Audio controller probably should be made static..
+
+        SpawnAudioSourceObject(audioController, engineAudioName);
+
+        GameObject engineAudioObject = new GameObject("EngineAudioSource");
+        engineAudioObject.transform.parent = transform;
+        engineAudioObject.transform.localPosition = Vector3.zero;
+        engineAudioObject.SetActive(false);
+        engineAudioSource = engineAudioObject.AddComponent<VirtualAudioSource_NormalizedMultiSources>();
+        engineAudioSource.mySource = GameObject.Find(engineAudioName + " (sound effect for: " + transform.name + ")").GetComponent<AudioSource>();
+        engineAudioSource.playOnEnable = true;
+        engineAudioSource.loopCoroutine = true;
+        engineAudioObject.SetActive(true);
+
+        SpawnAudioSourceObject(audioController, boostAudioName);
+
+        GameObject boostAudioObject = new GameObject("BoostAudioSource");
+        boostAudioObject.transform.parent = transform;
+        boostAudioObject.transform.localPosition = Vector3.zero;
+        boostAudioObject.SetActive(false);
+        boostAudioSource = boostAudioObject.AddComponent<VirtualAudioSource_NormalizedMultiSources>();
+        boostAudioSource.mySource = GameObject.Find(boostAudioName + " (sound effect for: " + transform.name + ")").GetComponent<AudioSource>();
+        boostAudioSource.playOnEnable = false;
+        boostAudioSource.loopCoroutine = false;
+        boostAudioObject.SetActive(true);
+    }
+
+    // Need to spawn an object for each sound, needs to be seperate for each ship
+    void SpawnAudioSourceObject(AudioController audioController, string audioName)
+    {
+        GameObject newSourceObject = new GameObject(audioName + " (sound effect for: " + transform.name + ")");
+        AudioSource source = newSourceObject.AddComponent<AudioSource>();
+        source.clip = audioController.GetAudioClip(audioName);
+        source.playOnAwake = false;
+        source.loop = false;
+        source.dopplerLevel = 0;
+        source.spatialBlend = 0.5f;
     }
 
     /// <summary>
@@ -262,18 +312,8 @@ public class ShipController : MonoBehaviour {
             float distance = Vector3.Distance(wantedTrackPos, transform.position);
             float distanceToGround = Vector3.Distance(wantedTrackPos, hit.point);
             float pullStrength = 1 - (distanceToGround - distance) / distanceToGround;
-            if(!flightMode)
-            {
-                transform.position = Vector3.Slerp(transform.position, wantedTrackPos, Time.deltaTime * correctionPosDelay + pullStrength);
-            }
-            else
-            {
-                float shipDistanceToGround = Vector3.Distance(hit.point, transform.position);
-                if(shipDistanceToGround < distanceToGround)
-                {
-                    transform.position = Vector3.Slerp(transform.position, wantedTrackPos, Time.deltaTime * correctionPosDelay + pullStrength);
-                }
-            }
+            
+            transform.position = Vector3.Slerp(transform.position, wantedTrackPos, Time.deltaTime * correctionPosDelay + pullStrength);
 
             float correctionRotDelay = 15;
             wantedTrackRot = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.Cross(transform.right, hit.normal), hit.normal), Time.deltaTime * correctionRotDelay);
@@ -286,9 +326,9 @@ public class ShipController : MonoBehaviour {
     {
         // Basic hover what uses two Sinus curves to determin the height
         shipHoverTime += Time.deltaTime;
-        shipHoverTime = shipHoverTime % (Mathf.PI * 2.5f);
+        shipHoverTime = shipHoverTime % (Mathf.PI * 2.0f);
         shipHoverSpeed += Time.deltaTime / 2;
-        shipHoverSpeed = shipHoverSpeed % (Mathf.PI * 2.5f);
+        shipHoverSpeed = shipHoverSpeed % (Mathf.PI * 2.0f);
         shipHoverAmount -= Time.deltaTime / 4;
         shipHoverAmount = shipHoverAmount % 3;
 
@@ -395,341 +435,91 @@ public class ShipController : MonoBehaviour {
 
     void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.tag == "Wall" || other.gameObject.tag == "Ship")
-            shipIsColliding = true;   
+        // Collision with ship
+        if (other.gameObject.tag == "Ship")
+            shipIsColliding = true;
+
+            // Collision with wall
+        if (other.gameObject.tag == "Wall")
+        {
+            shipIsColliding = true;
+            for (int i = 0; i < other.contacts.Length; ++i)
+            {
+                float dot = Vector3.Dot(transform.forward, -other.contacts[i].normal);
+                Debug.DrawRay(other.contacts[i].point, other.contacts[i].normal, Color.black, 3);
+
+                if (dot > 0)
+                {
+                    Vector3 shipVelocity = transform.InverseTransformDirection(rb.velocity);
+                    Vector3 wallDirection = transform.InverseTransformDirection(rb.velocity);
+
+                    float pow = 3; // The curve that the bouncyness of the walls.
+                    float knockback = Mathf.Pow(dot, pow);
+                    knockback *= shipVelocity.z;
+                    
+                    shipVelocity.z *= (1 - dot);
+                    
+                    rb.velocity = transform.TransformDirection(shipVelocity);
+                    currentForwardAccelerationSpeed *= (1 - dot);
+                }
+            }
+        }
     }
 
 
-    //void OnCollisionStay(Collision other)
-    //{
-    //    // Collision
-    //    if (other.gameObject.tag == "Wall")
-    //    {
-    //        float contactNum = other.contacts.Length;
-    //        contactNum = Mathf.Clamp(contactNum, 0, 1);
+    void OnCollisionStay(Collision other)
+    {
+        // Collision with ship
+        if (other.gameObject.tag == "Ship")
+            shipIsColliding = true;
 
-    //        for (int i = 0; i < contactNum; i++)
-    //        {
-    //            rb.angularVelocity = new Vector3(0, 0, 0);
-    //            Vector3 collisionSpeed = rb.GetPointVelocity(other.contacts[i].point);
-    //            Vector3 collisionNormal = transform.InverseTransformDirection((transform.position - other.contacts[i].point).normalized);
+        // Collision with wall
+        if (other.collider.tag == "Wall")
+        {
+            shipIsColliding = true;
+            float contactNum = other.contacts.Length;
+            contactNum = Mathf.Clamp(contactNum, 0, 1);
 
-    //            if (shipAccel > shipAccelCap / 2)
-    //            {
-    //                shipAccel -= 1 / 100;
-    //            }
+            for (int i = 0; i < contactNum; i++)
+            {
+                rb.angularVelocity = new Vector3(0, 0, 0);
+                Vector3 collisionNormal = transform.InverseTransformDirection((transform.position - other.contacts[i].point).normalized);
+                transform.Rotate(Vector3.up * collisionNormal.x * (transform.InverseTransformDirection(rb.velocity).z) / 70);
+            }
+        }
+    }
 
-    //            if (shipThrust > (shipAccelCap * (rb.drag * 2)))
-    //            {
-    //                shipThrust -= Mathf.Abs(collisionSpeed.x + collisionSpeed.z) / (Time.deltaTime * 200);
-    //            }
-
-    //            if (collisionNormal.x < 0.3f)
-    //            {
-    //                float tempVelZ = transform.InverseTransformDirection(rb.velocity).z;
-    //                //rigidbody.velocity = new Vector3(0,0,0);
-
-    //                //shipAccel = 0;
-    //                //shipThrust = 0;
-    //                //shipBoostTimer = 0;
-    //                //shipBoostAmount = 0;
-
-    //                //rigidbody.AddRelativeForce(new Vector3(0,0, collisionSpeed.z / 10), ForceMode.Impulse);
-    //            }
-
-    //            if (collisionNormal.x < 0.5f || collisionNormal.x > -0.5f)
-    //            {
-    //                if (collisionNormal.x < 0.1f || collisionNormal.x > -0.1f)
-    //                {
-    //                    transform.Rotate(Vector3.up * collisionNormal.x * (transform.InverseTransformDirection(rb.velocity).z) / 230);
-    //                }
-    //                else
-    //                {
-    //                    transform.Rotate(Vector3.up * collisionNormal.x * (transform.InverseTransformDirection(rb.velocity).z) / 250);
-    //                }
-
-    //            }
-
-    //            if (collisionNormal.x < 0.1f && collisionNormal.x > -0.1f)
-    //            {
-    //                float tempvel = collisionSpeed.z * 20;
-    //                if (tempvel < 0)
-    //                {
-    //                    tempvel = -tempvel;
-    //                }
-    //                tempvel = Mathf.Clamp(tempvel, 0, 100);
-
-    //                //shipBoostTimer = 0;
-    //                //shipThrust = 0;
-    //                //shipThrust = 0;
-    //                rb.velocity = new Vector3(0, 0, 0);
-
-    //                if (tempvel > 15)
-    //                {
-    //                    rb.AddRelativeForce(new Vector3(0, 0, -tempvel), ForceMode.Impulse);
-    //                }
-    //            }
-
-    //        }
-    //    }
-    //}
-
-    void OnCollisionExit()
+    void OnCollisionExit(Collision other)
     {
         shipIsColliding = false;
     }
     void AccelerationGroundBehavior()
     {
         //Calculate new CurrentAccelerationForwardSpeed and clamp if out of range
-        if(accelerationForce > 0 || accelerationForce < 0)
+        if(accelerationForce > 0)
         {
-            currentFowardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
-            if (currentFowardAccelerationSpeed > maxForwardAccelerationSpeed)
-                currentFowardAccelerationSpeed = maxForwardAccelerationSpeed;
+            currentForwardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
+            if (currentForwardAccelerationSpeed > maxForwardAccelerationSpeed)
+                currentForwardAccelerationSpeed = maxForwardAccelerationSpeed;
+        }
+        else if (accelerationForce < 0)
+        {
+            currentForwardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
+            if (currentForwardAccelerationSpeed < -maxBackwardAccelerationSpeed)
+                currentForwardAccelerationSpeed = -maxBackwardAccelerationSpeed;
         }
         else
         {
-            if (currentFowardAccelerationSpeed > 0 + 150)
-                currentFowardAccelerationSpeed -= noAccelerationDrag * Time.deltaTime;
-            else if (currentFowardAccelerationSpeed < 0 - 150)
-                currentFowardAccelerationSpeed += noAccelerationDrag * Time.deltaTime;
+            if (currentForwardAccelerationSpeed > 0 + 150)
+                currentForwardAccelerationSpeed -= noAccelerationDrag * Time.deltaTime;
+            else if (currentForwardAccelerationSpeed < 0 - 150)
+                currentForwardAccelerationSpeed += noAccelerationDrag * Time.deltaTime;
             else
-                currentFowardAccelerationSpeed = 0;
+                currentForwardAccelerationSpeed = 0;
         }
 
         //Add The force to the Ship
-        rb.AddForce(transform.forward * currentFowardAccelerationSpeed * Time.deltaTime);
-    }
-    void AccelerationFlightBehavior()
-    {
-        //Calculate new CurrentAccelerationForwardSpeed and clamp if out of range
-        if (accelerationForce > 0 || accelerationForce < 0)
-        {
-            currentFowardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
-            if (currentFowardAccelerationSpeed > maxForwardAccelerationSpeed)
-                currentFowardAccelerationSpeed = maxForwardAccelerationSpeed;
-        }
-        else
-        {
-            if (currentFowardAccelerationSpeed > flightMinimumAccelerationSpeed)
-                currentFowardAccelerationSpeed -= noAccelerationDrag * Time.deltaTime;
-            else
-                currentFowardAccelerationSpeed = flightMinimumAccelerationSpeed;
-        }
-
-        //Add The force to the Ship
-        rb.AddForce(transform.forward * currentFowardAccelerationSpeed * Time.deltaTime);
-    }
-    void FlightHandler()
-    {
-        float correctionRotDelay = 15;
-        wantedTrackRot = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
-        transform.rotation = Quaternion.Slerp(transform.rotation, wantedTrackRot, Time.deltaTime * correctionRotDelay);
-    }
-    void SteeringFlightRollBehavior()
-    {
-        // Wobble, has to be initialized with setting Wobble parameters
-        shipWobbleTime += Time.deltaTime;
-        shipWobbleSpeed -= Time.deltaTime / 2;
-        shipWobbleSpeed = Mathf.Clamp(shipWobbleSpeed, 0, 10);
-        shipWobbleAmount -= Time.deltaTime / 2;
-        shipWobbleAmount = Mathf.Clamp(shipWobbleAmount, 0, 10);
-
-        shipCurrentWobble = Mathf.Sin(shipWobbleTime * shipWobbleSpeed) * shipWobbleAmount;
-
-        // Change Banking speed depending on current bank
-        #region Banking
-        if (steeringForce > 0)
-        {
-            shipReturnBankSpeed = 0;
-            if (shipCurrentBank > 0 || shipCurrentBank == 0)
-            {
-                if (shipCurrentBank > 15)
-                {
-                    shipBankSpeed = Mathf.Lerp(shipBankSpeed, 5, Time.fixedDeltaTime * 5);
-                }
-                else
-                {
-                    shipBankSpeed = Mathf.Lerp(shipBankSpeed, 3, Time.fixedDeltaTime * 5);
-                }
-            }
-            else
-            {
-                shipBankSpeed = Mathf.Lerp(shipBankSpeed, 2f, Time.fixedDeltaTime * 5);
-            }
-            shipBankVelocity = Mathf.Lerp(shipBankVelocity, shipBankSpeed, Time.deltaTime * 50);
-        }
-
-        if (steeringForce < 0)
-        {
-            shipReturnBankSpeed = 0;
-            if (shipCurrentBank < 0 || shipCurrentBank == 0)
-            {
-
-                if (shipCurrentBank < -15)
-                {
-                    shipBankSpeed = Mathf.Lerp(shipBankSpeed, 5, Time.fixedDeltaTime * 5);
-                }
-                else
-                {
-                    shipBankSpeed = Mathf.Lerp(shipBankSpeed, 3, Time.fixedDeltaTime * 5);
-                }
-            }
-            else
-            {
-                shipBankSpeed = Mathf.Lerp(shipBankSpeed, 2f, Time.fixedDeltaTime * 5);
-            }
-            shipBankVelocity = Mathf.Lerp(shipBankVelocity, shipBankSpeed, Time.deltaTime * 50);
-        }
-
-        if (steeringForce == 0)
-        {
-            shipBankSpeed = 0;
-            if (shipCurrentBank < 0)
-            {
-                if (shipCurrentBank < -15)
-                {
-                    shipReturnBankSpeed = Mathf.Lerp(shipReturnBankSpeed, 10f, Time.fixedDeltaTime * 2);
-                }
-                else
-                {
-                    shipReturnBankSpeed = Mathf.Lerp(shipReturnBankSpeed, 7f, Time.fixedDeltaTime * 3);
-                }
-            }
-            else
-            {
-                if (shipCurrentBank > 15)
-                {
-                    shipReturnBankSpeed = Mathf.Lerp(shipReturnBankSpeed, 10f, Time.fixedDeltaTime * 2);
-                }
-                else
-                {
-                    shipReturnBankSpeed = Mathf.Lerp(shipReturnBankSpeed, 7f, Time.fixedDeltaTime * 3);
-                }
-            }
-            shipBankVelocity = Mathf.Lerp(shipBankVelocity, shipReturnBankSpeed, Time.deltaTime * 30);
-            shipCurrentBank = Mathf.Lerp(shipCurrentBank, 0, Time.fixedDeltaTime * shipBankVelocity);
-        }
-        else
-        {
-            shipCurrentBank = Mathf.Lerp(shipCurrentBank, steeringForce * (shipMaxBank), Time.deltaTime * shipBankVelocity);
-        }
-        #endregion
-
-        model.transform.localRotation = Quaternion.Euler(model.transform.localEulerAngles.x, model.transform.localEulerAngles.y, -shipCurrentBank + rollState + shipCurrentWobble);
-
-        normalForce = Mathf.Lerp(normalForce, steeringForce, Time.deltaTime * 3);
-        transform.Rotate(Vector3.up * normalForce);
-    }
-    void SteeringFlightPitchBehavior()
-    {
-        // Wobble, has to be initialized with setting Wobble parameters
-        shipWobbleTime += Time.deltaTime;
-        shipWobbleSpeed -= Time.deltaTime / 2;
-        shipWobbleSpeed = Mathf.Clamp(shipWobbleSpeed, 0, 10);
-        shipWobbleAmount -= Time.deltaTime / 2;
-        shipWobbleAmount = Mathf.Clamp(shipWobbleAmount, 0, 10);
-
-        shipCurrentWobble = Mathf.Sin(shipWobbleTime * shipWobbleSpeed) * shipWobbleAmount;
-
-        // Change Banking speed depending on current bank
-        #region Banking
-        if (downwardForce > 0)
-        {
-            shipReturnBankPitchSpeed = 0;
-            if (shipCurrentPitchBank > 0 || shipCurrentPitchBank == 0)
-            {
-                if (shipCurrentPitchBank > 15)
-                {
-                    shipBankPitchSpeed = Mathf.Lerp(shipBankPitchSpeed, 5, Time.fixedDeltaTime * 5);
-                }
-                else
-                {
-                    shipBankPitchSpeed = Mathf.Lerp(shipBankPitchSpeed, 3, Time.fixedDeltaTime * 5);
-                }
-            }
-            else
-            {
-                shipBankPitchSpeed = Mathf.Lerp(shipBankPitchSpeed, 2f, Time.fixedDeltaTime * 5);
-            }
-            shipPitchBankVelocity = Mathf.Lerp(shipPitchBankVelocity, shipBankPitchSpeed, Time.deltaTime * 50);
-        }
-
-        if (downwardForce < 0)
-        {
-            shipReturnBankPitchSpeed = 0;
-            if (shipCurrentPitchBank < 0 || shipCurrentPitchBank == 0)
-            {
-
-                if (shipCurrentPitchBank < -15)
-                {
-                    shipBankPitchSpeed = Mathf.Lerp(shipBankPitchSpeed, 5, Time.fixedDeltaTime * 5);
-                }
-                else
-                {
-                    shipBankPitchSpeed = Mathf.Lerp(shipBankPitchSpeed, 3, Time.fixedDeltaTime * 5);
-                }
-            }
-            else
-            {
-                shipBankPitchSpeed = Mathf.Lerp(shipBankPitchSpeed, 2f, Time.fixedDeltaTime * 5);
-            }
-            shipPitchBankVelocity = Mathf.Lerp(shipPitchBankVelocity, shipBankPitchSpeed, Time.deltaTime * 50);
-        }
-
-        if (downwardForce == 0)
-        {
-            shipBankPitchSpeed = 0;
-            if (shipCurrentPitchBank < 0)
-            {
-                if (shipCurrentPitchBank < -15)
-                {
-                    shipReturnBankPitchSpeed = Mathf.Lerp(shipReturnBankPitchSpeed, 10f, Time.fixedDeltaTime * 2);
-                }
-                else
-                {
-                    shipReturnBankPitchSpeed = Mathf.Lerp(shipReturnBankPitchSpeed, 7f, Time.fixedDeltaTime * 3);
-                }
-            }
-            else
-            {
-                if (shipCurrentBank > 15)
-                {
-                    shipReturnBankPitchSpeed = Mathf.Lerp(shipReturnBankPitchSpeed, 10f, Time.fixedDeltaTime * 2);
-                }
-                else
-                {
-                    shipReturnBankPitchSpeed = Mathf.Lerp(shipReturnBankPitchSpeed, 7f, Time.fixedDeltaTime * 3);
-                }
-            }
-            shipPitchBankVelocity = Mathf.Lerp(shipPitchBankVelocity, shipReturnBankPitchSpeed, Time.deltaTime * 30);
-            shipCurrentPitchBank = Mathf.Lerp(shipCurrentPitchBank, 0, Time.fixedDeltaTime * shipPitchBankVelocity);
-        }
-        else
-        {
-            shipCurrentPitchBank = Mathf.Lerp(shipCurrentPitchBank, downwardForce * (shipMaxBank), Time.deltaTime * shipPitchBankVelocity);
-        }
-        #endregion
-
-        model.transform.localRotation = Quaternion.Euler(-shipCurrentPitchBank + rollState + shipCurrentWobble, model.transform.localEulerAngles.y, model.transform.localEulerAngles.z);
-
-        //normalPitchForce = Mathf.Lerp(normalPitchForce, downwardForce, Time.deltaTime * 3);
-        rb.AddForce(transform.up * downwardForce * downwardSpeed * Time.deltaTime);
-        //transform.Rotate(Vector3.up * normalPitchForce);
-    }
-    public void DisableFlightMode()
-    {
-        flightMode = false;
-    }
-    public void EnableFlightMode()
-    {
-        if(!flightMode)
-        {
-            shipPitchBankVelocity = 0;
-            normalPitchForce = 0;
-            shipCurrentPitchBank = 0;
-            flightMode = true;
-        }
+        rb.AddForce(transform.forward * currentForwardAccelerationSpeed * Time.deltaTime);
     }
     void HandleGravity()
     {
@@ -745,37 +535,34 @@ public class ShipController : MonoBehaviour {
 
         if (turbo)
         {
-            currentFowardAccelerationSpeed += speedBoost *= Time.deltaTime;
+            currentForwardAccelerationSpeed += speedBoost * Time.deltaTime;
+
             maxForwardAccelerationSpeed *= maxspeedBoost;
         }
 
         HoverHandler(); // Set Position depending if there is a ground under the Ship
-        if (flightMode)
+        if (grounded)
         {
-            if (!grounded)
-            {
-                FlightHandler(); // Sets Ship rotation to Zero
-            }
-            AccelerationFlightBehavior(); // Forward Movement
-            SteeringFlightPitchBehavior(); // Left and right Movement
-            SteeringFlightRollBehavior(); // Down  and Up Movement
+            AccelerationGroundBehavior(); // Forward Movement
+            SteeringGroundBehavior(); // Left and right Movement
+            HoverBehavior(); // Only Visual effect of the model
         }
         else
         {
-            if (grounded)
-            {
-                AccelerationGroundBehavior(); // Forward Movement
-                SteeringGroundBehavior(); // Left and right Movement
-                HoverBehavior(); // Only Visual effect of the model
-            }
-            else
-            {
-                HandleGravity(); // Down the ship goes
-            }
+            HandleGravity(); // Down the ship goes
         }
 
         if (turbo)
+        {
             maxForwardAccelerationSpeed = turboMemory;
+            currentHeat += Time.deltaTime;
+            if (currentHeat > overheatAfter)
+            {
+                currentHeat = overheatAfter;
+                overheated = true;
+                heatTimer = overheatLockTime;
+            }
+        }
     }
 
     /// <summary>
@@ -803,6 +590,35 @@ public class ShipController : MonoBehaviour {
         }
     }
 
+    void HandleParticles()
+    {
+        ParticleSystem[] particles = GetComponentsInChildren<ParticleSystem>();
+
+        foreach (ParticleSystem p in particles)
+        {
+            p.startLifetime = 0.5f + currentForwardAccelerationSpeed / maxForwardAccelerationSpeed * (turbo ? 1 : 2);
+            ParticleSystem.EmissionModule em = p.emission;
+            em.rate = (currentForwardAccelerationSpeed > 0 ? currentForwardAccelerationSpeed / maxForwardAccelerationSpeed * 1000 : 10) * (turbo ? 1 : 1.5f);
+        }
+    }
+
+    // Handle sound effects
+    void HandleSounds()
+    {
+        engineAudioSource.pitch = currentForwardAccelerationSpeed / maxForwardAccelerationSpeed + 1;
+
+        if (turbo)
+        {
+            if (!boostAudioSource.isPlaying)
+                boostAudioSource.Play();
+        }
+        else
+        {
+            if (boostAudioSource.isPlaying)
+                boostAudioSource.Stop();
+        }
+    }
+
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -814,15 +630,28 @@ public class ShipController : MonoBehaviour {
         {
             if (debuff != null && debuff.speedReduction != 0)
             {
-                float cfas = currentFowardAccelerationSpeed;
-                currentFowardAccelerationSpeed *= (1 - debuff.speedReduction);
+                float cfas = currentForwardAccelerationSpeed;
+                currentForwardAccelerationSpeed *= (1 - debuff.speedReduction);
                 HandleShipPhysics();
-                currentFowardAccelerationSpeed = cfas;
+                currentForwardAccelerationSpeed = cfas;
             }
             else
             {
                 HandleShipPhysics();
             }
+            HandleParticles();
+        }
+
+        if(overheated)
+        if (overheated && (heatTimer -= Time.deltaTime) <= 0)
+        {
+            heatTimer = 0;
+            overheated = false;
+        }
+        if (currentHeat != 0 && !turbo && !overheated)
+        {
+            if ((currentHeat -= heatReductionPerSecond * Time.deltaTime) < 0)
+                currentHeat = 0;
         }
 
         if (debuff != null && debuff.energyDrain)
@@ -835,7 +664,7 @@ public class ShipController : MonoBehaviour {
         {
             if (debuff.shutDown)
             {
-                currentFowardAccelerationSpeed = 0;
+                currentForwardAccelerationSpeed = 0;
                 fallVelocity = 0;
             }
             debuff = null;
@@ -850,12 +679,16 @@ public class ShipController : MonoBehaviour {
         {
             rb.constraints = RigidbodyConstraints.None;
         }
+
+        HandleSounds();
     }
     public float SteeringForce { get { return steeringForce; } set { steeringForce = value; } }
     public float AccelerationForce { get { return accelerationForce; } set { accelerationForce = value; } }
-    public float DownwardForce { get { return downwardForce; } set { downwardForce = value; } }
     public float Energy { get { return energy; } set { energy = value; } }
+    public float CurrentHeat { get { return currentHeat; } set { currentHeat = value; } }
     public bool Turbo { get { return turbo; } set { turbo = value; } }
-    public bool FlightMode { get { return flightMode; } set { flightMode = value; } }
+    public bool Overheated { get { return overheated; } set { overheated = value; } }
     public bool Activate { get { return activate; } set { activate = value; } }
+    public float CurrentForwardAccelerationForce { get { return currentForwardAccelerationSpeed; } }
+
 }

@@ -3,7 +3,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class RaceController : MonoBehaviour {
+public class RaceController : MonoBehaviour
+{
 
     public Waypoint[] waypoints;
     public bool[][] waypointBooleans;
@@ -14,18 +15,19 @@ public class RaceController : MonoBehaviour {
     public float counter = -1;
     public int nrOfLaps = 3;
     HUD[] huds;
+    AudioController audioController;
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start()
     {
         FindAllWaypoints();
         FindAllShips();
         ResetBooleans();
-        ActivateShips(false);
-	}
+        ActivateShips(false);       
+    }
     void ActivateShips(bool activate)
     {
-        foreach(GameObject s in ships)
+        foreach (GameObject s in ships)
         {
             ShipController controller = s.GetComponent<ShipController>();
             if (controller)
@@ -34,7 +36,7 @@ public class RaceController : MonoBehaviour {
     }
     void ActivateAI(bool activate)
     {
-        foreach(GameObject s in ships)
+        foreach (GameObject s in ships)
         {
             AIController state = s.GetComponent<AIController>();
             if (state)
@@ -46,12 +48,12 @@ public class RaceController : MonoBehaviour {
     void ResetBooleans()
     {
         Array.Resize(ref waypointBooleans, ships.Length);
-        for(int i = 0; i < waypointBooleans.Length; ++i)
+        for (int i = 0; i < waypointBooleans.Length; ++i)
         {
             Array.Resize(ref waypointBooleans[i], waypoints.Length);
         }
     }
-	void FindAllWaypoints()
+    void FindAllWaypoints()
     {
         GameObject[] objects = GameObject.FindGameObjectsWithTag("Waypoint");
         Array.Resize(ref waypoints, objects.Length);
@@ -96,14 +98,14 @@ public class RaceController : MonoBehaviour {
     }
     private void ResetLap(int index)
     {
-        for(int i = 0; i < waypoints.Length; ++i)
+        for (int i = 0; i < waypoints.Length; ++i)
         {
             waypointBooleans[index][i] = false;
         }
     }
     private bool LapIsDone(int index)
     {
-        for(int i = 0; i < waypointBooleans[index].Length; ++i)
+        for (int i = 0; i < waypointBooleans[index].Length; ++i)
         {
             if (waypointBooleans[index][i] == false)
                 return false;
@@ -142,7 +144,7 @@ public class RaceController : MonoBehaviour {
     }
     void CaclulateShipPositions()
     {
-        for(int i = 0; i < ships.Length; ++i)
+        for (int i = 0; i < ships.Length; ++i)
         {
             int targetWaypoint = (int)currentPositions[i] % waypoints.Length;
             int lastWaypoint = targetWaypoint - 1;
@@ -155,7 +157,7 @@ public class RaceController : MonoBehaviour {
             float distanceWaypoints = Vector3.Distance(waypoints[lastWaypoint].transform.position, waypoints[targetWaypoint].transform.position);
             float distanceToShip = Vector3.Distance(waypoints[lastWaypoint].transform.position, ships[i].transform.position);
             float procent = distanceToShip / distanceWaypoints;
-            if(targetWaypoint + procent >= waypoints.Length)
+            if (targetWaypoint + procent >= waypoints.Length)
             {
                 currentPositions[i] = 0;
             }
@@ -172,7 +174,7 @@ public class RaceController : MonoBehaviour {
         float shipPosition = 0;
         for (int i = 0; i < ships.Length; ++i)
         {
-            if(ship == ships[i].GetComponent<ShipController>())
+            if (ship == ships[i].GetComponent<ShipController>())
             {
                 shipPosition = currentPositions[i];
                 break;
@@ -181,7 +183,7 @@ public class RaceController : MonoBehaviour {
 
         int racePosition = 1;
         //Get how many other ships are in front
-        for(int i = 0; i < ships.Length; ++i)
+        for (int i = 0; i < ships.Length; ++i)
         {
             if (currentPositions[i] > shipPosition)
                 ++racePosition;
@@ -190,11 +192,11 @@ public class RaceController : MonoBehaviour {
     }
     void PlaceShipsInOrder()
     {
-        for(int i = 0; i < ships.Length; ++i)
+        for (int i = 0; i < ships.Length; ++i)
         {
-            for(int j = i - 1; j >= 0; --j)
+            for (int j = i - 1; j >= 0; --j)
             {
-                if(currentPositions[i] > currentPositions[j])
+                if (currentPositions[i] > currentPositions[j])
                 {
                     float tempPos = currentPositions[j];
                     currentPositions[j] = currentPositions[i];
@@ -216,7 +218,7 @@ public class RaceController : MonoBehaviour {
 
     bool CountDown()
     {
-        if(counter >= 0)
+        if (counter >= 0)
         {
             counter -= Time.deltaTime;
             if (counter < 0)
@@ -233,14 +235,18 @@ public class RaceController : MonoBehaviour {
 
         counter = time;
     }
-	// Update is called once per frame
-	void Update ()
+    // Update is called once per frame
+    void Update()
     {
+        if (ships.Length != GameObject.FindGameObjectsWithTag("Ship").Length)
+            Start();
+
         CaclulateShipPositions();
         PlaceShipsInOrder();
         if (CountDown())
         {
             ActivateShips(true);
+
             ActivateAI(true);
         }
     }

@@ -36,16 +36,16 @@ public class CylinderShaderScript : MonoBehaviour {
             if(controller)
             {
                 //ship.GetComponent<Renderer>().material.SetVector("_ShipPos", new Vector4(ship.transform.position.x, ship.transform.position.y, ship.transform.position.z, 0));
-                if (controller.FlightMode)
-                {
-                    GetComponent<MeshCollider>().enabled = true;
-                    GetComponent<MeshRenderer>().enabled = true;
-                }
-                else
-                {
-                    GetComponent<MeshCollider>().enabled = false;
-                    GetComponent<MeshRenderer>().enabled = false;
-                }
+                //if (controller.FlightMode)
+                //{
+                //    GetComponent<MeshCollider>().enabled = true;
+                //    GetComponent<MeshRenderer>().enabled = true;
+                //}
+                //else
+                //{
+                //    GetComponent<MeshCollider>().enabled = false;
+                //    GetComponent<MeshRenderer>().enabled = false;
+                //}
             }
         }
     }
