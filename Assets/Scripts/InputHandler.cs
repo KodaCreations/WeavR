@@ -42,7 +42,6 @@ public class InputHandler : MonoBehaviour {
     {
         ship.AccelerationForce = 0;
         ship.SteeringForce = 0;
-        ship.DownwardForce = 0;
         if (!ship.Activate)
             return;
 
