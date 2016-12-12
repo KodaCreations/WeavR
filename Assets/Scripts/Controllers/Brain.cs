@@ -273,7 +273,7 @@ public class Brain : MonoBehaviour {
         }
 
         // Disable visual presentation of start area.
-        //startArea.gameObject.SetActive(false); // Needs to be active if you want to find it with a tag
+        startArea.gameObject.SetActive(false); 
 
         // Fade in screen effect
 
