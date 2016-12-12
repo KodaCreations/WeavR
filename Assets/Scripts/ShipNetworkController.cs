@@ -37,7 +37,6 @@ public class ShipNetworkController : NetworkBehaviour
         downwardForce = downwardInput;
         ship.SteeringForce = steeringForce;
         ship.AccelerationForce = accelerationForce;
-        ship.DownwardForce = downwardForce;
     }
     // Update is called once per frame
     void Update()
@@ -54,7 +53,6 @@ public class ShipNetworkController : NetworkBehaviour
             {
                 ship.SteeringForce = steeringForce;
                 ship.AccelerationForce = accelerationForce;
-                ship.DownwardForce = downwardForce;
             }
         }
     }

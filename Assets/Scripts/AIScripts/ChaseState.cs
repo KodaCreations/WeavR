@@ -51,7 +51,6 @@ public class ChaseState : IAiState
 
         ai.ship.AccelerationForce = 0;
         ai.ship.SteeringForce = 0;
-        ai.ship.DownwardForce = 0;
 
         //Debug.Log(accelerationForce + "");
         Vector3 targetDir = ai.rabbit.transform.position - ai.transform.position;
