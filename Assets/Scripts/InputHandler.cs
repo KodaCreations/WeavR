@@ -40,6 +40,11 @@ public class InputHandler : MonoBehaviour {
     {
         usingGamepad = true;
         this.gamepadNumber = gamepadNumber;
+
+        if (gamepadNumber == 0)
+            playerIndex = PlayerIndex.One;
+        else
+            playerIndex = PlayerIndex.Two;
     }
 
     void HandleInput()
@@ -144,6 +149,8 @@ public class InputHandler : MonoBehaviour {
                 ship.SteeringForce =  horizontalInput * ship.rotationSpeed;
             }
 
+
+
             // Boost
             if (Input.GetKey("joystick " + (gamepadNumber + 1) + " button 1") && ship.Energy > 0 && !ship.Overheated)
             {
@@ -151,8 +158,7 @@ public class InputHandler : MonoBehaviour {
 
                 ship.Energy -= Time.deltaTime * ship.energyEfficiency;// * ship.shieldEfficiency;
 
-                GamePad.SetVibration(0, 1, 1);
-
+                GamePad.SetVibration(playerIndex, 1, 1);
                 ship.Energy -= Time.deltaTime * ship.energyEfficiency;
                 if (ship.Energy < 0)
                     ship.Energy = 0;
@@ -160,6 +166,7 @@ public class InputHandler : MonoBehaviour {
             else
             {
                 ship.Turbo = false;
+                GamePad.SetVibration(playerIndex, 0, 0);
             }
         }
     }
