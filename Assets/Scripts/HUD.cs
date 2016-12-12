@@ -24,8 +24,8 @@ public class HUD : MonoBehaviour
         countdown = transform.FindChild("Countdown").GetComponent<Text>();
         weapon = transform.FindChild("WeaponText").GetComponent<Text>();
         finishPanel = transform.FindChild("FinishPanel");
-        //energy = transform.FindChild("EnergyPercentPanel").GetComponent<RectTransform>();
-        //overheat = transform.FindChild("OverheatPercentPanel").GetComponent<RectTransform>();
+        energy = transform.FindChild("EnergyPercentPanel").GetComponent<RectTransform>();
+        overheat = transform.FindChild("OverheatPercentPanel").GetComponent<RectTransform>();
         ship = GetComponentInParent<CamScript>().ship.gameObject.GetComponent<ShipController>();
     }
 
@@ -50,14 +50,8 @@ public class HUD : MonoBehaviour
             countdown.text = "";
         //weapon.text = GetWeaponName(rc.ships[placeInList].GetComponent<ShipController>());
 
-
-        // error here
-        //energy.localScale = new Vector3(ship.Energy / ship.maxEnergy, 1, 1);
-        //overheat.localScale = new Vector3(ship.CurrentHeat / ship.overheatAfter, 1, 1);
-
-
-        //energy.sizeDelta = new Vector2(ship.Energy / ship.maxEnergy * maxPanelWidth, energy.sizeDelta.y);
-        //overheat.sizeDelta = new Vector2(ship.CurrentHeat / ship.overheatAfter * maxPanelWidth, overheat.sizeDelta.y);
+        energy.localScale = new Vector3(ship.Energy / ship.maxEnergy, 1, 1);
+        overheat.localScale = new Vector3(ship.CurrentHeat / ship.overheatAfter, 1, 1);
     }
 
     public void EnableWinPanel(float position)
