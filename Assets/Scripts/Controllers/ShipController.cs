@@ -336,6 +336,9 @@ public class ShipController : MonoBehaviour {
             wantedTrackRot = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.Cross(transform.right, hit.normal), hit.normal), Time.deltaTime * correctionRotDelay);
             transform.rotation = Quaternion.Slerp(transform.rotation, wantedTrackRot, Time.deltaTime * correctionRotDelay);
 
+            //Vector3 collisionNormal = transform.InverseTransformDirection(wantedTrackRot);
+            transform.Rotate(Vector3.up * collisionNormal.x * (transform.InverseTransformDirection(rb.velocity).z) / 70);
+
             Debug.DrawRay(hit.point, hit.normal, Color.red, 2.0f);
         }
     }
@@ -452,86 +455,61 @@ public class ShipController : MonoBehaviour {
 
     void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.tag == "Wall" || other.gameObject.tag == "Ship")
-            shipIsColliding = true;   
+        // Collision with ship
+        if (other.gameObject.tag == "Ship")
+            shipIsColliding = true;
+
+        // Collision with wall
+        if (other.gameObject.tag == "Wall")
+        {
+            shipIsColliding = true;
+            for (int i = 0; i < other.contacts.Length; ++i)
+            {
+                float dot = Vector3.Dot(transform.forward, -other.contacts[i].normal);
+                Debug.DrawRay(other.contacts[i].point, other.contacts[i].normal, Color.black, 3);
+
+                if (dot > 0)
+                {
+                    Vector3 shipVelocity = transform.InverseTransformDirection(rb.velocity);
+                    Vector3 wallDirection = transform.InverseTransformDirection(rb.velocity);
+
+                    float pow = 3; // The curve that the bouncyness of the walls.
+                    float knockback = Mathf.Pow(dot, pow);
+                    knockback *= shipVelocity.z;
+                    
+                    shipVelocity.z *= (1 - dot);
+                    
+                    rb.velocity = transform.TransformDirection(shipVelocity);
+                    currentFowardAccelerationSpeed *= (1 - dot);
+                }
+            }
+        }
     }
 
 
-    //void OnCollisionStay(Collision other)
-    //{
-    //    // Collision
-    //    if (other.gameObject.tag == "Wall")
-    //    {
-    //        float contactNum = other.contacts.Length;
-    //        contactNum = Mathf.Clamp(contactNum, 0, 1);
+    void OnCollisionStay(Collision other)
+    {
+        // Collision with ship
+        if (other.gameObject.tag == "Ship")
+            shipIsColliding = true;
 
-    //        for (int i = 0; i < contactNum; i++)
-    //        {
-    //            rb.angularVelocity = new Vector3(0, 0, 0);
-    //            Vector3 collisionSpeed = rb.GetPointVelocity(other.contacts[i].point);
-    //            Vector3 collisionNormal = transform.InverseTransformDirection((transform.position - other.contacts[i].point).normalized);
+        // Collision with wall
+        if (other.collider.tag == "Wall")
+        {
+            shipIsColliding = true;
+            float contactNum = other.contacts.Length;
+            contactNum = Mathf.Clamp(contactNum, 0, 1);
 
-    //            if (shipAccel > shipAccelCap / 2)
-    //            {
-    //                shipAccel -= 1 / 100;
-    //            }
+            for (int i = 0; i < contactNum; i++)
+            {
+                rb.angularVelocity = new Vector3(0, 0, 0);
+                Vector3 collisionNormal = transform.InverseTransformDirection((transform.position - other.contacts[i].point).normalized);
+                transform.Rotate(Vector3.up * collisionNormal.x * (transform.InverseTransformDirection(rb.velocity).z) / 70);
+            }
+        }
+    }
 
-    //            if (shipThrust > (shipAccelCap * (rb.drag * 2)))
-    //            {
-    //                shipThrust -= Mathf.Abs(collisionSpeed.x + collisionSpeed.z) / (Time.deltaTime * 200);
-    //            }
-
-    //            if (collisionNormal.x < 0.3f)
-    //            {
-    //                float tempVelZ = transform.InverseTransformDirection(rb.velocity).z;
-    //                //rigidbody.velocity = new Vector3(0,0,0);
-
-    //                //shipAccel = 0;
-    //                //shipThrust = 0;
-    //                //shipBoostTimer = 0;
-    //                //shipBoostAmount = 0;
-
-    //                //rigidbody.AddRelativeForce(new Vector3(0,0, collisionSpeed.z / 10), ForceMode.Impulse);
-    //            }
-
-    //            if (collisionNormal.x < 0.5f || collisionNormal.x > -0.5f)
-    //            {
-    //                if (collisionNormal.x < 0.1f || collisionNormal.x > -0.1f)
-    //                {
-    //                    transform.Rotate(Vector3.up * collisionNormal.x * (transform.InverseTransformDirection(rb.velocity).z) / 230);
-    //                }
-    //                else
-    //                {
-    //                    transform.Rotate(Vector3.up * collisionNormal.x * (transform.InverseTransformDirection(rb.velocity).z) / 250);
-    //                }
-
-    //            }
-
-    //            if (collisionNormal.x < 0.1f && collisionNormal.x > -0.1f)
-    //            {
-    //                float tempvel = collisionSpeed.z * 20;
-    //                if (tempvel < 0)
-    //                {
-    //                    tempvel = -tempvel;
-    //                }
-    //                tempvel = Mathf.Clamp(tempvel, 0, 100);
-
-    //                //shipBoostTimer = 0;
-    //                //shipThrust = 0;
-    //                //shipThrust = 0;
-    //                rb.velocity = new Vector3(0, 0, 0);
-
-    //                if (tempvel > 15)
-    //                {
-    //                    rb.AddRelativeForce(new Vector3(0, 0, -tempvel), ForceMode.Impulse);
-    //                }
-    //            }
-
-    //        }
-    //    }
-    //}
-
-    void OnCollisionExit()
+    void OnCollisionExit(Collision other)
     {
         shipIsColliding = false;
     }
