@@ -439,9 +439,6 @@ public class ShipController : MonoBehaviour {
         if (other.gameObject.tag == "Ship")
             shipIsColliding = true;
 
-        if (GetComponent<InputHandler>())
-            Debug.Log(other.transform.name);
-
             // Collision with wall
         if (other.gameObject.tag == "Wall")
         {
