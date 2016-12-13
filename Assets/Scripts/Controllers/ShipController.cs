@@ -90,7 +90,7 @@ public class ShipController : MonoBehaviour {
     public float shipBankReturnSpeed;
     public float shipSpeedBank;
     public float shipMaxBank;
-    private float rollState;
+    private float rollState = 0;
 
     //Hover behavior var
     private float shipHoverAmount;
@@ -456,7 +456,7 @@ public class ShipController : MonoBehaviour {
                 if (dot > 0)
                 {
                     Vector3 shipVelocity = transform.InverseTransformDirection(rb.velocity);
-                    Vector3 wallDirection = transform.InverseTransformDirection(rb.velocity);
+                    //Vector3 wallDirection = transform.InverseTransformDirection(rb.velocity);
 
                     float pow = 3; // The curve that the bouncyness of the walls.
                     float knockback = Mathf.Pow(dot, pow);

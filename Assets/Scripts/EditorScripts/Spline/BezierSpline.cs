@@ -62,12 +62,12 @@ public class BezierSpline : MonoBehaviour {
         if(parent)
         {
             //Set last point to the firstpoint in Parent
-            Vector3 point = points[points.Length - 1];
+            //Vector3 point = points[points.Length - 1];
             Vector3 parentPoint = parent.points[0];
             points[points.Length - 1] = parent.transform.TransformPoint(parentPoint) - transform.position;
 
             //Set the handle to mirror the parents first handle
-            Vector3 handlePoint = points[points.Length - 2];
+            //Vector3 handlePoint = points[points.Length - 2];
             Vector3 parentHandlePoint = parent.points[1];
             Vector3 offset = parentPoint - parentHandlePoint;
 

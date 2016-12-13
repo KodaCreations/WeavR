@@ -45,11 +45,11 @@ namespace Prototype.NetworkLobby
         //static Color EvenRowColor = new Color(180.0f / 255.0f, 180.0f / 255.0f, 180.0f / 255.0f, 1.0f);
         void ChangeDropdownValues()
         {
-            List<GameObject> ships = GameObject.Find("Brain").GetComponent<Brain>().availableNetworkShips;
+            List<GameObject> ships = GameObject.Find("Brain").GetComponent<Brain>().availableShipsMeshes;
             shipDropdown.options.Clear();
             foreach (GameObject ship in ships)
             {
-                Dropdown.OptionData data = new Dropdown.OptionData(ship.GetComponent<ShipController>().shipName);
+                Dropdown.OptionData data = new Dropdown.OptionData(ship.name);
                 shipDropdown.options.Add(data);
             }
 
@@ -180,7 +180,7 @@ namespace Prototype.NetworkLobby
             if (readyState)
             {
                 Brain brain = GameObject.Find("Brain").GetComponent<Brain>();
-                brain.AddSelectedShip(brain.availableNetworkShips[shipDropdown.value].name);
+                brain.AddSelectedShip(brain.availableNetworkShips[0].name);
 
                 ChangeReadyButtonColor(TransparentColor);
 
