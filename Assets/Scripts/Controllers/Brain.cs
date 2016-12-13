@@ -9,6 +9,11 @@ public class Brain : MonoBehaviour {
 
     public float countDownTimer = 5;            // Timer to start race
 
+    public float cameraIntroLength;             // Length in seconds for the cameras to do their introduction on splines
+    List<CamScript> cameraReferences;           // References to cameras in scene
+
+    public float winFlashTimer = 1;             // Time that screen flashes when in goal
+
     public bool isSplitscreen;                  // Is the game in splitscreen mode?
     public bool isMultiplayer;                  // Is the game in online mode?
     public bool player1UsingGamepad;            // Is player 1 using gamepad?
@@ -26,10 +31,7 @@ public class Brain : MonoBehaviour {
     Transform startArea;                        // Start area transform, automatically searched for start tag
     Transform[] startPositions;                 // 8 transforms that are children of startArea.
 
-    public List<GameObject> playerShips;               // Ships chosen by the player
-
-    public float cameraIntroLength;             // Length in seconds for the cameras to do their introduction on splines
-    List<CamScript> cameraReferences;           // References to cameras in scene
+    public List<GameObject> playerShips;        // Ships chosen by the player
 
     AudioController audioController;
 
@@ -58,6 +60,12 @@ public class Brain : MonoBehaviour {
     {
 	
 	}
+
+    // Called by race controller when a player crosses the finish line
+    public void PlayerFinished()
+    {
+
+    }
 
     // Adds the player's chosen ship to the list, called from menusScript.
     public void AddSelectedShip(string name)
@@ -293,6 +301,7 @@ public class Brain : MonoBehaviour {
 
         // Ask the race controller to start the race when cameras are done.
         RaceController raceController = GameObject.Find("RaceController").GetComponent<RaceController>();
+        raceController.winFlashTime = winFlashTimer;
         raceController.StartCountDown(countDownTimer);
 
         // audio controller play countdown

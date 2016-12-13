@@ -12,8 +12,11 @@ public class HUD : MonoBehaviour
     private Text countdown;
     private Text weapon;
     private Transform finishPanel;
+    private Image flashPanelImage;
     private RectTransform energy;
     private RectTransform overheat;
+
+    private float flashTime = 1;
 
     // Use this for initialization
     void Start()
@@ -24,6 +27,7 @@ public class HUD : MonoBehaviour
         countdown = transform.FindChild("Countdown").GetComponent<Text>();
         weapon = transform.FindChild("WeaponText").GetComponent<Text>();
         finishPanel = transform.FindChild("FinishPanel");
+        flashPanelImage = finishPanel.FindChild("WinFlashPanel").GetComponent<Image>();
         energy = transform.FindChild("EnergyPercentPanel").GetComponent<RectTransform>();
         overheat = transform.FindChild("OverheatPercentPanel").GetComponent<RectTransform>();
         ship = GetComponentInParent<CamScript>().ship.gameObject.GetComponent<ShipController>();
@@ -54,10 +58,23 @@ public class HUD : MonoBehaviour
         //overheat.localScale = new Vector3(ship.CurrentHeat / ship.overheatAfter, 1, 1);
     }
 
-    public void EnableWinPanel(float position)
+    public void EnableWinPanel(float position, float flashTime)
     {
+        StartCoroutine("ScreenFlash");
+
         finishPanel.GetComponentInChildren<Text>().text = "Goal!";
         finishPanel.gameObject.SetActive(true);
+    }
+
+    IEnumerator ScreenFlash()
+    {
+        Color newColor = flashPanelImage.color;
+        newColor.a -= flashTime * Time.deltaTime;
+        flashPanelImage.color = newColor;
+
+        if (flashPanelImage.color.a > 0)
+            yield return ScreenFlash();
+        yield return null;
     }
 
     private string GetWeaponName(ShipController sc)

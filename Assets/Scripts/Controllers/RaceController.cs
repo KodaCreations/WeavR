@@ -5,7 +5,6 @@ using System.Collections.Generic;
 
 public class RaceController : MonoBehaviour
 {
-
     public Waypoint[] waypoints;
     public bool[][] waypointBooleans;
     public GameObject[] ships;
@@ -14,7 +13,11 @@ public class RaceController : MonoBehaviour
     public int[] shipLapCounter;
     public float counter = -1;
     public int nrOfLaps = 3;
+
     HUD[] huds;
+    public float winFlashTime = 1;
+
+    // Audio controller
     AudioController audioController;
 
     // Use this for initialization
@@ -116,9 +119,8 @@ public class RaceController : MonoBehaviour
         {
             if (huds[index])
             {
-                // Doesnt always get here
-                huds[index].GetComponentInParent<CamScript>().EnterSpectatorMode();
-                huds[index].EnableWinPanel(currentPositions[0]);
+                //huds[index].GetComponentInParent<CamScript>().EnterSpectatorMode(); spectator mode for multiplayer only
+                huds[index].EnableWinPanel(currentPositions[0], winFlashTime);
             }
 
             ships[index].SetActive(false);
