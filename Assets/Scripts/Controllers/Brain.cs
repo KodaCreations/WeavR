@@ -20,6 +20,8 @@ public class Brain : MonoBehaviour {
     public List<string> loadableTrackNames;     // Names of all loadable tracks, need to match scene names
     public List<GameObject> availableShips;     // All available ship prefabs
     public List<GameObject> availableAIShips;   // All available ai ship prefabs
+    public List<GameObject> availableNetworkShips;     // All available ship prefabs
+    public List<GameObject> availableNetworkAIShips;   // All available ai ship prefabs
 
     public GameObject rabbit;                   // Ai rabbit prefab
 
@@ -251,6 +253,31 @@ public class Brain : MonoBehaviour {
             return;
 
         StartCoroutine(SetupRace());
+    }
+    public void SpawnAINetworkShips()
+    {
+        // Spawn Network AI Ships
+        GameObject waypoints = GameObject.Find("Waypoints");
+
+        for (int i = 7 - playerShips.Count; i >= 0; i--)
+        {
+            int random = UnityEngine.Random.Range(0, availableNetworkAIShips.Count - 1);
+
+            GameObject aiShip = (GameObject)Instantiate(availableNetworkAIShips[random], startPositions[i].position, startPositions[i].rotation);
+            aiShip.name = "AIShip number " + i;
+            GameObject rabbitObject = (GameObject)Instantiate(rabbit, startPositions[i].position, startPositions[i].rotation);
+            TheRabbit theRabbit = rabbitObject.GetComponent<TheRabbit>();
+
+            aiShip.GetComponent<AIController>().rabbit = theRabbit;
+            theRabbit.AI = aiShip;
+
+            theRabbit.ePath = waypoints.GetComponent<EditorPath>();
+            Array.Resize(ref theRabbit.points, waypoints.transform.childCount);
+            theRabbit.points[0] = waypoints.transform.GetChild(0);
+
+            if (availableAIShips.Count > 1)
+                availableAIShips.Remove(availableAIShips[random]);
+        }
     }
 
     IEnumerator SetupRace()
