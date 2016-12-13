@@ -63,7 +63,7 @@ public class RaceController : MonoBehaviour
             name = name.Remove(0, 8);
             int pos = int.Parse(name) - 1;
             waypoints[pos] = objects[i].GetComponent<Waypoint>();
-            waypoints[pos].position = pos + 1;
+            waypoints[pos].shipPosition = pos + 1;
             waypoints[pos].SetRaceController(this);
         }
     }
@@ -146,6 +146,9 @@ public class RaceController : MonoBehaviour
     {
         for (int i = 0; i < ships.Length; ++i)
         {
+            if (!ships[i].GetComponent<ShipController>().Grounded)
+                continue;
+
             int targetWaypoint = (int)currentPositions[i] % waypoints.Length;
             int lastWaypoint = targetWaypoint - 1;
             if (lastWaypoint < 0)
