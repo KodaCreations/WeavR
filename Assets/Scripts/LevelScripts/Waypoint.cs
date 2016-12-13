@@ -4,7 +4,7 @@ using System.Collections;
 
 public class Waypoint : MonoBehaviour {
 
-    public int position;
+    public int shipPosition;
     RaceController raceController;
 	// Use this for initialization
 	void Start ()
@@ -19,7 +19,7 @@ public class Waypoint : MonoBehaviour {
     {
         if(other.tag == "Ship")
         {
-            raceController.SetPosition(other.GetComponent<ShipController>(), position);
+            raceController.SetPosition(other.GetComponent<ShipController>(), shipPosition);
         }
     }
 	// Update is called once per frame

@@ -109,6 +109,10 @@ public class ShipController : MonoBehaviour {
     //shipWobbleSpeed = 6;
     //shipWobbleTime = 0;
 
+    //Respawn Variables
+    float respawnTimer = 2.0f;
+    public float currentRespawnTime = 0.0f;
+
     //Helpfull stuff
     private Rigidbody rb;
     private GameObject model;
@@ -618,7 +622,35 @@ public class ShipController : MonoBehaviour {
                 boostAudioSource.Stop();
         }
     }
-
+    void RespawnOnTrack()
+    {
+        RaceController rc = GameObject.Find("RaceController").GetComponent<RaceController>();
+        float pos = rc.currentPositions[rc.GetRacePosition(this) - 1] % rc.waypoints.Length;
+        Waypoint w1 = rc.waypoints[(int)pos - 1];
+        Waypoint w2 = rc.waypoints[(int)pos];
+        Vector3 RespawnPosition = (w1.transform.position + w2.transform.position) * 0.5f + new Vector3(0, hoverHeight, 0);
+        rb.velocity = Vector3.zero;
+        currentForwardAccelerationSpeed = 0;
+        transform.position = RespawnPosition;
+        transform.LookAt(w2.transform);
+        HoverHandler();
+    }
+    void HandleRespawn()
+    {
+        if (grounded)
+        {
+            currentRespawnTime = respawnTimer;
+        }
+        else
+        {
+            currentRespawnTime -= Time.deltaTime;
+            if(currentRespawnTime < 0)
+            {
+                RespawnOnTrack();
+                currentRespawnTime = respawnTimer;
+            }
+        }
+    }
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -681,6 +713,7 @@ public class ShipController : MonoBehaviour {
         }
 
         HandleSounds();
+        HandleRespawn();
     }
     public float SteeringForce { get { return steeringForce; } set { steeringForce = value; } }
     public float AccelerationForce { get { return accelerationForce; } set { accelerationForce = value; } }
@@ -690,5 +723,6 @@ public class ShipController : MonoBehaviour {
     public bool Overheated { get { return overheated; } set { overheated = value; } }
     public bool Activate { get { return activate; } set { activate = value; } }
     public float CurrentForwardAccelerationForce { get { return currentForwardAccelerationSpeed; } }
+    public bool Grounded { get { return grounded; } }
 
 }
