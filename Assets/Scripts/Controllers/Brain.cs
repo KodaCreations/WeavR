@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 
 public class Brain : MonoBehaviour {
 
+    public int nrOfLaps;
+
     public float countDownTimer = 5;            // Timer to start race
 
     public float cameraIntroLength;             // Length in seconds for the cameras to do their introduction on splines
@@ -30,12 +32,13 @@ public class Brain : MonoBehaviour {
 
     Transform startArea;                        // Start area transform, automatically searched for start tag
     Transform[] startPositions;                 // 8 transforms that are children of startArea.
+    GameObject waypoints;                       // AI waypoints
 
     public List<GameObject> playerShips;        // Ships chosen by the player
 
-    AudioController audioController;
+    AudioController audioController;            // Audio controller
 
-    
+    List<HUD> HUDs;                             // All huds in the scene
 
 	void Start () 
     {
@@ -52,6 +55,7 @@ public class Brain : MonoBehaviour {
         startPositions = new Transform[8];
         playerShips = new List<GameObject>();
         cameraReferences = new List<CamScript>();
+        HUDs = new List<HUD>();
 
         audioController = GameObject.Find("AudioController").GetComponent<AudioController>();
     }
@@ -62,9 +66,17 @@ public class Brain : MonoBehaviour {
 	}
 
     // Called by race controller when a player crosses the finish line
-    public void PlayerFinished()
+    public void PlayerFinished(Transform playerShip, int playerIndex, int playerPosition)
     {
+        // Enable the effects and text for winning
+        HUDs[playerIndex].EnableWinPanel(playerPosition, winFlashTimer);
+        HUDs[playerIndex].GetComponentInParent<CamScript>().EnterRotateMode();
 
+        SpawnAIFromPlayer(playerShip);
+
+        // Make a new AI take over the ship
+
+        //    huds[index].GetComponentInParent<CamScript>().EnterSpectatorMode(); spectator mode for multiplayer only
     }
 
     // Adds the player's chosen ship to the list, called from menusScript.
@@ -150,8 +162,6 @@ public class Brain : MonoBehaviour {
         }
 
         // Spawn AI Ships
-        GameObject waypoints = GameObject.Find("Waypoints");
-
         for (int i = 7 - playerShips.Count; i >= 0; i--)
         {
             int random = UnityEngine.Random.Range(0, availableAIShips.Count - 1);
@@ -173,6 +183,27 @@ public class Brain : MonoBehaviour {
         }
 
         // MP ships?
+    }
+
+    private void SpawnAIFromPlayer(Transform playerShip)
+    {
+        //Disable input
+        playerShip.GetComponent<InputHandler>().enabled = false;
+
+        GameObject rabbitObject = (GameObject)Instantiate(rabbit, playerShip.position, playerShip.rotation);
+        TheRabbit theRabbit = rabbitObject.GetComponent<TheRabbit>();
+
+        AIController newAI = playerShip.gameObject.AddComponent<AIController>();
+        newAI.ship = playerShip.GetComponent<ShipController>();
+        newAI.rabbit = theRabbit;
+
+        theRabbit.AI = playerShip.gameObject;
+
+        theRabbit.ePath = waypoints.GetComponent<EditorPath>();
+        Array.Resize(ref theRabbit.points, waypoints.transform.childCount);
+        theRabbit.points[0] = waypoints.transform.GetChild(0);
+
+        newAI.activateAI = true;
     }
 
     // Add cameras to the scene, depending on mode.
@@ -208,6 +239,9 @@ public class Brain : MonoBehaviour {
 
             cameraReferences.Add(camScript1);
             cameraReferences.Add(camScript2);
+
+            HUDs.Add(camera1.transform.FindChild("HUD").GetComponent<HUD>());
+            HUDs.Add(camera2.transform.FindChild("HUD").GetComponent<HUD>());
         }
         else
         {
@@ -223,25 +257,9 @@ public class Brain : MonoBehaviour {
             camScript.camLookAtSpline = introSplineLookatStart;
 
             cameraReferences.Add(camScript);
+
+            HUDs.Add(camera.transform.FindChild("HUD").GetComponent<HUD>());
         }
-    }
-
-    void SetupSoundEffects()
-    {
-        // Create audio sources for all sound effects
-        //List<AudioClip> audioEffects = audioController.GetObjectSoundEffects();
-
-        //foreach (AudioClip clip in audioEffects)
-        //{
-        //    GameObject newSourceObject = new GameObject(clip.name + " sound effect");
-        //    AudioSource source = newSourceObject.AddComponent<AudioSource>();
-        //    source.clip = clip;
-        //    source.playOnAwake = false;
-        //    source.loop = false;
-        //    source.dopplerLevel = 0;
-        //    source.spatialBlend = 1;
-        //}
-
     }
 
     // Load the correct track/scene, called by menusScript.
@@ -263,8 +281,8 @@ public class Brain : MonoBehaviour {
 
     IEnumerator SetupRace()
     {
-        // Setup sound effects
-        //SetupSoundEffects();
+        // Find the waypoints
+        waypoints = GameObject.Find("Waypoints");
 
         // Look for the start positions.
         ReadStartPositions();
@@ -301,7 +319,7 @@ public class Brain : MonoBehaviour {
 
         // Ask the race controller to start the race when cameras are done.
         RaceController raceController = GameObject.Find("RaceController").GetComponent<RaceController>();
-        raceController.winFlashTime = winFlashTimer;
+        raceController.nrOfLaps = nrOfLaps;
         raceController.StartCountDown(countDownTimer);
 
         // audio controller play countdown

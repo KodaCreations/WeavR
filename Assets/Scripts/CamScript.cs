@@ -26,6 +26,12 @@ public class CamScript : MonoBehaviour {
 
     GameObject[] allShips;
 
+    [Header("In game rotate settings")]
+    public float rotateSpeed = 3;
+    public float rotateHeight = 7;
+    public float rotateDistance = 2;
+    private Vector3 rotateOffset;
+
     [Header("Introduction spline settings")]
     public BezierSpline camSpline;
     public BezierSpline camLookAtSpline;
@@ -34,6 +40,7 @@ public class CamScript : MonoBehaviour {
     int camSplinesCount;
     float splineTime;
     bool onSpline = true;
+    bool rotate = false;
 
     ParticleSystem speedLines;
     ParticleSystem.EmissionModule speedLinesEmit;
@@ -51,6 +58,9 @@ public class CamScript : MonoBehaviour {
         speedLines = GetComponentInChildren<ParticleSystem>();
         speedLinesEmit = speedLines.emission;
         myCamera = GetComponent<Camera>();
+
+        rotateOffset = new Vector3(0, ship.position.y + rotateHeight, 0);
+        rotateOffset -= ship.transform.right * rotateDistance;
     }
 
     public void StartIntro(float length)
@@ -85,7 +95,7 @@ public class CamScript : MonoBehaviour {
 
     void FixedUpdate()
     {
-        if (!onSpline)
+        if (!onSpline && !rotate)
         {
             // Calculate the %, current speed / max speed.
             float speedPercentage = Mathf.Clamp(shipController.CurrentForwardAccelerationForce / shipController.maxForwardAccelerationSpeed, 0, 1);
@@ -137,9 +147,23 @@ public class CamScript : MonoBehaviour {
                 //}
             }
         }
+
+        if (!onSpline && rotate)
+        {
+            rotateOffset = Quaternion.AngleAxis(rotateSpeed * Time.fixedDeltaTime, Vector3.up) * rotateOffset;
+            transform.position = ship.transform.position + rotateOffset;
+            transform.LookAt(ship);
+        }
     }
 
-    // Function to leave transform and move to spectator mode (lacking specific features, such as changing spectator target)
+    // Rotate around transform when finished last lap (for singleplayer and splitscreen)
+    public void EnterRotateMode()
+    {
+        speedLinesEmit.enabled = false;
+        rotate = true;
+    }
+
+    // Function to leave transform and move to spectator mode (follow other players) (lacking specific features, such as changing spectator target)
     public void EnterSpectatorMode()
     {
         foreach (GameObject go in allShips)

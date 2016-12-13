@@ -16,8 +16,6 @@ public class HUD : MonoBehaviour
     private RectTransform energy;
     private RectTransform overheat;
 
-    private float flashTime = 1;
-
     // Use this for initialization
     void Start()
     {
@@ -36,17 +34,17 @@ public class HUD : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        int placeInList = 0;
-        ShipController thisShip = ship;
-        for (int i = 0; i < rc.ships.Length; ++i)
-        {
-            if (rc.ships[i] == thisShip)
-            {
-                placeInList = i;
-                break;
-            }
-        }
-        lapCounter.text = rc.shipLapCounter[placeInList] + "/" + "?";
+        //int placeInList = 0;
+        //ShipController thisShip = ship;
+        //for (int i = 0; i < rc.ships.Length; ++i)
+        //{
+        //    if (rc.ships[i] == thisShip)
+        //    {
+        //        placeInList = i;
+        //        break;
+        //    }
+        //}
+        lapCounter.text = rc.PlaceInRace(ship).ToString() + "/" + "?";
         positionCounter.text = rc.GetRacePosition(ship) + "/" + rc.ships.Length;
         if (rc.counter >= 0)
             countdown.text = ((int)Math.Ceiling(rc.counter)).ToString();
@@ -54,27 +52,30 @@ public class HUD : MonoBehaviour
             countdown.text = "";
         //weapon.text = GetWeaponName(rc.ships[placeInList].GetComponent<ShipController>());
 
-        energy.localScale = new Vector3(ship.Energy / ship.maxEnergy, 1, 1);
+        //energy.localScale = new Vector3(ship.Energy / ship.maxEnergy, 1, 1);
         //overheat.localScale = new Vector3(ship.CurrentHeat / ship.overheatAfter, 1, 1);
     }
 
     public void EnableWinPanel(float position, float flashTime)
     {
-        StartCoroutine("ScreenFlash");
+        StartCoroutine(ScreenFlash(flashTime));
 
+        // Set all info for goal
         finishPanel.GetComponentInChildren<Text>().text = "Goal!";
+
+
         finishPanel.gameObject.SetActive(true);
     }
 
-    IEnumerator ScreenFlash()
+    // Flash the screen
+    IEnumerator ScreenFlash(float flashTime)
     {
-        Color newColor = flashPanelImage.color;
-        newColor.a -= flashTime * Time.deltaTime;
-        flashPanelImage.color = newColor;
-
-        if (flashPanelImage.color.a > 0)
-            yield return ScreenFlash();
-        yield return null;
+        for (float t = 0.0f; t < flashTime; t += Time.deltaTime / flashTime)
+        {
+            Color newColor = new Color(1, 1, 1, Mathf.Lerp(flashPanelImage.color.a, 0, t));
+            flashPanelImage.color = newColor;
+            yield return null;
+        }
     }
 
     private string GetWeaponName(ShipController sc)
