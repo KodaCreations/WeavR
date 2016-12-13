@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Types;
 using UnityEngine.Networking.Match;
+using System;
 using System.Collections;
 
 
@@ -383,7 +384,9 @@ namespace Prototype.NetworkLobby
                     (lobbySlots[i] as LobbyPlayer).RpcUpdateCountdown(0);
                 }
             }
-
+            string s = "/Resources/Prefabs/" + GameObject.Find("Brain").GetComponent<Brain>().availableNetworkShips[0].name + ".prefab";
+            Debug.Log(s);
+            gamePlayerPrefab = (GameObject)Resources.Load(s);
             ServerChangeScene(playScene);
         }
 

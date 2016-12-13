@@ -43,11 +43,26 @@ namespace Prototype.NetworkLobby
 
         //static Color OddRowColor = new Color(250.0f / 255.0f, 250.0f / 255.0f, 250.0f / 255.0f, 1.0f);
         //static Color EvenRowColor = new Color(180.0f / 255.0f, 180.0f / 255.0f, 180.0f / 255.0f, 1.0f);
+        void ChangeDropdownValues()
+        {
+            List<GameObject> ships = GameObject.Find("Brain").GetComponent<Brain>().availableNetworkShips;
+            shipDropdown.options.Clear();
+            foreach (GameObject ship in ships)
+            {
+                Dropdown.OptionData data = new Dropdown.OptionData(ship.GetComponent<ShipController>().shipName);
+                shipDropdown.options.Add(data);
+            }
 
+            //This is needed or else it will say Option A in the textbox
+            shipDropdown.value = 1;
+            shipDropdown.value = 0;
+        }
 
         public override void OnClientEnterLobby()
         {
             base.OnClientEnterLobby();
+
+            ChangeDropdownValues();
 
             if (LobbyManager.s_Singleton != null) LobbyManager.s_Singleton.OnPlayersNumberModified(1);
 
@@ -165,7 +180,7 @@ namespace Prototype.NetworkLobby
             if (readyState)
             {
                 Brain brain = GameObject.Find("Brain").GetComponent<Brain>();
-                brain.AddSelectedShip("NetworkPlaceholderShipPrefab");
+                brain.AddSelectedShip(brain.availableNetworkShips[shipDropdown.value].name);
 
                 ChangeReadyButtonColor(TransparentColor);
 

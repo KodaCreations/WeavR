@@ -64,10 +64,21 @@ public class Brain : MonoBehaviour {
     // Adds the player's chosen ship to the list, called from menusScript.
     public void AddSelectedShip(string name)
     {
-        foreach (GameObject go in availableShips)
+        if(isMultiplayer)
         {
-            if (go.name == name)
-                playerShips.Add(go);
+            foreach (GameObject go in availableNetworkShips)
+            {
+                if (go.name == name)
+                    playerShips.Add(go);
+            }
+        }
+        else
+        {
+            foreach (GameObject go in availableShips)
+            {
+                if (go.name == name)
+                    playerShips.Add(go);
+            }
         }
     }
 
@@ -300,7 +311,9 @@ public class Brain : MonoBehaviour {
         }
 
         // Disable visual presentation of start area.
-        startArea.gameObject.SetActive(false); 
+        //startArea.gameObject.SetActive(false); //Don't disable the Starting Area, the Network script needs it. Disable the Renderer for the Boxes instead
+        for (int i = 0; i < startArea.childCount; ++i)
+            startArea.GetChild(i).GetComponent<MeshRenderer>().enabled = false;
 
         // Fade in screen effect
 
