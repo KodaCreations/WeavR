@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: ad7e79d3a3f6fbf44a9906ddcbf341b5
-timeCreated: 1481593233
+guid: 7eef4717ca184264aa5c2bb7bb33b1b0
+timeCreated: 1481593219
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: startRoad
+    4300000: pylon
     9500000: //RootNode
   materials:
     importMaterials: 1

@@ -1,2 +1,0 @@
-Race controller (prefab)
-Start zone with 8 start positions (prefab)
