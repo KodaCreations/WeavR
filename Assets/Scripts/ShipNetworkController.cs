@@ -26,6 +26,7 @@ public class ShipNetworkController : NetworkBehaviour
             camera.transform.rotation = ship.transform.rotation;
             camera.transform.position = ship.transform.position - ship.transform.forward * 8;
             camera.GetComponent<CamScript>().ship = ship.transform;
+            camera.GetComponent<CamScript>().StartNetworkIntro();
         }
     }
 
