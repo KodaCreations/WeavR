@@ -42,16 +42,17 @@ public class HUD : MonoBehaviour
                 break;
             }
         }
-       // lapCounter.text = rc.shipLapCounter[placeInList] + "/" + "?";
+        lapCounter.text = rc.shipLapCounter[placeInList] + "/" + rc.nrOfLaps;
         positionCounter.text = rc.GetRacePosition(ship) + "/" + rc.ships.Length;
         if (rc.counter >= 0)
             countdown.text = ((int)Math.Ceiling(rc.counter)).ToString();
         else
             countdown.text = "";
         //weapon.text = GetWeaponName(rc.ships[placeInList].GetComponent<ShipController>());
-
-        energy.localScale = new Vector3(ship.Energy / ship.maxEnergy, 1, 1);
-        //overheat.localScale = new Vector3(ship.CurrentHeat / ship.overheatAfter, 1, 1);
+        float energyScale = ship.Energy / ship.maxEnergy;
+        energy.localScale = new Vector3(energyScale, 1, 1);
+        float overheatScale = ship.CurrentHeat / ship.overheatAfter;
+        overheat.localScale = new Vector3(overheatScale, 1, 1);
     }
 
     public void EnableWinPanel(float position)

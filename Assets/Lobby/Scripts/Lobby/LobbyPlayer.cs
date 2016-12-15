@@ -32,6 +32,8 @@ namespace Prototype.NetworkLobby
         public Color playerColor = Color.white;
         [SyncVar]
         public int playerShip = 0;
+        [SyncVar]
+        public int levelToPlay = 0;
 
         public Color OddRowColor = new Color(250.0f / 255.0f, 250.0f / 255.0f, 250.0f / 255.0f, 1.0f);
         public Color EvenRowColor = new Color(180.0f / 255.0f, 180.0f / 255.0f, 180.0f / 255.0f, 1.0f);
@@ -43,11 +45,42 @@ namespace Prototype.NetworkLobby
 
         //static Color OddRowColor = new Color(250.0f / 255.0f, 250.0f / 255.0f, 250.0f / 255.0f, 1.0f);
         //static Color EvenRowColor = new Color(180.0f / 255.0f, 180.0f / 255.0f, 180.0f / 255.0f, 1.0f);
+        void ChangeDropdownValues()
+        {
+            Brain brain = GameObject.Find("Brain").GetComponent<Brain>();
+            //Get how many ships are in the List
+            List<GameObject> ships = brain.availableShipsMeshes;
+            shipDropdown.options.Clear();
+            foreach (GameObject ship in ships)
+            {
+                shipDropdown.options.Add(new Dropdown.OptionData(ship.name));
+            }
 
+            //This is needed or else it will say Option A in the textbox
+            shipDropdown.value = 1;
+            shipDropdown.value = 0;
+
+            //Get all the levels that can be used
+            List<string> loadedTrackNames = brain.loadableTrackNames;
+            Dropdown levelsToPlay = LobbyPlayerList._instance.levelToPlay;
+            if (levelsToPlay)
+            {
+                levelsToPlay.gameObject.SetActive(true);
+                levelsToPlay.options.Clear();
+                foreach (string s in loadedTrackNames)
+                {
+                    levelsToPlay.options.Add(new Dropdown.OptionData(s));
+                }
+                levelsToPlay.value = -1;
+                levelsToPlay.value = 0;
+            }
+        }
 
         public override void OnClientEnterLobby()
         {
             base.OnClientEnterLobby();
+
+            ChangeDropdownValues();
 
             if (LobbyManager.s_Singleton != null) LobbyManager.s_Singleton.OnPlayersNumberModified(1);
 
@@ -62,12 +95,15 @@ namespace Prototype.NetworkLobby
             {
                 SetupOtherPlayer();
             }
-
+            if(!isServer)
+                LobbyPlayerList._instance.levelToPlay.interactable = false;
+            
             //setup the player data on UI. The value are SyncVar so the player
             //will be created with the right value currently on server
             OnMyName(playerName);
             OnMyColor(playerColor);
             OnMyShip(playerShip);
+            OnLevel(levelToPlay);
         }
 
         public override void OnStartAuthority()
@@ -135,9 +171,7 @@ namespace Prototype.NetworkLobby
             colorButton.onClick.AddListener(OnColorClicked);
 
             shipDropdown.onValueChanged.RemoveAllListeners();
-            shipDropdown.onValueChanged.AddListener(delegate {
-                OnShipChanged(shipDropdown);
-            });
+            shipDropdown.onValueChanged.AddListener(delegate { OnShipChanged(shipDropdown); });
 
             readyButton.onClick.RemoveAllListeners();
             readyButton.onClick.AddListener(OnReadyClicked);
@@ -165,7 +199,7 @@ namespace Prototype.NetworkLobby
             if (readyState)
             {
                 Brain brain = GameObject.Find("Brain").GetComponent<Brain>();
-                brain.AddSelectedShip("NetworkPlaceholderShipPrefab");
+                brain.AddSelectedShip(brain.availableNetworkShips[0].name);
 
                 ChangeReadyButtonColor(TransparentColor);
 
@@ -214,6 +248,11 @@ namespace Prototype.NetworkLobby
             playerShip = index;
             shipDropdown.value = playerShip;
         }
+        public void OnLevel(int index)
+        {
+            levelToPlay = index;
+            LobbyPlayerList._instance.levelToPlay.value = levelToPlay;
+        }
 
         //===== UI Handler
 
@@ -228,7 +267,6 @@ namespace Prototype.NetworkLobby
         {
             CmdShipChanged(target.value);
         }
-
         public void OnReadyClicked()
         {
             SendReadyToBeginMessage();
@@ -316,7 +354,6 @@ namespace Prototype.NetworkLobby
             shipDropdown.value = value;
             playerShip = value;
         }
-
         [Command]
         public void CmdNameChanged(string name)
         {
@@ -347,6 +384,11 @@ namespace Prototype.NetworkLobby
         {
             if (!isLocalPlayer)
                 shipDropdown.value = playerShip;
+
+            if (!isServer)
+                LobbyPlayerList._instance.levelToPlay.value = levelToPlay;
+            else
+                levelToPlay = LobbyPlayerList._instance.levelToPlay.value;
         }
     }
 }

@@ -2,12 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class AudioController : MonoBehaviour {
+public class AudioController : MonoBehaviour
+{
 
     AudioSource audioSource;
     AudioClip audioClip;
     //public string filename;
-
+    int i = 0;
+    int change = 1;
     public List<AudioClip> menuMusic;
     public List<AudioClip> raceMusic;
 
@@ -25,7 +27,7 @@ public class AudioController : MonoBehaviour {
 
         audioClipDict = new Dictionary<string, AudioClip>();
 
-        foreach(AudioClip audioClip in menuMusic)
+        foreach (AudioClip audioClip in menuMusic)
             audioClipDict.Add(audioClip.name, audioClip);
         foreach (AudioClip audioClip in raceMusic)
             audioClipDict.Add(audioClip.name, audioClip);
@@ -35,8 +37,7 @@ public class AudioController : MonoBehaviour {
             audioClipDict.Add(audioClip.name, audioClip);
 
         audioSource = GetComponent<AudioSource>();
-        audioSource.clip = audioClipDict[menuMusic[0].name];
-        audioSource.Play();
+        PlayMainMenuFile();
     }
 
     public AudioClip GetAudioClip(string filename)
@@ -45,10 +46,10 @@ public class AudioController : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update ()
+    void Update()
     {
-	
-	}
+
+    }
 
     public void PlayFile(string filename, bool loop)
     {
@@ -56,7 +57,19 @@ public class AudioController : MonoBehaviour {
         audioSource.loop = loop;
 
         audioSource.clip = audioClipDict[filename];
-        audioSource.Play();    
+        audioSource.Play();
+
+    }
+
+    public void PlayMainMenuFile()
+    {
+        audioSource.Stop();
+        audioSource.clip = audioClipDict[menuMusic[i].name];
+        audioSource.Play();
+        i++;
+        i = i % menuMusic.Count;
+        Invoke("PlayMainMenuFile", audioSource.clip.length + 0.5f);
+
     }
 
     public void Stop()

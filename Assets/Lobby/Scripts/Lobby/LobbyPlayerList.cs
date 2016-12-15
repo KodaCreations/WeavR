@@ -13,6 +13,7 @@ namespace Prototype.NetworkLobby
         public RectTransform playerListContentTransform;
         public GameObject warningDirectPlayServer;
         public Transform addButtonRow;
+        public Dropdown levelToPlay;
 
         protected VerticalLayoutGroup _layout;
         protected List<LobbyPlayer> _players = new List<LobbyPlayer>();
