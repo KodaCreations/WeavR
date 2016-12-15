@@ -13,6 +13,7 @@ public class TheRabbit : MonoBehaviour
     public float maxDist = 2000;
     public float minDist = 200;
     private bool started = false;
+    Vector3 offset;
 
     // Use this for initialization
     void Start()
@@ -35,8 +36,8 @@ public class TheRabbit : MonoBehaviour
             return;
 
         }
-
-        navAgent.destination = points[destPoint].position;
+        offset = new Vector3(Random.Range(-10, 10), 0, Random.Range(-10, 10));
+        navAgent.destination = points[destPoint].position + offset;
 
         destPoint = (destPoint + 1) % points.Length;
 
@@ -47,7 +48,7 @@ public class TheRabbit : MonoBehaviour
     void Update()
     {
 
-        if (navAgent.remainingDistance < 80.0f)
+        if (navAgent.remainingDistance < 60.0f)
         {
             GoToNextPoint();
         }
@@ -101,9 +102,9 @@ public class TheRabbit : MonoBehaviour
 
     void ReSpawnAtAI()
     {
-        if (Vector3.Distance(transform.position, AI.transform.position) > 100)
+        if (Vector3.Distance(transform.position, AI.transform.position) > 50)
         {
-            transform.position = AI.transform.position;
+            transform.position = AI.transform.position + AI.transform.forward * 3f;
 
         }
     }

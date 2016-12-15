@@ -48,16 +48,15 @@ public class ChaseState : IAiState
 
     void ChaseTheRabbit()
     {
-
         ai.ship.AccelerationForce = 0;
         ai.ship.SteeringForce = 0;
 
         //Debug.Log(accelerationForce + "");
-        Vector3 targetDir = ai.rabbit.transform.position - ai.transform.position;
+        Vector3 targetDir = ai.rabbit.transform.position + ai.offset - ai.transform.position;
         targetDir.Normalize();
         float dir = ai.AngleDir(ai.transform.forward, -targetDir, ai.transform.up);
 
-        if (Vector3.Distance(ai.rabbit.transform.position, ai.transform.position) > 10)
+        if (Vector3.Distance(ai.rabbit.transform.position, ai.transform.position) > 1)
         {
             ai.ship.AccelerationForce = 1;
         }
@@ -71,21 +70,4 @@ public class ChaseState : IAiState
             ai.ship.SteeringForce = 1 * ai.ship.rotationSpeed;
         }
     }
-    //public float AngleDir(Vector3 fwd, Vector3 targetDir, Vector3 up)
-    //{
-    //    Vector3 perp = Vector3.Cross(fwd, targetDir);
-    //    float dir = Vector3.Dot(perp, up);
-
-    //    if (dir > 0.023)
-    //    {
-    //        return 1.0f;
-    //    }
-    //    else if (dir < -0.023)
-    //    {
-    //        return -1.0f;
-    //    }
-    //    else {
-    //        return 0.0f;
-    //    }
-    //}
 }
