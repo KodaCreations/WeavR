@@ -152,23 +152,22 @@ public class RaceController : MonoBehaviour
 
             int targetWaypoint = (int)currentPositions[i] % waypoints.Length;
             int lastWaypoint = targetWaypoint - 1;
-            if (lastWaypoint < 0)
+            if (targetWaypoint >= waypoints.Length - 1 || targetWaypoint == 0)
+            {
                 lastWaypoint = waypoints.Length - 1;
-            if (targetWaypoint >= waypoints.Length)
                 targetWaypoint = 0;
-
+            }
+            Debug.Log("Target: " + targetWaypoint + "  last: " + lastWaypoint);
             //Debug.Log(currentPositions[i]);
             float distanceWaypoints = Vector3.Distance(waypoints[lastWaypoint].transform.position, waypoints[targetWaypoint].transform.position);
             float distanceToShip = Vector3.Distance(waypoints[lastWaypoint].transform.position, ships[i].transform.position);
             float procent = distanceToShip / distanceWaypoints;
-            if (targetWaypoint + procent >= waypoints.Length)
-            {
-                currentPositions[i] = 0;
-            }
+
+            if (lastWaypoint == waypoints.Length - 1)
+                currentPositions[i] = lastWaypoint + procent;
             else
-            {
                 currentPositions[i] = targetWaypoint + procent;
-            }
+
             currentPositions[i] += shipLapCounter[i] * waypoints.Length;
         }
     }
