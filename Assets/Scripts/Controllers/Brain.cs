@@ -316,6 +316,7 @@ public class Brain : MonoBehaviour {
         // Wait and then start race music
         yield return new WaitForSeconds(countDownTimer + 1);
         audioController.PlayFile("Soundtrack1", true);
+        audioController.CancelInvoke();
     }
 
 }
