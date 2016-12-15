@@ -14,6 +14,7 @@ public class RaceController : MonoBehaviour
     public int[] shipLapCounter;
     public float counter = -1;
     public int nrOfLaps = 3;
+    public float rubberbanding = 0.9f;
     HUD[] huds;
     AudioController audioController;
 
@@ -238,6 +239,14 @@ public class RaceController : MonoBehaviour
 
         counter = time;
     }
+    void RubberbandFirstPlace()
+    {
+        ships[0].GetComponent<ShipController>().RubberBanding = rubberbanding;
+        for (int i = 1; i < ships.Length;++i)
+        {
+            ships[i].GetComponent<ShipController>().RubberBanding = 1.0f;
+        }
+    }
     // Update is called once per frame
     void Update()
     {
@@ -246,6 +255,7 @@ public class RaceController : MonoBehaviour
 
         CaclulateShipPositions();
         PlaceShipsInOrder();
+        RubberbandFirstPlace();
         if (CountDown())
         {
             ActivateShips(true);

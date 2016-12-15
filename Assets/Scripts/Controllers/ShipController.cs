@@ -122,6 +122,7 @@ public class ShipController : MonoBehaviour {
     private GameObject model;
     private bool shipIsColliding;
     private bool grounded;
+    private float rubberbanding = 0.9f; 
 
 
     [Header("Audio")]
@@ -505,12 +506,14 @@ public class ShipController : MonoBehaviour {
     }
     void AccelerationGroundBehavior()
     {
+        float maxAccelMultiplier = 1 * rubberbanding;
+
         //Calculate new CurrentAccelerationForwardSpeed and clamp if out of range
         if(accelerationForce > 0)
         {
             currentForwardAccelerationSpeed += accelerationForce * forwardAccelerationSpeed * Time.deltaTime;
-            if (currentForwardAccelerationSpeed > maxForwardAccelerationSpeed)
-                currentForwardAccelerationSpeed = maxForwardAccelerationSpeed;
+            if (currentForwardAccelerationSpeed > maxForwardAccelerationSpeed * maxAccelMultiplier)
+                currentForwardAccelerationSpeed = maxForwardAccelerationSpeed * maxAccelMultiplier;
         }
         else if (accelerationForce < 0)
         {
@@ -741,5 +744,6 @@ public class ShipController : MonoBehaviour {
     public bool Activate { get { return activate; } set { activate = value; } }
     public float CurrentForwardAccelerationForce { get { return currentForwardAccelerationSpeed; } }
     public bool Grounded { get { return grounded; } }
+    public float RubberBanding { get { return rubberbanding; } set { rubberbanding = value; } }
 
 }
