@@ -14,7 +14,7 @@ public class RaceController : MonoBehaviour
     public int[] shipLapCounter;
     public float counter = -1;
     public int nrOfLaps = 3;
-    public float rubberbanding = 0.9f;
+    public float rubberbanding = 0.95f;
     HUD[] huds;
     AudioController audioController;
 
