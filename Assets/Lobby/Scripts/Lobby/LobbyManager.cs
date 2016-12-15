@@ -16,8 +16,6 @@ namespace Prototype.NetworkLobby
 
         static public LobbyManager s_Singleton;
 
-        public int id = 0;
-
         [Header("Unity UI Lobby")]
         [Tooltip("Time in second between all players ready & match start")]
         public float prematchCountdown = 5.0f;
@@ -356,8 +354,10 @@ namespace Prototype.NetworkLobby
         {
             float remainingTime = prematchCountdown;
             int floorTime = Mathf.FloorToInt(remainingTime);
-            gamePlayerPrefab = GameObject.Find("Brain").GetComponent<Brain>().availableNetworkShips[id];
-            playerPrefab = GameObject.Find("Brain").GetComponent<Brain>().availableNetworkShips[id];
+            gamePlayerPrefab = GameObject.Find("Brain").GetComponent<Brain>().availableNetworkShips[0];
+            playerPrefab = GameObject.Find("Brain").GetComponent<Brain>().availableNetworkShips[0];
+
+            playScene = LobbyPlayerList._instance.levelToPlay.captionText.text;
 
             while (remainingTime > 0)
             {
