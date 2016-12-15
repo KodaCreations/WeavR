@@ -14,6 +14,8 @@ public class RaceController : MonoBehaviour
     public float counter = -1;
     public int nrOfLaps = 3;
 
+    public bool raceOngoing;
+
     private float timeAtStart;
     public float currentRaceTime;
     Dictionary<GameObject, List<float>> shipLapTimes;
@@ -107,17 +109,10 @@ public class RaceController : MonoBehaviour
 
         shipLapTimes[ships[index]].Add(currentRaceTime);
 
-        // If last lap and ship[index], change cameras target, de-enable ship(ai too) and enable win message panel
+        // If last lap, send info to brain
         if (shipLapCounter[index] + 1 == nrOfLaps)
         {
-            InputHandler isPlayer = ships[index].GetComponent<InputHandler>();
-
-            if (isPlayer)
-                brain.PlayerFinished(ships[index].transform, ships.Length - index - 1, GetRacePosition(ships[index].GetComponent<ShipController>()), shipLapTimes[ships[index]]);
-
-            // Send info also if AI
-            // about position and laptimes
-
+            brain.ShipFinished(ships[index].gameObject, GetRacePosition(ships[index].GetComponent<ShipController>()), shipLapTimes[ships[index]]);
         }
 
         ResetLap(index);
@@ -245,6 +240,8 @@ public class RaceController : MonoBehaviour
             ActivateShips(true);
 
             ActivateAI(true);
+
+            raceOngoing = true;
 
             timeAtStart = Time.realtimeSinceStartup;
         }
