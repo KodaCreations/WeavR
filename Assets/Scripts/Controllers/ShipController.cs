@@ -24,6 +24,10 @@ public class ShipController : MonoBehaviour {
     private float heatTimer;
     public bool shielded;
     private bool turbo;
+    private bool oldTurbo;
+    [Tooltip("Cooldown of the turbo after release of the button")]
+    public float cooldown;
+    private float currentCooldown;
     private bool overheated;
     public float maxspeedBoost; //How much the maxspeed should be increased by when using turbo. 1 is normal speed 2 is twice as fast.
     public float speedBoost;
@@ -138,6 +142,7 @@ public class ShipController : MonoBehaviour {
         drain = false;
         //shielded = false;
         turbo = false;
+        oldTurbo = false;
         overheated = false;
         energy = maxEnergy;
         newEnergy = 0;
@@ -530,21 +535,19 @@ public class ShipController : MonoBehaviour {
     {
         rb.AddForce(-transform.up * gravity *  Time.deltaTime);
     }
-
     /// <summary>
     /// Handles the physics of the ship
     /// </summary>
     private void HandleShipPhysics()
     {
-        float turboMemory = maxForwardAccelerationSpeed; //Remembers the maxForwardAccelerationSpeed in case turbo is on
 
+        float turboMemory = maxForwardAccelerationSpeed; //Remembers the maxForwardAccelerationSpeed in case turbo is on
         if (turbo)
         {
             currentForwardAccelerationSpeed += speedBoost * Time.deltaTime;
 
             maxForwardAccelerationSpeed *= maxspeedBoost;
         }
-
         HoverHandler(); // Set Position depending if there is a ground under the Ship
         if (grounded)
         {
@@ -557,6 +560,11 @@ public class ShipController : MonoBehaviour {
             //HandleGravity(); // Down the ship goes
         }
 
+        if (oldTurbo && !turbo) // If the turbo button releases the cooldown should start
+        {
+            currentCooldown = cooldown;
+        }
+        oldTurbo = turbo;
         if (turbo)
         {
             maxForwardAccelerationSpeed = turboMemory;
@@ -683,8 +691,16 @@ public class ShipController : MonoBehaviour {
         }
         if (currentHeat != 0 && !turbo && !overheated)
         {
-            if ((currentHeat -= heatReductionPerSecond * Time.deltaTime) < 0)
-                currentHeat = 0;
+
+            if (currentCooldown < 0)
+            {
+                if ((currentHeat -= heatReductionPerSecond * Time.deltaTime) < 0)
+                    currentHeat = 0;
+            }
+            else
+            {
+                currentCooldown -= Time.deltaTime;
+            }
         }
 
         if (debuff != null && debuff.energyDrain)
