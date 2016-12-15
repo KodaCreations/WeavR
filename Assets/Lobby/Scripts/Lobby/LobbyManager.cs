@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Types;
 using UnityEngine.Networking.Match;
+using System;
 using System.Collections;
 
 
@@ -14,7 +15,6 @@ namespace Prototype.NetworkLobby
         static short MsgKicked = MsgType.Highest + 1;
 
         static public LobbyManager s_Singleton;
-
 
         [Header("Unity UI Lobby")]
         [Tooltip("Time in second between all players ready & match start")]
@@ -354,6 +354,10 @@ namespace Prototype.NetworkLobby
         {
             float remainingTime = prematchCountdown;
             int floorTime = Mathf.FloorToInt(remainingTime);
+            gamePlayerPrefab = GameObject.Find("Brain").GetComponent<Brain>().availableNetworkShips[0];
+            playerPrefab = GameObject.Find("Brain").GetComponent<Brain>().availableNetworkShips[0];
+
+            playScene = LobbyPlayerList._instance.levelToPlay.captionText.text;
 
             while (remainingTime > 0)
             {
@@ -383,7 +387,8 @@ namespace Prototype.NetworkLobby
                     (lobbySlots[i] as LobbyPlayer).RpcUpdateCountdown(0);
                 }
             }
-
+            //string s = "/Resources/Prefabs/" + GameObject.Find("Brain").GetComponent<Brain>().availableNetworkShips[0].name + ".prefab";
+            //Debug.Log(s);
             ServerChangeScene(playScene);
         }
 

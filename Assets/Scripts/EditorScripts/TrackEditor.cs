@@ -24,7 +24,7 @@ public class TrackEditor : MonoBehaviour {
     public List<bool> segmentVerticesUsed;
     public float roadDetail = 1;                        // How detailed (distance between forward vertices) the road should be. 
     int counter = 0;
-    float roadTime = 0;
+    //float roadTime = 0;
     void Initialize(string whatTag, string whatLayer, string whatName, GameObject roadSegment, BezierSpline spline)
     {
 

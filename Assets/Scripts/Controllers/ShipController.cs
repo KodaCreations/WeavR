@@ -90,7 +90,7 @@ public class ShipController : MonoBehaviour {
     public float shipBankReturnSpeed;
     public float shipSpeedBank;
     public float shipMaxBank;
-    private float rollState;
+    private float rollState = 0;
 
     //Hover behavior var
     private float shipHoverAmount;
@@ -111,7 +111,7 @@ public class ShipController : MonoBehaviour {
 
     //Respawn Variables
     float respawnTimer = 2.0f;
-    public float currentRespawnTime = 0.0f;
+    public float currentRespawnTime = 2.0f;
 
     //Helpfull stuff
     private Rigidbody rb;
@@ -142,7 +142,8 @@ public class ShipController : MonoBehaviour {
         energy = maxEnergy;
         newEnergy = 0;
         currentHeat = 0;
-
+        currentRespawnTime = respawnTimer;
+        grounded = true;
         // Audio init
         AudioController audioController = GameObject.Find("AudioController").GetComponent<AudioController>();       // Audio controller probably should be made static..
 
@@ -455,7 +456,7 @@ public class ShipController : MonoBehaviour {
                 if (dot > 0)
                 {
                     Vector3 shipVelocity = transform.InverseTransformDirection(rb.velocity);
-                    Vector3 wallDirection = transform.InverseTransformDirection(rb.velocity);
+                    //Vector3 wallDirection = transform.InverseTransformDirection(rb.velocity);
 
                     float pow = 3; // The curve that the bouncyness of the walls.
                     float knockback = Mathf.Pow(dot, pow);
@@ -553,7 +554,7 @@ public class ShipController : MonoBehaviour {
         }
         else
         {
-            HandleGravity(); // Down the ship goes
+            //HandleGravity(); // Down the ship goes
         }
 
         if (turbo)
@@ -626,8 +627,8 @@ public class ShipController : MonoBehaviour {
     {
         RaceController rc = GameObject.Find("RaceController").GetComponent<RaceController>();
         float pos = rc.currentPositions[rc.GetRacePosition(this) - 1] % rc.waypoints.Length;
-        Waypoint w1 = rc.waypoints[(int)pos - 1];
-        Waypoint w2 = rc.waypoints[(int)pos];
+        Waypoint w1 = rc.waypoints[(int)pos];
+        Waypoint w2 = rc.waypoints[(int)pos + 1];
         Vector3 RespawnPosition = (w1.transform.position + w2.transform.position) * 0.5f + new Vector3(0, hoverHeight, 0);
         rb.velocity = Vector3.zero;
         currentForwardAccelerationSpeed = 0;

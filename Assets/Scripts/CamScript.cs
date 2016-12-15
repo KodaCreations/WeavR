@@ -52,7 +52,11 @@ public class CamScript : MonoBehaviour {
         speedLinesEmit = speedLines.emission;
         myCamera = GetComponent<Camera>();
     }
-
+    public void StartNetworkIntro()
+    {
+        active = true;
+        onSpline = false;
+    }
     public void StartIntro(float length)
     {
         active = true;
