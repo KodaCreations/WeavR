@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 using System;
+using System.Collections.Generic;
 
 public class HUD : MonoBehaviour
 {
@@ -34,17 +35,17 @@ public class HUD : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //int placeInList = 0;
-        //ShipController thisShip = ship;
-        //for (int i = 0; i < rc.ships.Length; ++i)
-        //{
-        //    if (rc.ships[i] == thisShip)
-        //    {
-        //        placeInList = i;
-        //        break;
-        //    }
-        //}
-        lapCounter.text = rc.PlaceInRace(ship).ToString() + "/" + "?";
+        int placeInList = 0;
+        ShipController thisShip = ship;
+        for (int i = 0; i < rc.ships.Length; ++i)
+        {
+            if (rc.ships[i] == thisShip)
+            {
+                placeInList = i;
+                break;
+            }
+        }
+        lapCounter.text = placeInList + "/" + "?";
         positionCounter.text = rc.GetRacePosition(ship) + "/" + rc.ships.Length;
         if (rc.counter >= 0)
             countdown.text = ((int)Math.Ceiling(rc.counter)).ToString();
@@ -56,13 +57,16 @@ public class HUD : MonoBehaviour
         //overheat.localScale = new Vector3(ship.CurrentHeat / ship.overheatAfter, 1, 1);
     }
 
-    public void EnableWinPanel(float position, float flashTime)
+    public void EnableWinPanel(float position, float flashTime, List<float> lapTimes)
     {
         StartCoroutine(ScreenFlash(flashTime));
 
         // Set all info for goal
-        finishPanel.GetComponentInChildren<Text>().text = "Goal!";
+        string goalText = "Goal!\n Position: " + position + "\n";
+        for (int i = 0; i < lapTimes.Count; i++)
+            goalText = goalText + lapTimes[i] + "\n";
 
+        finishPanel.GetComponentInChildren<Text>().text = goalText;
 
         finishPanel.gameObject.SetActive(true);
     }

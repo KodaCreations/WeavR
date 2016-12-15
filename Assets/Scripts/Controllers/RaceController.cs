@@ -14,6 +14,10 @@ public class RaceController : MonoBehaviour
     public float counter = -1;
     public int nrOfLaps = 3;
 
+    private float timeAtStart;
+    public float currentRaceTime;
+    Dictionary<GameObject, List<float>> shipLapTimes;
+
     //HUD[] huds;
 
     // Audio controller
@@ -24,6 +28,8 @@ public class RaceController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        shipLapTimes = new Dictionary<GameObject, List<float>>();
+
         FindAllWaypoints();
         FindAllShips();
         ResetBooleans();
@@ -78,29 +84,11 @@ public class RaceController : MonoBehaviour
         ships = GameObject.FindGameObjectsWithTag("Ship");
         originalShips = ships;
 
+        foreach (GameObject ship in ships)
+            shipLapTimes.Add(ship, new List<float>());
+
         Array.Resize(ref currentPositions, ships.Length);
         Array.Resize(ref shipLapCounter, ships.Length);
-        //Array.Resize(ref huds, ships.Length);
-
-        // Really bad way of finding the huds
-        //List<GameObject> playerShips = new List<GameObject>();
-        //GameObject[] cameras = GameObject.FindGameObjectsWithTag("MainCamera");
-        //foreach (GameObject camera in cameras)
-        //    playerShips.Add(camera.GetComponent<CamScript>().ship.gameObject);
-        //int cameraCounter = 0;
-
-        //for (int i = 0; i < ships.Length; ++i)
-        //{
-        //    currentPositions[i] = 0;
-        //    shipLapCounter[i] = 0;
-
-        //    if (playerShips.Contains(ships[i]))
-        //    {
-        //        huds[i] = cameras[cameraCounter].GetComponentInChildren<HUD>();
-        //        cameraCounter++;
-        //    }
-        //}
-
     }
     private void ResetLap(int index)
     {
@@ -117,39 +105,23 @@ public class RaceController : MonoBehaviour
                 return false;
         }
 
+        shipLapTimes[ships[index]].Add(currentRaceTime);
+
         // If last lap and ship[index], change cameras target, de-enable ship(ai too) and enable win message panel
         if (shipLapCounter[index] + 1 == nrOfLaps)
         {
             InputHandler isPlayer = ships[index].GetComponent<InputHandler>();
 
             if (isPlayer)
-                brain.PlayerFinished(ships[index].transform, ships.Length - index - 1, PlaceInRace(isPlayer.GetComponent<ShipController>()));
+                brain.PlayerFinished(ships[index].transform, ships.Length - index - 1, GetRacePosition(ships[index].GetComponent<ShipController>()), shipLapTimes[ships[index]]);
 
-            // Send info also if AI, but not if spawned from ship
+            // Send info also if AI
+            // about position and laptimes
 
-            //if (huds[index])
-            //{
-            //    huds[index].GetComponentInParent<CamScript>().EnterSpectatorMode(); spectator mode for multiplayer only
-            //    huds[index].EnableWinPanel(currentPositions[0], winFlashTime);
-            //}
-            //ships[index].SetActive(false);
         }
 
         ResetLap(index);
         return true;
-    }
-
-    // Returns which position in a race a ship is at
-    public int PlaceInRace(ShipController ship)
-    {
-        for (int i = 0; i < ships.Length; ++i)
-        {
-            if (ships[i] == ship)
-            {
-                return i;
-            }
-        }
-        return 0; 
     }
 
     public void SetPosition(ShipController ship, int pos)
@@ -273,6 +245,10 @@ public class RaceController : MonoBehaviour
             ActivateShips(true);
 
             ActivateAI(true);
+
+            timeAtStart = Time.realtimeSinceStartup;
         }
+
+        currentRaceTime = Time.realtimeSinceStartup - timeAtStart;
     }
 }

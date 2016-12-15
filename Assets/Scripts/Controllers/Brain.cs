@@ -40,6 +40,8 @@ public class Brain : MonoBehaviour {
 
     List<HUD> HUDs;                             // All huds in the scene
 
+
+
 	void Start () 
     {
         // Keep this object through scenes.
@@ -66,10 +68,22 @@ public class Brain : MonoBehaviour {
 	}
 
     // Called by race controller when a player crosses the finish line
-    public void PlayerFinished(Transform playerShip, int playerIndex, int playerPosition)
+    public void PlayerFinished(Transform playerShip, int playerIndex, int playerPosition, List<float> lapTimes)
     {
+        // Only send on 3 lap times to the HUD, for lack of space. Sending fist, middle and last.
+
+        // Maybe should let HUD sort this info when recieving it.
+        List<float> sortedLapTimes = new List<float>();
+        sortedLapTimes.Add(lapTimes[0]);
+        if (lapTimes.Count > 1)
+            sortedLapTimes.Add(lapTimes[lapTimes.Count / 2]);
+        if (lapTimes.Count > 2)
+            sortedLapTimes.Add(lapTimes[lapTimes.Count - 1]);
+
         // Enable the effects and text for winning
-        HUDs[playerIndex].EnableWinPanel(playerPosition, winFlashTimer);
+
+        // Also need to send all other ships that finished already
+        HUDs[playerIndex].EnableWinPanel(playerPosition, winFlashTimer, sortedLapTimes);
         HUDs[playerIndex].GetComponentInParent<CamScript>().EnterRotateMode();
 
         SpawnAIFromPlayer(playerShip);
