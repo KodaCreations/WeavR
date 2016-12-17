@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 using System;
+using System.Collections.Generic;
 
 public class HUD : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class HUD : MonoBehaviour
     private Text countdown;
     private Text weapon;
     private Transform finishPanel;
+    private Image flashPanelImage;
     private RectTransform energy;
     private RectTransform overheat;
 
@@ -42,23 +44,27 @@ public class HUD : MonoBehaviour
                 break;
             }
         }
+
         lapCounter.text = rc.shipLapCounter[placeInList] + "/" + rc.nrOfLaps;
+
+        lapCounter.text = placeInList + "/" + "?";
+
         positionCounter.text = rc.GetRacePosition(ship) + "/" + rc.ships.Length;
         if (rc.counter >= 0)
             countdown.text = ((int)Math.Ceiling(rc.counter)).ToString();
         else
             countdown.text = "";
         //weapon.text = GetWeaponName(rc.ships[placeInList].GetComponent<ShipController>());
+
         float energyScale = ship.Energy / ship.maxEnergy;
         energy.localScale = new Vector3(energyScale, 1, 1);
         float overheatScale = ship.CurrentHeat / ship.overheatAfter;
         overheat.localScale = new Vector3(overheatScale, 1, 1);
-    }
 
-    public void EnableWinPanel(float position)
-    {
-        finishPanel.GetComponentInChildren<Text>().text = "Goal!";
-        finishPanel.gameObject.SetActive(true);
+
+        //energy.localScale = new Vector3(ship.Energy / ship.maxEnergy, 1, 1);
+        //overheat.localScale = new Vector3(ship.CurrentHeat / ship.overheatAfter, 1, 1);
+
     }
 
     private string GetWeaponName(ShipController sc)

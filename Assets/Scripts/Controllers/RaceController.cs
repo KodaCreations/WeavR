@@ -5,7 +5,6 @@ using System.Collections.Generic;
 
 public class RaceController : MonoBehaviour
 {
-
     public Waypoint[] waypoints;
     public bool[][] waypointBooleans;
     public GameObject[] ships;
@@ -16,15 +15,28 @@ public class RaceController : MonoBehaviour
     public int nrOfLaps = 3;
     public float rubberbanding = 0.95f;
     HUD[] huds;
+
+    public bool raceOngoing;
+
+    private float timeAtStart;
+    public float currentRaceTime;
+    Dictionary<GameObject, List<float>> shipLapTimes;
+
     AudioController audioController;
+
+    Brain brain;
 
     // Use this for initialization
     void Start()
     {
+        shipLapTimes = new Dictionary<GameObject, List<float>>();
+
         FindAllWaypoints();
         FindAllShips();
         ResetBooleans();
-        ActivateShips(false);       
+        ActivateShips(false);
+
+        brain = GameObject.Find("Brain").GetComponent<Brain>();
     }
     void ActivateShips(bool activate)
     {
@@ -73,29 +85,11 @@ public class RaceController : MonoBehaviour
         ships = GameObject.FindGameObjectsWithTag("Ship");
         originalShips = ships;
 
+        foreach (GameObject ship in ships)
+            shipLapTimes.Add(ship, new List<float>());
+
         Array.Resize(ref currentPositions, ships.Length);
         Array.Resize(ref shipLapCounter, ships.Length);
-        Array.Resize(ref huds, ships.Length);
-
-        // Really bad way of finding the huds
-        List<GameObject> playerShips = new List<GameObject>();
-        GameObject[] cameras = GameObject.FindGameObjectsWithTag("MainCamera");
-        foreach (GameObject camera in cameras)
-            playerShips.Add(camera.GetComponent<CamScript>().ship.gameObject);
-        int cameraCounter = 0;
-
-        for (int i = 0; i < ships.Length; ++i)
-        {
-            currentPositions[i] = 0;
-            shipLapCounter[i] = 0;
-
-            if (playerShips.Contains(ships[i]))
-            {
-                huds[i] = cameras[cameraCounter].GetComponentInChildren<HUD>();
-                cameraCounter++;
-            }
-        }
-
     }
     private void ResetLap(int index)
     {
@@ -112,22 +106,18 @@ public class RaceController : MonoBehaviour
                 return false;
         }
 
-        // If last lap and ship[index], change cameras target, de-enable ship(ai too) and enable win message panel
+        shipLapTimes[ships[index]].Add(currentRaceTime);
+
+        // If last lap, send info to brain
         if (shipLapCounter[index] + 1 == nrOfLaps)
         {
-            if (huds[index])
-            {
-                // Doesnt always get here
-                huds[index].GetComponentInParent<CamScript>().EnterSpectatorMode();
-                huds[index].EnableWinPanel(currentPositions[0]);
-            }
-
-            ships[index].SetActive(false);
+            brain.ShipFinished(ships[index].gameObject, GetRacePosition(ships[index].GetComponent<ShipController>()), shipLapTimes[ships[index]]);
         }
 
         ResetLap(index);
         return true;
     }
+
     public void SetPosition(ShipController ship, int pos)
     {
         for (int i = 0; i < ships.Length; ++i)
@@ -157,7 +147,7 @@ public class RaceController : MonoBehaviour
                 lastWaypoint = waypoints.Length - 1;
                 targetWaypoint = 0;
             }
-            Debug.Log("Target: " + targetWaypoint + "  last: " + lastWaypoint);
+            //Debug.Log("Target: " + targetWaypoint + "  last: " + lastWaypoint);
             //Debug.Log(currentPositions[i]);
             float distanceWaypoints = Vector3.Distance(waypoints[lastWaypoint].transform.position, waypoints[targetWaypoint].transform.position);
             float distanceToShip = Vector3.Distance(waypoints[lastWaypoint].transform.position, ships[i].transform.position);
@@ -260,6 +250,12 @@ public class RaceController : MonoBehaviour
             ActivateShips(true);
 
             ActivateAI(true);
+
+            raceOngoing = true;
+
+            timeAtStart = Time.realtimeSinceStartup;
         }
+
+        currentRaceTime = Time.realtimeSinceStartup - timeAtStart;
     }
 }

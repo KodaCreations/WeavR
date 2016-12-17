@@ -38,7 +38,7 @@ public class MenusScript : MonoBehaviour {
     public Transform lobbyManager;
 
     // Brain
-    public Brain brain;
+    Brain brain;
 
 	void Start ()
     {
@@ -51,6 +51,7 @@ public class MenusScript : MonoBehaviour {
         settingsMenu = transform.FindChild("Settings Menu");
 
         // Get loadable track names from brain.
+        brain = GameObject.Find("Brain").GetComponent<Brain>();
         trackNames = brain.loadableTrackNames;
 
         // Load pictures for tracks, if they exist. 
