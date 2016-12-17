@@ -80,6 +80,11 @@ public class CamScript : MonoBehaviour {
         camSplineSpeed = camSplineSpeed * camSplinesCount;
     }
 
+    public void StopIntro()
+    {
+        onSpline = false;
+    }
+
     void Update()
     {
         if (active && onSpline)

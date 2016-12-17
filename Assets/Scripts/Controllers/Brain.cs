@@ -60,6 +60,7 @@ public class Brain : MonoBehaviour {
     List<Image> flashImages;                    // Image used to flash when crossing finish line
 
     bool introRunning;                          // Are intro cameras moving?
+    float timer;
 
 
 	void Start () 
@@ -90,6 +91,8 @@ public class Brain : MonoBehaviour {
         {
             if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(("joystick 1 button 7")))
             {
+                if (introRunning)
+                    introRunning = false;
 
                 if (!raceController.raceOngoing || winMenu.gameObject.activeSelf)
                     return;
@@ -105,9 +108,6 @@ public class Brain : MonoBehaviour {
                     Time.timeScale = 1;
                     pauseMenu.gameObject.SetActive(false);
                 }
-
-                if (introRunning)
-                    introRunning = false;
             }
             
 
@@ -294,7 +294,6 @@ public class Brain : MonoBehaviour {
     // Spawn all ships at start positions.
     void SpawnShips()
     {
-        Debug.Log("loading scene " + SceneManager.GetActiveScene().name);
         for (int i = 0; i < playerShips.Count; i++)
         {
             GameObject player = (GameObject)Instantiate(playerShips[i], startPositions[7 - i].position, startPositions[7 - i].rotation);
@@ -451,6 +450,10 @@ public class Brain : MonoBehaviour {
         // Find the waypoints
         waypoints = GameObject.Find("Waypoints");
 
+        // Find the race controller
+        raceController = GameObject.Find("RaceController").GetComponent<RaceController>();
+        raceController.nrOfLaps = nrOfLaps;
+
         // Spawn ingame canvas
         ingameCanvas = Instantiate<Transform>(ingameCanvasPrefab);
         pauseMenu = ingameCanvas.FindChild("Pause Menu");
@@ -487,10 +490,6 @@ public class Brain : MonoBehaviour {
 
         // Fade in screen effect
 
-        // Ask the race controller to start the race when cameras are done.
-        raceController = GameObject.Find("RaceController").GetComponent<RaceController>();
-        raceController.nrOfLaps = nrOfLaps;
-        raceController.StartCountDown(countDownTimer);
 
         introRunning = true;
         // Tell cameras to start the introduction
@@ -500,16 +499,21 @@ public class Brain : MonoBehaviour {
         // Audio controller play intro song
 
 
-        // Wait for cameras to finish introduction spline
-        //StartCoroutine(Wait(cameraIntroLength));
-        //yield return new Wait(cameraIntroLength)
-        //yield return new WaitForSeconds(cameraIntroLength);
-        StartCoroutine(WaitForKeyDown(KeyCode.Escape));
-        introRunning = false;
+        // Wait for cameras to finish introduction spline or key pressed
+        yield return StartCoroutine(WaitForTimeOrIntroEnd(cameraIntroLength));
 
-        // Activate HUD
+        // Activate HUD and stop intro camera
         foreach (CamScript camera in cameraReferences)
+        {
+            camera.StopIntro();
             camera.transform.FindChild("HUD").gameObject.SetActive(true);
+        }
+
+        // Brief pause between intro and countdown starting
+        yield return new WaitForSeconds(1.5f);
+
+        // Ask the race controller to start the race when cameras are done.
+        raceController.StartCountDown(countDownTimer);
 
         // audio controller play countdown
         audioController.PlayFile("Countdown", false);
@@ -519,11 +523,13 @@ public class Brain : MonoBehaviour {
         audioController.PlayFile("Soundtrack1", true);
     }
 
-
-    IEnumerator WaitForKeyDown(KeyCode keyCode)
-    {
-        if (!introRunning)
+    IEnumerator WaitForTimeOrIntroEnd(float seconds)
+     {
+        float time = seconds;
+        while (time > 0.0 && introRunning)
+        {
+            time -= Time.deltaTime;
             yield return null;
-        yield return new WaitForSeconds(2);
+        }
     }
 }
