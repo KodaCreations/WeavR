@@ -91,10 +91,10 @@ public class ShipController : MonoBehaviour {
     private float normalPitchForce;
 
     //Values that help with the model rotation so thtat it looks smoother
-    public float shipCurrentBank;
-    public float shipReturnBankSpeed;
-    public float shipBankVelocity;
-    public float shipBankSpeed;
+    private float shipCurrentBank;
+    private float shipReturnBankSpeed;
+    private float shipBankVelocity;
+    private float shipBankSpeed;
     private LeftOrRight leftOrRight;
     [Header("Ship Yaw Handling")]
     public float shipBankReturnSpeed;
