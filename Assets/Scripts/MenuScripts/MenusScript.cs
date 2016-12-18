@@ -8,31 +8,46 @@ public class MenusScript : MonoBehaviour {
 
     // Ship variables, singleplayer and splitscreen
     ShipPreview shipPreview;
-    ShipPreview shipPreviewSS1;
-    ShipPreview shipPreviewSS2;
-    public Text shipName;
-    public Text shipNameSS1; 
-    public Text shipNameSS2;
+    //ShipPreview shipPreviewSS1;
+    //ShipPreview shipPreviewSS2;
+    ////public Text shipName;
+    //public Text shipNameSS1; 
+    //public Text shipNameSS2;
 
-    public Button selectButtonSS1;
-    public Button selectButtonSS2;
+    //public Button selectButtonSS1;
+    //public Button selectButtonSS2;
 
-    int shipsSelectedCount;
+    //int shipsSelectedCount;
 
-    // Track variables
+    //// Track variables
     List<string> trackNames;
-    public Text trackName;
-    int trackIndex;
-    List<Sprite> trackPreviews;
-    public Image trackPreview;
+    //public Text trackName;
+    //int trackIndex;
+    Dictionary<string, Sprite> trackPreviews;
+    //public Image trackPreview;
 
     // All menus
     Transform mainMenu;
     Transform trackMenu;
     Transform shipMenu;
-    Transform mpMenu;
     Transform splitscreenMenu;
     Transform settingsMenu;
+
+    // Track selection objects
+    public Transform trackTogglePrefab;
+    Transform trackToggles;
+    Image trackPreview;
+    Text trackDesc;
+    List<string> trackDescs;
+
+    // Ship selection objects
+    Text shipName;
+    Text shipDesc;
+    Toggle gamePadToggle;
+    Text shipNameSS;
+    Text shipDescSS;
+    Text playerTextSS;
+    Toggle gamePadToggleSS;
 
     // Multiplayer manager
     public Transform lobbyManager;
@@ -43,72 +58,198 @@ public class MenusScript : MonoBehaviour {
 	void Start ()
     {
         // Find all menus
-        mainMenu = transform.FindChild("Main Menu");
-        trackMenu = transform.FindChild("Track Selection Menu");
-        shipMenu = transform.FindChild("Ship Selection Menu");
-        mpMenu = transform.FindChild("Multiplayer Menu");
-        splitscreenMenu = transform.FindChild("Splitscreen Menu");
-        settingsMenu = transform.FindChild("Settings Menu");
+        mainMenu = transform.FindChild("MainMenu");
+        shipMenu = transform.FindChild("ShipSelection");
+        trackMenu = transform.FindChild("TrackSelection");
+        splitscreenMenu = transform.FindChild("SplitscreenShipSelection");
+
+        // Find menu objects
+        shipName = shipMenu.FindChild("Window1").FindChild("ShipName").GetComponentInChildren<Text>();
+        shipDesc = shipMenu.FindChild("Window1").FindChild("ShipDesc").GetComponentInChildren<Text>();
+        gamePadToggle = shipMenu.FindChild("Window1").FindChild("UseGamepad").GetComponentInChildren<Toggle>();
+        shipNameSS = splitscreenMenu.FindChild("Window1").FindChild("ShipName").GetComponentInChildren<Text>();
+        shipDescSS = splitscreenMenu.FindChild("Window1").FindChild("ShipDesc").GetComponentInChildren<Text>();
+        playerTextSS = splitscreenMenu.FindChild("Window1").FindChild("Player").GetComponentInChildren<Text>();
+        gamePadToggleSS = splitscreenMenu.FindChild("Window1").FindChild("UseGamepad").GetComponentInChildren<Toggle>();
+
+        shipPreview = FindObjectOfType<ShipPreview>();
 
         // Get loadable track names from brain.
         brain = GameObject.Find("Brain").GetComponent<Brain>();
         trackNames = brain.loadableTrackNames;
 
         // Load pictures for tracks, if they exist. 
-        trackPreviews = new List<Sprite>();
+        trackPreviews = new Dictionary<string, Sprite>();
         foreach (string trackName in System.IO.Directory.GetFiles(Application.dataPath + "/Resources/TrackPreviews"))
         {
             if (trackName.Substring(trackName.Length - 3, 3) == "jpg")
             {
                 string name = trackName.Split('.')[0];
                 name = name.Split('\\')[1];
-                trackPreviews.Add((Sprite)Resources.Load<Sprite>("TrackPreviews/" + name));
+                trackPreviews.Add(name, (Sprite)Resources.Load<Sprite>("TrackPreviews/" + name));
             }
         }
-	}
 
-    // Functions to be called by menus.
-    #region SharedMenuFunctions
-    public void SwitchToTrackSelectionMenu()
-    {
-        DeactivateAllMenus();
-        trackMenu.gameObject.SetActive(true);
-        trackName.text = trackNames[0];
-        trackPreview.sprite = trackPreviews[0];
+        trackPreview = trackMenu.FindChild("Window2").FindChild("TrackPreview").GetComponentInChildren<Image>();
+        trackPreview.sprite = trackPreviews[trackNames[0]];
+
+        trackDescs = new List<string>(NamesAndDescs.GetTrackDescs());
+        trackDesc = trackMenu.FindChild("Window2").FindChild("TrackDescription").GetComponentInChildren<Text>();
+        trackDesc.text = trackDescs[0];
+
+
+        // Add buttons for tracks
+        trackToggles = trackMenu.FindChild("Window1").FindChild("TrackToggles");
+        for (int i = 0; i < trackNames.Count; i++)
+        {
+            Transform newToggle = (Transform)Instantiate(trackTogglePrefab, trackToggles);
+            newToggle.localScale = new Vector3(1, 1, 1);
+            Vector3 pos = newToggle.localPosition;
+            pos.z = 0;
+            newToggle.localPosition = pos;
+
+            newToggle.GetComponentInChildren<Text>().text = trackNames[i];
+
+            Toggle toggle = newToggle.GetComponent<Toggle>();
+
+            toggle.group = trackToggles.GetComponent<ToggleGroup>();
+
+            int toggleIndex = i;
+            toggle.onValueChanged.AddListener((value) => { SelectTrack(value, toggleIndex); });
+        }
+        trackToggles.GetChild(0).GetComponent<Toggle>().isOn = true;
+
     }
 
+    // Functions to be called by menus.
+    #region SwitchMenuFunctions
     public void DeactivateAllMenus()
     {
         mainMenu.gameObject.SetActive(false);
-        trackMenu.gameObject.SetActive(false);
         shipMenu.gameObject.SetActive(false);
-        mpMenu.gameObject.SetActive(false);
+        trackMenu.gameObject.SetActive(false);
         splitscreenMenu.gameObject.SetActive(false);
-        settingsMenu.gameObject.SetActive(false); 
     }
 
     public void SwitchToMainMenu()
     {
         DeactivateAllMenus();
         mainMenu.gameObject.SetActive(true);
-    }
-    #endregion
+        brain.playerShips.Clear();
 
-    #region MainMenu
-    public void SwitchToMultiplayerMenu()
-    {
-        mainMenu.gameObject.SetActive(false);
-        mpMenu.gameObject.SetActive(true);
+        brain.player1UsingGamepad = false;
+        brain.player2UsingGamepad = false;
+
+        brain.isMultiplayer = false;
+        brain.isSplitscreen = false;
     }
-    public void SwitchToSettingsMenu()
+
+    public void SwitchToShipSelectionMenu()
     {
         DeactivateAllMenus();
-        settingsMenu.gameObject.SetActive(true);
+        shipMenu.gameObject.SetActive(true);
+        //shipPreview.Reset();
+        shipName.text = shipPreview.GetPreviewName();
+        shipDesc.text = shipPreview.GetPreviewDesc();
     }
+
+    public void SwitchToSplitscreenMenu()
+    {
+        DeactivateAllMenus();
+        playerTextSS.text = "Player " + 1;
+        splitscreenMenu.gameObject.SetActive(true);
+        brain.isSplitscreen = true;
+    }
+
+    public void SwitchToTrackSelectionMenu()
+    {
+        DeactivateAllMenus();
+        trackMenu.gameObject.SetActive(true);
+    }
+
+
+    public void LoadRace()
+    {
+        shipMenu.gameObject.SetActive(false);
+
+        brain.StartRace();
+    }
+
     public void QuitGame()
     {
         Application.Quit();
     }
+    #endregion
+
+
+
+    #region ShipSelection
+    public void NextShip(int direction)
+    {
+        shipPreview.SwitchPreview(direction);
+        shipName.text = shipPreview.GetPreviewName();
+        shipDesc.text = shipPreview.GetPreviewDesc();
+    }
+
+    public void SelectShip()
+    {
+        brain.AddSelectedShip(shipPreview.GetShipPrefabName().Split(' ')[1]);
+    }
+
+    public void SelectShipSS()
+    {
+        brain.AddSelectedShip(shipPreview.GetShipPrefabName().Split(' ')[1]);
+        splitscreenMenu.gameObject.SetActive(false);
+        playerTextSS.text = "Player " + 2;
+        if (brain.playerShips.Count == 2)
+            SwitchToTrackSelectionMenu();
+        else
+        {
+            splitscreenMenu.gameObject.SetActive(true);
+            gamePadToggleSS.isOn = false;
+        }
+    }
+
+    public void UseGamepad()
+    {
+        brain.player1UsingGamepad = gamePadToggle.isOn;
+    }
+
+    public void UseGamepadSS()
+    {
+        if (playerTextSS.text[playerTextSS.text.Length - 1] == '0') 
+            brain.player1UsingGamepad = gamePadToggleSS.isOn;
+        else
+            brain.player2UsingGamepad = gamePadToggleSS.isOn;
+    }
+
+    #endregion
+
+    #region TrackSelection
+    public void SelectTrack(bool toggleOn, int index)
+    {
+        if (!toggleOn)
+            return;
+
+        brain.selectedTrack = trackNames[index];
+        trackPreview.sprite = trackPreviews[trackNames[index]];
+        trackDesc.text = trackDescs[index];
+    }
+
+    #endregion
+
+
+
+
+
+
+    #region MainMenu
+    //public void SwitchToMultiplayerMenu()
+    //{
+    //    DeactivateAllMenus();
+    //    brain.playerShips.Clear();
+    //}
+
     #endregion
 
     #region MultiplayerMenu
@@ -119,114 +260,8 @@ public class MenusScript : MonoBehaviour {
         lobbyManager.gameObject.SetActive(true);
     }
 
-    public void SwitchToSplitscreenTrackMenu()
-    {
-        brain.isSplitscreen = true;
-        SwitchToTrackSelectionMenu();
-    }
-
     #endregion
 
-    #region TrackSelectionMenu
-    public void NextTrack(int direction)
-    {
-        trackIndex += direction;
-        if (trackIndex > trackNames.Count - 1)
-            trackIndex = 0;
-        if (trackIndex < 0)
-            trackIndex = trackNames.Count - 1;
 
-        trackName.text = trackNames[trackIndex];
-    }
 
-    public void SwitchToShipSelectionMenu()
-    {
-        DeactivateAllMenus();
-        brain.selectedTrack = trackName.text;
-
-        if (!brain.isSplitscreen)
-        {
-            shipMenu.gameObject.SetActive(true);
-
-            if (!shipPreview)
-                shipPreview = shipMenu.GetComponentInChildren<ShipPreview>();
-
-            shipName.text = shipPreview.GetPreviewName();
-        }      
-        else
-        {
-            splitscreenMenu.gameObject.SetActive(true);
-
-            if (!shipPreviewSS1)
-                shipPreviewSS1 = splitscreenMenu.GetChild(2).GetComponentInChildren<ShipPreview>();
-
-            shipNameSS1.text = shipPreviewSS1.GetPreviewName();
-
-            if (!shipPreviewSS2)
-                shipPreviewSS2 = splitscreenMenu.GetChild(3).GetComponentInChildren<ShipPreview>();
-            shipNameSS2.text = shipPreviewSS2.GetPreviewName();
-        }
-    }
-    #endregion
-
-    #region ShipSelectionMenus
-    public void NextShip(int direction)
-    {
-        shipPreview.SwitchPreview(direction);
-        shipName.text = shipPreview.GetPreviewName();
-    }
-
-    public void NextShipSS1(int direction)
-    {
-        shipPreviewSS1.SwitchPreview(direction);
-        shipNameSS1.text = shipPreviewSS1.GetPreviewName();
-    }
-
-    public void NextShipSS2(int direction)
-    {
-        shipPreviewSS2.SwitchPreview(direction);
-        shipNameSS2.text = shipPreviewSS2.GetPreviewName();
-    }
-
-    public void SelectShip()
-    {
-        brain.AddSelectedShip(shipPreview.GetShipPrefabName().Split(' ')[1]);
-        LoadRace();
-    }
-
-    public void SelectShipSS1()
-    {
-        selectButtonSS1.interactable = false;
-        brain.AddSelectedShip(shipPreviewSS1.GetShipPrefabName().Split(' ')[1]);
-        shipsSelectedCount++;
-        if (shipsSelectedCount == 2)
-            LoadRace();
-    }
-
-    public void SelectShipSS2()
-    {
-        selectButtonSS2.interactable = false;
-        brain.AddSelectedShip(shipPreviewSS2.GetShipPrefabName().Split(' ')[1]);
-        shipsSelectedCount++;
-        if (shipsSelectedCount == 2)
-            LoadRace();
-    }
-
-    void LoadRace()
-    {
-        shipMenu.gameObject.SetActive(false);
-
-        brain.StartRace();
-    }
-    #endregion
-
-    #region SettingsMenu
-    public void UseGamepad(int playerIndex)
-    {
-        if (playerIndex == 0)
-            brain.player1UsingGamepad = !brain.player1UsingGamepad;
-        else if (playerIndex == 1)
-            brain.player2UsingGamepad = !brain.player2UsingGamepad;
-    }
-    #endregion
 }

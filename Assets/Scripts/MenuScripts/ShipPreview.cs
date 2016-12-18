@@ -9,17 +9,20 @@ public class ShipPreview : MonoBehaviour {
 
     List<GameObject> instantiatedPreviews;      // Preview objects
     List<string> shipNames;                     // Names of the ships
+    List<string> shipDescs;                     // Descriptions of the ships
     int previewIndex;                           // Which preview where at
 
     Brain brain;
-	
+
+
     void Awake()
     {
         // Find the brain.
         brain = GameObject.Find("Brain").GetComponent<Brain>();
 
         instantiatedPreviews = new List<GameObject>();
-        shipNames = new List<string>();
+        shipNames = new List<string>(NamesAndDescs.GetShipNames());
+        shipDescs = new List<string>(NamesAndDescs.GetShipDescs());
 
         // Instantiate new meshes from the available ships in brain.
         foreach (GameObject go in brain.availableShips)
@@ -33,7 +36,7 @@ public class ShipPreview : MonoBehaviour {
             Instantiate(go.transform.GetChild(0), transform.position, transform.rotation, instantiatedPreviews[instantiatedPreviews.Count - 1].transform);
 
             // Get the names of the ships from their ship controllers.
-            shipNames.Add(go.GetComponent<ShipController>().shipName);
+            //shipNames.Add(go.GetComponent<ShipController>().shipName);
         }
 
         // Set the first preview as active.
@@ -61,10 +64,25 @@ public class ShipPreview : MonoBehaviour {
         instantiatedPreviews[previewIndex].SetActive(true);
     }
 
+    public void Reset()
+    {
+        //transform.position = startTransform.position;
+        //transform.rotation = startTransform.rotation;
+
+        //foreach (GameObject preview in instantiatedPreviews)
+        //    preview.SetActive(false);
+        //instantiatedPreviews[0].SetActive(true);
+    }
+
     // Get the name of a ship
     public string GetPreviewName()
     {
         return shipNames[previewIndex];
+    }
+
+    public string GetPreviewDesc()
+    {
+        return shipDescs[previewIndex];
     }
 
     // Get the name of a prefab
@@ -76,6 +94,6 @@ public class ShipPreview : MonoBehaviour {
     // Rotate a preview object
     void RotatePreview()
     {
-        instantiatedPreviews[previewIndex].transform.Rotate(Vector3.up, rotateSpeed * Time.deltaTime);
+        transform.Rotate(Vector3.up, rotateSpeed * Time.deltaTime);
     }
 }

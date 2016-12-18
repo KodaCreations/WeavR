@@ -6,7 +6,6 @@ public class ShipController : MonoBehaviour {
 
     //Misc
     [Header("Misc")]
-    public string shipName;
     public bool activate;
     public int id;
 
