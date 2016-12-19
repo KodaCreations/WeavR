@@ -62,7 +62,6 @@ public class Brain : MonoBehaviour {
     List<Image> flashImages;                    // Image used to flash when crossing finish line
 
     bool introRunning;                          // Are intro cameras moving?
-    float timer;
 
 
 	void Start () 
@@ -102,19 +101,26 @@ public class Brain : MonoBehaviour {
                 // pause game and enable pause menu
                 if (Time.timeScale == 1)
                 {
+                    AudioListener.volume = 0;
                     Time.timeScale = 0;
                     pauseMenu.gameObject.SetActive(true);
                 }
                 else
                 {
-                    Time.timeScale = 1;
-                    pauseMenu.gameObject.SetActive(false);
+                    Resume();
                 }
             }
             
 
         }
 	}
+
+    void Resume()
+    {
+        Time.timeScale = 1;
+        AudioListener.volume = 1;
+        pauseMenu.gameObject.SetActive(false);
+    }
 
     // Called by race controller when a player crosses the finish line
     public void ShipFinished(GameObject playerShip, int playerPosition, List<float> lapTimes)
@@ -160,8 +166,10 @@ public class Brain : MonoBehaviour {
             backgroundColor = new Color(0.5f, 0.5f, 0.5f, 0.7f);
         newInfoPanel.GetChild(0).GetComponent<Image>().color = backgroundColor;
 
+        newInfoPanel.GetChild(1).GetComponent<Text>().text = playerPosition.ToString();
+
         // More info for panel
-        newInfoPanel.GetChild(1).GetComponent<Text>().text = playerShip.name + "  " + playerPosition;
+        newInfoPanel.GetChild(2).GetComponent<Text>().text = playerShip.name;
 
         float bestTime = float.MaxValue, totalTime = 0;
         for (int i = 0; i < lapTimes.Count; i++)
@@ -179,11 +187,8 @@ public class Brain : MonoBehaviour {
         int totalTimeSeconds = (int)totalTime - (totalTimeMinutes * 60);
         float totalTimeMili = totalTime - totalTimeMinutes * 60 - totalTimeSeconds;
 
-        newInfoPanel.GetChild(3).GetComponent<Text>().text = bestTimeMinutes.ToString("D2") + ":" + bestTimeSeconds + ":" + bestTimeMili.ToString("F2").Remove(0, 2) +
+        newInfoPanel.GetChild(4).GetComponent<Text>().text = bestTimeMinutes.ToString("D2") + ":" + bestTimeSeconds + ":" + bestTimeMili.ToString("F2").Remove(0, 2) +
             "\n" + totalTimeMinutes.ToString("D2") + ":" + totalTimeSeconds + ":" + totalTimeMili.ToString("F2").Remove(0, 2);
-
-        // set placement icon
-        //newInfoPanel.GetChild(4);
 
         newInfoPanel.SetParent(playerInfoPanels);
         newInfoPanel.localScale = new Vector3(1, 1, 1);
@@ -469,20 +474,24 @@ public class Brain : MonoBehaviour {
 
         // Spawn ingame canvas
         ingameCanvas = Instantiate<Transform>(ingameCanvasPrefab);
-        pauseMenu = ingameCanvas.FindChild("Pause Menu");
+        pauseMenu = ingameCanvas.FindChild("PauseMenu");
         winMenu = ingameCanvas.FindChild("Win Menu");
-        playerInfoPanels = winMenu.FindChild("PlayerInfoPanels");
+        playerInfoPanels = winMenu.FindChild("Window").FindChild("PlayerInfoPanels");
 
         // Setup restart and menu buttons
-        Button winRestartButton = winMenu.FindChild("ButtonRestart").GetComponent<Button>();
+        Button winRestartButton = winMenu.FindChild("Window").FindChild("SubWindow").FindChild("Restart").GetComponent<Button>();
         winRestartButton.onClick.AddListener(() => { RestartRace(); });
-        Button pauseRestartButton = pauseMenu.FindChild("ButtonRestart").GetComponent<Button>();
+        Button pauseRestartButton = pauseMenu.FindChild("Window").FindChild("Restart").GetComponent<Button>();
         pauseRestartButton.onClick.AddListener(() => { RestartRace(); });
 
-        Button winMenuButton = winMenu.FindChild("ButtonMenu").GetComponent<Button>();
+        Button winMenuButton = winMenu.FindChild("Window").FindChild("SubWindow").FindChild("Main Menu").GetComponent<Button>();
         winMenuButton.onClick.AddListener(() => { LoadMenu(); });
-        Button pauseMenuButton = pauseMenu.FindChild("ButtonMenu").GetComponent<Button>();
+        Button pauseMenuButton = pauseMenu.FindChild("Window").FindChild("Main Menu").GetComponent<Button>();
         pauseMenuButton.onClick.AddListener(() => { LoadMenu(); });
+
+        Button pauseResumeButton = pauseMenu.FindChild("Window").FindChild("Resume").GetComponent<Button>();
+        pauseResumeButton.onClick.AddListener(() => { Resume(); });
+
 
         // Look for the start positions.
         ReadStartPositions();
