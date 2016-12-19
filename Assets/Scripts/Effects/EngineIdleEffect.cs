@@ -6,12 +6,13 @@ public class EngineIdleEffect : MonoBehaviour {
     public float frequency;
     public float scaleChangeValue;
     public float scaleRange;
-    public Transform shipTransform;
-    public float offsetX;
-    public float offsetY; 
-    public float offsetZ;
 
-    private Vector3 offsetValues;
+    //public Transform shipTransform;
+    //public float offsetX;
+    //public float offsetY; 
+    //public float offsetZ;
+    //private Vector3 offsetValues;
+
     private float maxScale;
     private float minScale;
     private float currentScale;
@@ -26,7 +27,7 @@ public class EngineIdleEffect : MonoBehaviour {
         maxScale = currentScale + scaleRange;
         minScale = currentScale - scaleRange;
         timer = frequency;
-        offsetValues = new Vector3(offsetX, offsetY, offsetZ);
+        //offsetValues = new Vector3(offsetX, offsetY, offsetZ);
 	}
 
     void ChangeScale()
@@ -76,7 +77,7 @@ public class EngineIdleEffect : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        transform.localPosition = shipTransform.localPosition + offsetValues;
+        //transform.localPosition = shipTransform.localPosition + offsetValues;
 
         if(timer <= 0)
         {
