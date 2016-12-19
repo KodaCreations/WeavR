@@ -3,7 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class ShipController : MonoBehaviour {
-
+    enum LeftOrRight
+    {
+        Left,
+        Right,
+        None
+    }
     //Misc
     [Header("Misc")]
     public bool activate;
@@ -89,6 +94,7 @@ public class ShipController : MonoBehaviour {
     private float shipReturnBankSpeed;
     private float shipBankVelocity;
     private float shipBankSpeed;
+    private LeftOrRight leftOrRight;
     [Header("Ship Yaw Handling")]
     public float shipBankReturnSpeed;
     public float shipSpeedBank;
@@ -148,6 +154,7 @@ public class ShipController : MonoBehaviour {
         newEnergy = 0;
         currentHeat = 0;
         currentRespawnTime = respawnTimer;
+        leftOrRight = LeftOrRight.None;
         grounded = true;
         // Audio init
         AudioController audioController = GameObject.Find("AudioController").GetComponent<AudioController>();       // Audio controller probably should be made static..
@@ -360,6 +367,9 @@ public class ShipController : MonoBehaviour {
         #region Banking
         if (steeringForce > 0)
         {
+            if (leftOrRight != LeftOrRight.Left)
+                shipBankSpeed = 0;
+            leftOrRight = LeftOrRight.Left;
             shipReturnBankSpeed = 0;
             if (shipCurrentBank > 0 || shipCurrentBank == 0)
             {
@@ -381,6 +391,9 @@ public class ShipController : MonoBehaviour {
 
         if (steeringForce < 0)
         {
+            if (leftOrRight != LeftOrRight.Right)
+                shipBankSpeed = 0;
+            leftOrRight = LeftOrRight.Right;
             shipReturnBankSpeed = 0;
             if (shipCurrentBank < 0 || shipCurrentBank == 0)
             {
