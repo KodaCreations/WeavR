@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 56f233be6a87fba46a54d5008d11a30b
-timeCreated: 1481137060
+guid: 063d68e81496f1947859000fdc753ed0
+timeCreated: 1482258667
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: Terrain
+    4300000: track1Terrain
     9500000: //RootNode
   materials:
     importMaterials: 1
