@@ -16,7 +16,7 @@ public class MovingObject : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         float distCovered = (Time.time - startTime) * speed;
         float fracJourney = distCovered / journeyLength;

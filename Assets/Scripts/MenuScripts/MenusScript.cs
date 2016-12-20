@@ -78,17 +78,20 @@ public class MenusScript : MonoBehaviour {
         brain = GameObject.Find("Brain").GetComponent<Brain>();
         trackNames = brain.loadableTrackNames;
 
-        // Load pictures for tracks, if they exist. 
+        //Load pictures for tracks, if they exist. 
         trackPreviews = new Dictionary<string, Sprite>();
-        foreach (string trackName in System.IO.Directory.GetFiles(Application.dataPath + "/Resources/TrackPreviews"))
-        {
-            if (trackName.Substring(trackName.Length - 3, 3) == "jpg")
-            {
-                string name = trackName.Split('.')[0];
-                name = name.Split('\\')[1];
-                trackPreviews.Add(name, (Sprite)Resources.Load<Sprite>("TrackPreviews/" + name));
-            }
-        }
+        //foreach (string trackName in System.IO.Directory.GetFiles(Application.dataPath + "/Resources/TrackPreviews"))
+        //{
+        //    if (trackName.Substring(trackName.Length - 3, 3) == "jpg" || trackName.Substring(trackName.Length - 3, 3) == "png")
+        //    {
+        //        string name = trackName.Split('.')[0];
+        //        name = name.Split('\\')[1];
+        //        trackPreviews.Add(name, (Sprite)Resources.Load<Sprite>("TrackPreviews/" + name));
+        //    }
+        //}
+
+        foreach (string trackName in trackNames)
+            trackPreviews.Add(trackName, (Sprite)Resources.Load<Sprite>("TrackPreviews/" + trackName));
 
         trackPreview = trackMenu.FindChild("Window2").FindChild("TrackPreview").GetComponentInChildren<Image>();
         trackPreview.sprite = trackPreviews[trackNames[0]];
@@ -136,6 +139,10 @@ public class MenusScript : MonoBehaviour {
         DeactivateAllMenus();
         mainMenu.gameObject.SetActive(true);
         brain.playerShips.Clear();
+
+        brain.gamepadTempCount = 0;
+        brain.gamepadUserCount1 = -1;
+        brain.gamepadUserCount2 = -1;
 
         brain.player1UsingGamepad = false;
         brain.player2UsingGamepad = false;
@@ -212,15 +219,17 @@ public class MenusScript : MonoBehaviour {
 
     public void UseGamepad()
     {
-        brain.player1UsingGamepad = gamePadToggle.isOn;
+        brain.UseGamepad(gamePadToggle.isOn);
+        //brain.player1UsingGamepad = gamePadToggle.isOn;
     }
 
     public void UseGamepadSS()
     {
-        if (playerTextSS.text[playerTextSS.text.Length - 1] == '0') 
-            brain.player1UsingGamepad = gamePadToggleSS.isOn;
-        else
-            brain.player2UsingGamepad = gamePadToggleSS.isOn;
+        brain.UseGamepad(gamePadToggleSS.isOn);
+        //if (playerTextSS.text[playerTextSS.text.Length - 1] == '0') 
+        //    brain.player1UsingGamepad = gamePadToggleSS.isOn;
+        //else
+        //    brain.player2UsingGamepad = gamePadToggleSS.isOn;
     }
 
     #endregion

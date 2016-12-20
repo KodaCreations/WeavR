@@ -56,7 +56,7 @@ public class CamScript : MonoBehaviour {
         rangeFOV = maxFOV - startFOV;
 
         speedLines = GetComponentInChildren<ParticleSystem>();
-        speedLinesEmit = speedLines.emission;
+        //speedLinesEmit = speedLines.emission;
         myCamera = GetComponent<Camera>();
 
         rotateOffset = new Vector3(0, ship.position.y + rotateHeight, 0);
@@ -131,30 +131,30 @@ public class CamScript : MonoBehaviour {
             myCamera.fieldOfView = newFOV;
 
             // Handle particle emmiter
-            if (speedPercentage > 0.7f)
-            {
-                if (!speedLines.isPlaying)
-                {
-                    speedLines.Simulate(0, true, true);
-                    speedLinesEmit.enabled = true;
-                    speedLines.Play();
-                }
-                //if (speedLines.isStopped)
-                //    speedLines.Play();
-            }
-            else
-            {
-                if (speedLines.isPlaying)
-                {
-                    speedLinesEmit.enabled = false;
-                    speedLines.Stop();
-                }
-                //if (!speedLines.isStopped)
-                //{
-                //    speedLines.Stop();
-                //    Debug.Log("STOPPING");
-                //}
-            }
+            //if (speedPercentage > 0.7f)
+            //{
+            //    if (!speedLines.isPlaying)
+            //    {
+            //        speedLines.Simulate(0, true, true);
+            //        speedLinesEmit.enabled = true;
+            //        speedLines.Play();
+            //    }
+            //    //if (speedLines.isStopped)
+            //    //    speedLines.Play();
+            //}
+            //else
+            //{
+            //    if (speedLines.isPlaying)
+            //    {
+            //        speedLinesEmit.enabled = false;
+            //        speedLines.Stop();
+            //    }
+            //    //if (!speedLines.isStopped)
+            //    //{
+            //    //    speedLines.Stop();
+            //    //    Debug.Log("STOPPING");
+            //    //}
+            //}
         }
 
         if (!onSpline && rotate)
@@ -168,7 +168,7 @@ public class CamScript : MonoBehaviour {
     // Rotate around transform when finished last lap (for singleplayer and splitscreen)
     public void EnterRotateMode()
     {
-        speedLinesEmit.enabled = false;
+        //speedLinesEmit.enabled = false;
         rotate = true;
     }
 

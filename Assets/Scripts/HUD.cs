@@ -16,6 +16,8 @@ public class HUD : MonoBehaviour
     private Image flashPanelImage;
     private RectTransform energy;
     private RectTransform overheat;
+    private bool raceStarted;
+    private float countdownTimer;
 
     // Use this for initialization
     void Start()
@@ -24,11 +26,13 @@ public class HUD : MonoBehaviour
         lapCounter = transform.FindChild("LapCounter").GetComponent<Text>();
         positionCounter = transform.FindChild("PositionCounter").GetComponent<Text>();
         countdown = transform.FindChild("Countdown").GetComponent<Text>();
-        weapon = transform.FindChild("WeaponText").GetComponent<Text>();
         finishPanel = transform.FindChild("FinishPanel");
         energy = transform.FindChild("EnergyPercentPanel").GetComponent<RectTransform>();
         overheat = transform.FindChild("OverheatPercentPanel").GetComponent<RectTransform>();
         ship = GetComponentInParent<CamScript>().ship.gameObject.GetComponent<ShipController>();
+
+        countdownTimer = 1.0f;
+        raceStarted = true;
     }
 
     // Update is called once per frame
@@ -45,13 +49,30 @@ public class HUD : MonoBehaviour
             }
         }
 
-        lapCounter.text = rc.shipLapCounter[placeInList] + "/" + rc.nrOfLaps;
+        lapCounter.text = (rc.shipLapCounter[rc.GetRacePosition(ship) - 1] + 1) + "/" + rc.nrOfLaps;
 
         positionCounter.text = rc.GetRacePosition(ship) + "/" + rc.ships.Length;
         if (rc.counter >= 0)
+        {
             countdown.text = ((int)Math.Ceiling(rc.counter)).ToString();
+            raceStarted = false;
+        }
         else
-            countdown.text = "";
+        {
+            if (raceStarted == false && countdownTimer >= 0)
+            {
+                countdown.text = "GO!";
+                countdownTimer -= Time.deltaTime;
+            }
+            else
+            {
+                countdown.text = "";
+                raceStarted = true;
+            }
+        }
+
+            
+
         //weapon.text = GetWeaponName(rc.ships[placeInList].GetComponent<ShipController>());
 
         float energyScale = ship.Energy / ship.maxEnergy;

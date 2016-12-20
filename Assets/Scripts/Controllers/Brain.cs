@@ -20,6 +20,9 @@ public class Brain : MonoBehaviour {
 
     public bool isSplitscreen;                  // Is the game in splitscreen mode?
     public bool isMultiplayer;                  // Is the game in online mode?
+    public int gamepadTempCount;
+    public int gamepadUserCount1;
+    public int gamepadUserCount2;
     public bool player1UsingGamepad;            // Is player 1 using gamepad?
     public bool player2UsingGamepad;            // Is player 2 using gamepad?
 
@@ -83,6 +86,9 @@ public class Brain : MonoBehaviour {
         flashPanels = new List<Transform>();
         flashImages = new List<Image>();
 
+        gamepadUserCount1 = -1;
+        gamepadUserCount2 = -1;
+
         audioController = GameObject.Find("AudioController").GetComponent<AudioController>();
     }
 	
@@ -115,6 +121,21 @@ public class Brain : MonoBehaviour {
         }
 	}
 
+    public void UseGamepad(bool usePad)
+    {
+        gamepadTempCount++;
+        if (gamepadTempCount == 1 && usePad)
+        {
+            player1UsingGamepad = true;
+            gamepadUserCount1++;
+        }
+        else if (gamepadTempCount == 2 && usePad)
+        {
+            player2UsingGamepad = true;
+            gamepadUserCount2 = gamepadUserCount1 + 1;
+        }
+    }
+
     void Resume()
     {
         Time.timeScale = 1;
@@ -130,7 +151,6 @@ public class Brain : MonoBehaviour {
         if (isPlayer)      
         {
             int playerIndex = int.Parse(playerShip.name[playerShip.name.Length - 1] + "");
-            Debug.Log(playerIndex);
 
 
             // Flash the screen
@@ -146,7 +166,11 @@ public class Brain : MonoBehaviour {
             // Enter camera rotation mode
             HUDs[playerIndex].GetComponentInParent<CamScript>().EnterRotateMode();
 
-
+            playersPassedFinish++;
+            if (playersPassedFinish == playerShips.Count)
+            {
+                winMenu.gameObject.SetActive(true);
+            }
             // spectator mode for MULTIPLAYER
             // huds[playerIndex].GetComponentInParent<CamScript>().EnterSpectatorMode();
         }
@@ -196,12 +220,6 @@ public class Brain : MonoBehaviour {
         if (waitForFlash)
             yield return new WaitForSeconds(winFlashTimer);
         newInfoPanel.gameObject.SetActive(true);
-
-        playersPassedFinish++;
-        if (playersPassedFinish == playerShips.Count)
-        {
-            winMenu.gameObject.SetActive(true);
-        }
     }
 
     // Called by buttons
@@ -228,6 +246,13 @@ public class Brain : MonoBehaviour {
         flashPanels.Clear();
         flashImages.Clear();
         playersPassedFinish = 0;
+        isSplitscreen = false;
+        isMultiplayer = false;
+        player1UsingGamepad = false;
+        player2UsingGamepad = false;
+        gamepadUserCount1 = -1;
+        gamepadUserCount2 = -1;
+        gamepadTempCount = 0;
         HUDs.Clear();
     }
 
@@ -322,14 +347,18 @@ public class Brain : MonoBehaviour {
             if (i == 0)
             {
                 scheme = ControlSchemes.GetScheme1();
-                if (player1UsingGamepad)              
-                    IH.UseGamepad(0);
+                if (player1UsingGamepad)
+                {
+                    IH.UseGamepad(gamepadUserCount1);
+                }
             }
             else
             {
                 scheme = ControlSchemes.GetScheme2();
                 if (player2UsingGamepad)
-                    IH.UseGamepad(1);
+                {
+                    IH.UseGamepad(gamepadUserCount2);
+                }
             }
             IH.SetKeys(scheme[0], scheme[1], scheme[2], scheme[3], scheme[4], scheme[5]);
 
@@ -457,7 +486,7 @@ public class Brain : MonoBehaviour {
     {
         levelIndex = level;
         // Don't continue if you're in the menus (i.e. level 0).
-        if (level == 0)
+        if (level == 0 || level == 1)
             return;
 
         StartCoroutine(SetupRace());
