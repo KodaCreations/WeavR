@@ -341,7 +341,7 @@ public class Brain : MonoBehaviour {
         // Spawn AI Ships
         for (int i = 7 - playerShips.Count; i >= 0; i--)
         {
-            int random = UnityEngine.Random.Range(0, availableAIShips.Count - 1);
+            int random = UnityEngine.Random.Range(0, availableAIShips.Count);
 
             GameObject aiShip = (GameObject)Instantiate(availableAIShips[random], startPositions[i].position, startPositions[i].rotation);
             aiShip.name = "AIShip number " + i; 

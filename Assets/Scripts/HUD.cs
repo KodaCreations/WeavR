@@ -47,8 +47,6 @@ public class HUD : MonoBehaviour
 
         lapCounter.text = rc.shipLapCounter[placeInList] + "/" + rc.nrOfLaps;
 
-        lapCounter.text = placeInList + "/" + "?";
-
         positionCounter.text = rc.GetRacePosition(ship) + "/" + rc.ships.Length;
         if (rc.counter >= 0)
             countdown.text = ((int)Math.Ceiling(rc.counter)).ToString();
