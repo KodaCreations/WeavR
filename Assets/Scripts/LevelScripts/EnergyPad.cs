@@ -26,6 +26,5 @@ public class EnergyPad : MonoBehaviour {
         ShipController ship = other.GetComponent<ShipController>();
         if (ship)
             ship.Recharge(energy);
-        Debug.Log("Recharging...");
     }
 }
