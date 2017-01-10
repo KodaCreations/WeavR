@@ -12,6 +12,7 @@ public class HUD : MonoBehaviour
     private Text positionCounter;
     private Text countdown;
     private Text weapon;
+    private Text speed;
     private Transform finishPanel;
     private Image flashPanelImage;
     private RectTransform energy;
@@ -30,6 +31,7 @@ public class HUD : MonoBehaviour
         energy = transform.FindChild("EnergyPercentPanel").GetComponent<RectTransform>();
         overheat = transform.FindChild("OverheatPercentPanel").GetComponent<RectTransform>();
         ship = GetComponentInParent<CamScript>().ship.gameObject.GetComponent<ShipController>();
+        speed = transform.FindChild("SpeedCounter").GetComponent<Text>();
 
         countdownTimer = 1.0f;
         raceStarted = true;
@@ -48,6 +50,8 @@ public class HUD : MonoBehaviour
                 break;
             }
         }
+
+        speed.text = Math.Round(ship.GetComponent<Rigidbody>().velocity.magnitude * 36 / 3) + " km/h";
 
         lapCounter.text = (rc.shipLapCounter[rc.GetRacePosition(ship) - 1] + 1) + "/" + rc.nrOfLaps;
 
