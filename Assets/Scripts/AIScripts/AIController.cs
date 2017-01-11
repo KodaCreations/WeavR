@@ -33,7 +33,7 @@ public class AIController : MonoBehaviour {
         
         ship = gameObject.GetComponent<ShipController>();
         currentState = chaseState;
-        offset = new Vector3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
+        //offset = new Vector3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
     }
 
     // Update is called once per frame
@@ -41,7 +41,7 @@ public class AIController : MonoBehaviour {
     {
         if(activateAI)
             currentState.UpdateState();
-        ChangeOffset();
+        //ChangeOffset();
 	}
 
     void ChangeOffset()

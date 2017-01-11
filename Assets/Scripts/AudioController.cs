@@ -37,7 +37,7 @@ public class AudioController : MonoBehaviour
             audioClipDict.Add(audioClip.name, audioClip);
 
         audioSource = GetComponent<AudioSource>();
-        PlayMainMenuFile();
+        PlayMainMenuFile(true);
     }
 
     public AudioClip GetAudioClip(string filename)
@@ -61,15 +61,26 @@ public class AudioController : MonoBehaviour
 
     }
 
-    public void PlayMainMenuFile()
+    public void PlayNextFile()
     {
         audioSource.Stop();
-        audioSource.clip = audioClipDict[menuMusic[i].name];
+        audioSource.loop = false;
+        audioSource.clip = audioClipDict[raceMusic[i].name];
+        audioSource.volume = 0.9f;
         audioSource.Play();
         i++;
-        i = i % menuMusic.Count;
-        Invoke("PlayMainMenuFile", audioSource.clip.length + 0.5f);
+        i = i % raceMusic.Count;
+        Invoke("PlayNextFile", audioSource.clip.length + 0.5f);
 
+    }
+
+    public void PlayMainMenuFile(bool loop)
+    {
+        audioSource.Stop();
+        audioSource.loop = loop;
+
+        audioSource.clip = audioClipDict[menuMusic[0].name];
+        audioSource.Play();
     }
 
     public void Stop()
