@@ -226,7 +226,7 @@ public class Brain : MonoBehaviour {
     public void RestartRace()
     {
         Time.timeScale = 1;
-        ResetVariables();
+        ResetVariables(false);
         StartRace();
     }
 
@@ -235,24 +235,27 @@ public class Brain : MonoBehaviour {
     {
         Time.timeScale = 1;
         playerShips.Clear();
-        ResetVariables();
+        ResetVariables(true);
 
         SceneManager.LoadScene("Menus");
     }
 
-    void ResetVariables()
+    void ResetVariables(bool resetInput)
     {
         cameraReferences.Clear();
         flashPanels.Clear();
         flashImages.Clear();
         playersPassedFinish = 0;
-        isSplitscreen = false;
-        isMultiplayer = false;
-        player1UsingGamepad = false;
-        player2UsingGamepad = false;
-        gamepadUserCount1 = -1;
-        gamepadUserCount2 = -1;
-        gamepadTempCount = 0;
+        if (resetInput)
+        {
+            isSplitscreen = false;
+            isMultiplayer = false;
+            player1UsingGamepad = false;
+            player2UsingGamepad = false;
+            gamepadUserCount1 = -1;
+            gamepadUserCount2 = -1;
+            gamepadTempCount = 0;
+        }
         HUDs.Clear();
     }
 
