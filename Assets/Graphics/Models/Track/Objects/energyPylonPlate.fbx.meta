@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 7eef4717ca184264aa5c2bb7bb33b1b0
-timeCreated: 1481593219
+guid: bf91090d564f98b42953e63c08fd4c57
+timeCreated: 1484170062
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: pylon
+    4300000: energyPylonPlate
     9500000: //RootNode
   materials:
     importMaterials: 1
