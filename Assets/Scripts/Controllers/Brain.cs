@@ -256,6 +256,7 @@ public class Brain : MonoBehaviour {
             gamepadUserCount2 = -1;
             gamepadTempCount = 0;
         }
+        AudioListener.volume = 1;
         HUDs.Clear();
     }
 
@@ -491,7 +492,6 @@ public class Brain : MonoBehaviour {
         // Don't continue if you're in the menus (i.e. level 0).
         if (level == 0 || level == 1)
             return;
-
         StartCoroutine(SetupRace());
     }
 

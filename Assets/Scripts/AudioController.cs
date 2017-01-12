@@ -81,6 +81,7 @@ public class AudioController : MonoBehaviour
 
         audioSource.clip = audioClipDict[menuMusic[0].name];
         audioSource.Play();
+        CancelInvoke("PlayNextFile");
     }
 
     public void Stop()
